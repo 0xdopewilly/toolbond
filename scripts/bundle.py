@@ -31,11 +31,17 @@ def _module_body(name: str) -> str:
 
 
 def bundle(source: pathlib.Path) -> str:
+    # GenVM concatenates every leading comment line into the runner header, so the
+    # "generated" note must not sit directly under it: it goes before the first import.
     lines = source.read_text(encoding="utf-8").splitlines(keepends=True)
     header, body = lines[:HEADER_LINES], lines[HEADER_LINES:]
     note = f"# GENERATED from contracts/src/{source.name} by scripts/bundle.py. Do not edit.\n"
-    out = header + [note]
+    out = list(header)
+    noted = False
     for line in body:
+        if not noted and (line.startswith("import ") or line.startswith("from ")):
+            out.append(note)
+            noted = True
         match = INCLUDE.match(line)
         out.append(_module_body(match.group(1)) if match else line)
     return "".join(out)

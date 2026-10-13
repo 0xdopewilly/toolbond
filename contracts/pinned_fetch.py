@@ -1,6 +1,5 @@
 # v0.3.0
 # { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }
-# GENERATED from contracts/src/pinned_fetch.py by scripts/bundle.py. Do not edit.
 """PinnedFetch: consensus-pinned MCP tool manifests with drift detection.
 
 Anyone can ask the validators to pin a remote MCP server. Every validator runs
@@ -21,6 +20,7 @@ Other contracts and off-chain guards call ``verify_tool(url, name, hash)`` to
 decide whether the exact bytes of a tool were pinned.
 """
 
+# GENERATED from contracts/src/pinned_fetch.py by scripts/bundle.py. Do not edit.
 import json
 import typing
 from dataclasses import dataclass
