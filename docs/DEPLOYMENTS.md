@@ -6,26 +6,39 @@ Explorer: https://explorer-studio-dev.genlayer.com
 
 | Contract | Address | Deploy transaction | Runner |
 |---|---|---|---|
-| PinnedFetch | [`0x8dB0c1C6b08245e8986e3931D617aA1ca39238fA`](https://explorer-studio-dev.genlayer.com/address/0x8dB0c1C6b08245e8986e3931D617aA1ca39238fA) | `0x57a61f11398df681b4501f34567954c5fa0d21b6fb46e5a4651c60878bfcaf07` | `py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng` |
+| PinnedFetch | [`0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c`](https://explorer-studio-dev.genlayer.com/address/0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c) | `0x97fa50cc33ae480d5ace2231c916867bba4f139be009e13ee7fcfd8ea918ae75` | `py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng` |
 
-### Live pins
+Deployed source: `contracts/pinned_fetch.py`, SHA-256
+`440bafc7a086d898c71cf1b422cbb0bb6152fe24ae835e1f542129acecadd1a8`.
+Check it with `sha256sum contracts/pinned_fetch.py`, or compare against
+`npx genlayer code 0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c`.
 
-| Call | Server | Transaction | Result | Votes |
-|---|---|---|---|---|
-| `pin` | `https://mcp.deepwiki.com/mcp` | `0x47a8a739cb249169801604e2e6e009ac9bf5d76563e61320c7c1dbc45c4d81f8` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle after quorum |
-| `pin` | `https://docs.mcp.cloudflare.com/mcp` | `0x97d2cd89db4d8f808bc7576acbd6cfbbce5f52dd8b8438bea4b45aa1ecde19c9` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
-| `pin` | `https://gitmcp.io/modelcontextprotocol/python-sdk` (session header) | `0x9ff0eba49d0386fb3df4c115c9f9e268920c68a183322ab1a4a18df68c0422fb` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
-| `pin` | `https://mcp.internetcourt.org/mcp` | `0x48b1957216bc5e02af55403adc43344979abf51f764c9a77a2d761c6519ebf34` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
-| `check` | `https://mcp.deepwiki.com/mcp` | `0xef75279ec8d986fc329e93a65b1d020dde887c9f156b5bafa20d1e0c5a1a883a` | ACCEPTED, FINISHED_WITH_RETURN, drift `MATCH` | 3 agree, 2 idle |
+### Live calls
+
+Each was accepted with 3 validators agreeing and 2 idle after quorum.
+
+| Call | Server | Transaction | Result |
+|---|---|---|---|
+| `pin` | `https://mcp.deepwiki.com/mcp` | `0xc8d91b369b3cd69c9b80dad55803c50e5d93dac793cc03b560803c03fafe9450` | FINISHED_WITH_RETURN |
+| `pin` | `https://docs.mcp.cloudflare.com/mcp` | `0x119c1d1a2c2d0e78477e750a1bbb5cba8c202513c3e8b14e25ce9e2ed3e47875` | FINISHED_WITH_RETURN |
+| `pin` | `https://gitmcp.io/modelcontextprotocol/python-sdk` (needs the session header) | `0x68468858cabf2d4561f3b76d55ece18554aca9ee28f6083a0f71cd1a9ab3da0b` | FINISHED_WITH_RETURN |
+| `pin` | `https://mcp.internetcourt.org/mcp` | `0x2b54658da315979d028651b4eb78e490b8308be54dd92804494272ec4029ac75` | FINISHED_WITH_RETURN |
+| `check` | `https://mcp.deepwiki.com/mcp` | `0x515c74a8bea66cd53dddc98725501468711aee48e6087a9608f4568e0b241950` | drift `MATCH` |
+| `check` | `https://mcp.internetcourt.org/mcp` | `0xa3f69811203cc1b67f1c49c15c5f84011c40863a789daac727e3a34ad0484ec9` | drift `MATCH` |
 
 Studio Next is a preview network and can be reset; redeploy with
 `scripts/glw deploy contracts/pinned_fetch.py`.
+
+An earlier build was deployed at `0x8dB0c1C6b08245e8986e3931D617aA1ca39238fA`
+with the same pins; it is superseded by the address above, which adds
+classified errors for unreadable manifests.
 
 ### Known issue (2026-10-13)
 
 Contract reads (`gen_call`) on Studio Next fail for every contract with
 `Can't reconnect until invalid transaction is rolled back`. Writes, consensus and
-schema calls work. Views are covered by the direct-mode tests until reads recover.
+schema calls work. Views are covered by the direct-mode tests until reads recover,
+and drift verdicts above were read from the leader's consensus output.
 
 ### Lesson recorded
 
