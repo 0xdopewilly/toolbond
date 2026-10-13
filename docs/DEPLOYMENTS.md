@@ -10,9 +10,13 @@ Explorer: https://explorer-studio-dev.genlayer.com
 
 ### Live pins
 
-| Server | Transaction | Result | Votes |
-|---|---|---|---|
-| `https://mcp.deepwiki.com/mcp` | `0x47a8a739cb249169801604e2e6e009ac9bf5d76563e61320c7c1dbc45c4d81f8` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle after quorum |
+| Call | Server | Transaction | Result | Votes |
+|---|---|---|---|---|
+| `pin` | `https://mcp.deepwiki.com/mcp` | `0x47a8a739cb249169801604e2e6e009ac9bf5d76563e61320c7c1dbc45c4d81f8` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle after quorum |
+| `pin` | `https://docs.mcp.cloudflare.com/mcp` | `0x97d2cd89db4d8f808bc7576acbd6cfbbce5f52dd8b8438bea4b45aa1ecde19c9` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
+| `pin` | `https://gitmcp.io/modelcontextprotocol/python-sdk` (session header) | `0x9ff0eba49d0386fb3df4c115c9f9e268920c68a183322ab1a4a18df68c0422fb` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
+| `pin` | `https://mcp.internetcourt.org/mcp` | `0x48b1957216bc5e02af55403adc43344979abf51f764c9a77a2d761c6519ebf34` | ACCEPTED, FINISHED_WITH_RETURN | 3 agree, 2 idle |
+| `check` | `https://mcp.deepwiki.com/mcp` | `0xef75279ec8d986fc329e93a65b1d020dde887c9f156b5bafa20d1e0c5a1a883a` | ACCEPTED, FINISHED_WITH_RETURN, drift `MATCH` | 3 agree, 2 idle |
 
 Studio Next is a preview network and can be reset; redeploy with
 `scripts/glw deploy contracts/pinned_fetch.py`.
