@@ -1,0 +1,243 @@
+{
+ "spec": "TBCM-1",
+ "tools": [
+  {
+   "name": "cloudflare_docs: search_cloudflare_documentation",
+   "raw": "{\"name\": \"search_cloudflare_documentation\", \"description\": \"Search the Cloudflare documentation.\\n\\n\\t\\tThis tool should be used to answer any question about Cloudflare products or features, including:\\n\\t\\t- Workers, Pages, R2, Images, Stream, D1, Durable Objects, KV, Workflows, Hyperdrive, Queues\\n\\t\\t- AI Search, Workers AI, Vectorize, AI Gateway, Browser Run\\n\\t\\t- Zero Trust, Access, Tunnel, Gateway, Browser Isolation, WARP, DDOS, Magic Transit, Magic WAN\\n\\t\\t- CDN, Cache, DNS, Zaraz, Argo, Rulesets, Terraform, Account and Billing\\n\\n\\t\\tResults are returned as semantically similar chunks to the query.\\n\\t\\t\", \"inputSchema\": {\"type\": \"object\", \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": {\"query\": {\"type\": \"string\"}}, \"required\": [\"query\"]}, \"annotations\": {\"title\": \"Search Cloudflare docs\", \"readOnlyHint\": true}, \"outputSchema\": {\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"properties\": {\"results\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"similarity\": {\"type\": \"number\", \"description\": \"Similarity score from AI Search\"}, \"id\": {\"type\": \"string\", \"description\": \"Source file ID\"}, \"url\": {\"type\": \"string\", \"description\": \"Developer documentation URL\"}, \"title\": {\"type\": \"string\", \"description\": \"Documentation page title\"}, \"text\": {\"type\": \"string\", \"description\": \"Matching documentation chunk text\"}}, \"required\": [\"similarity\", \"id\", \"url\", \"title\", \"text\"], \"additionalProperties\": false}}}, \"required\": [\"results\"], \"additionalProperties\": false}}",
+   "canon": "{\"annotations\":{\"readOnlyHint\":true,\"title\":\"Search Cloudflare docs\"},\"description\":\"Search the Cloudflare documentation.\\n\\n\\t\\tThis tool should be used to answer any question about Cloudflare products or features, including:\\n\\t\\t- Workers, Pages, R2, Images, Stream, D1, Durable Objects, KV, Workflows, Hyperdrive, Queues\\n\\t\\t- AI Search, Workers AI, Vectorize, AI Gateway, Browser Run\\n\\t\\t- Zero Trust, Access, Tunnel, Gateway, Browser Isolation, WARP, DDOS, Magic Transit, Magic WAN\\n\\t\\t- CDN, Cache, DNS, Zaraz, Argo, Rulesets, Terraform, Account and Billing\\n\\n\\t\\tResults are returned as semantically similar chunks to the query.\\n\\t\\t\",\"inputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"query\":{\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_cloudflare_documentation\",\"outputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"additionalProperties\":false,\"properties\":{\"results\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"id\":{\"description\":\"Source file ID\",\"type\":\"string\"},\"similarity\":{\"description\":\"Similarity score from AI Search\",\"type\":\"number\"},\"text\":{\"description\":\"Matching documentation chunk text\",\"type\":\"string\"},\"title\":{\"description\":\"Documentation page title\",\"type\":\"string\"},\"url\":{\"description\":\"Developer documentation URL\",\"type\":\"string\"}},\"required\":[\"similarity\",\"id\",\"url\",\"title\",\"text\"],\"type\":\"object\"},\"type\":\"array\"}},\"required\":[\"results\"],\"type\":\"object\"}}",
+   "hash": "78cd8bb9d121a5e903f12e74a42372c47f5ff9026ece81b22e5fc69fdfacb65e",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "cloudflare_docs: migrate_pages_to_workers_guide",
+   "raw": "{\"name\": \"migrate_pages_to_workers_guide\", \"description\": \"ALWAYS read this guide before migrating Pages projects to Workers.\", \"inputSchema\": {\"type\": \"object\", \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": {}}, \"annotations\": {\"title\": \"Get Pages migration guide\", \"readOnlyHint\": true}}",
+   "canon": "{\"annotations\":{\"readOnlyHint\":true,\"title\":\"Get Pages migration guide\"},\"description\":\"ALWAYS read this guide before migrating Pages projects to Workers.\",\"inputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{},\"type\":\"object\"},\"name\":\"migrate_pages_to_workers_guide\"}",
+   "hash": "19d05ff5c13d6aece07f29de1bab65bcf39dbd1fd9e74f26c7a534fd906098b2",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "deepwiki: ask_wiki_question",
+   "raw": "{\"name\": \"ask_wiki_question\", \"description\": \"Ask any question about a GitHub repository's codebase and get an AI-powered answer\\ngrounded in its DeepWiki.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"anyOf\": [{\"type\": \"string\"}, {\"items\": {\"type\": \"string\"}, \"type\": \"array\"}], \"description\": \"GitHub repository or list of repositories (max 10) in owner/repo format.\"}, \"question\": {\"description\": \"The question to ask about the repository.\", \"type\": \"string\"}}, \"required\": [\"repoName\", \"question\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}",
+   "canon": "{\"description\":\"Ask any question about a GitHub repository's codebase and get an AI-powered answer\\ngrounded in its DeepWiki.\",\"inputSchema\":{\"properties\":{\"question\":{\"description\":\"The question to ask about the repository.\",\"type\":\"string\"},\"repoName\":{\"anyOf\":[{\"type\":\"string\"},{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"GitHub repository or list of repositories (max 10) in owner/repo format.\"}},\"required\":[\"repoName\",\"question\"],\"type\":\"object\"},\"name\":\"ask_wiki_question\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+   "hash": "217e49111cb69fbf14122a7bd2afd8e3d9a2aadaad2ef163371ff7e22e829314",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "deepwiki: read_wiki_contents",
+   "raw": "{\"name\": \"read_wiki_contents\", \"description\": \"View documentation about a GitHub repository.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"description\": \"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\", \"type\": \"string\"}}, \"required\": [\"repoName\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}",
+   "canon": "{\"description\":\"View documentation about a GitHub repository.\",\"inputSchema\":{\"properties\":{\"repoName\":{\"description\":\"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\",\"type\":\"string\"}},\"required\":[\"repoName\"],\"type\":\"object\"},\"name\":\"read_wiki_contents\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+   "hash": "c12cb22490a9546c306f38da540fb00e9314f0286ddf8c645e33659b2a2e4767",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "deepwiki: read_wiki_structure",
+   "raw": "{\"name\": \"read_wiki_structure\", \"description\": \"Get a list of documentation topics for a GitHub repository.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"description\": \"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\", \"type\": \"string\"}}, \"required\": [\"repoName\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}",
+   "canon": "{\"description\":\"Get a list of documentation topics for a GitHub repository.\",\"inputSchema\":{\"properties\":{\"repoName\":{\"description\":\"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\",\"type\":\"string\"}},\"required\":[\"repoName\"],\"type\":\"object\"},\"name\":\"read_wiki_structure\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+   "hash": "a7cc1371fecf3a21902bd89d107fd0b4cb5b3482d40b7bbde3f6f5790d17a4b1",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "gitmcp_python_sdk: fetch_python_sdk_documentation",
+   "raw": "{\"name\": \"fetch_python_sdk_documentation\", \"description\": \"Fetch entire documentation file from GitHub repository: modelcontextprotocol/python-sdk. Useful for general questions. Always call this tool first if asked about modelcontextprotocol/python-sdk.\", \"inputSchema\": {\"type\": \"object\"}, \"annotations\": {\"_def\": {\"options\": [{\"_def\": {\"unknownKeys\": \"strip\", \"catchall\": {\"_def\": {\"typeName\": \"ZodNever\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}, \"typeName\": \"ZodObject\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}, \"_cached\": null}, {\"_def\": {\"typeName\": \"ZodNull\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}], \"typeName\": \"ZodUnion\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}}",
+   "canon": "{\"annotations\":{\"_def\":{\"options\":[{\"_cached\":null,\"_def\":{\"catchall\":{\"_def\":{\"typeName\":\"ZodNever\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},\"typeName\":\"ZodObject\",\"unknownKeys\":\"strip\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},{\"_def\":{\"typeName\":\"ZodNull\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}}],\"typeName\":\"ZodUnion\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},\"description\":\"Fetch entire documentation file from GitHub repository: modelcontextprotocol/python-sdk. Useful for general questions. Always call this tool first if asked about modelcontextprotocol/python-sdk.\",\"inputSchema\":{\"type\":\"object\"},\"name\":\"fetch_python_sdk_documentation\"}",
+   "hash": "176a1a915a70e1eeea69733758be509e08dff5b66e3598bd3dcd0f3820aa3ae9",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "gitmcp_python_sdk: search_python_sdk_documentation",
+   "raw": "{\"name\": \"search_python_sdk_documentation\", \"description\": \"Semantically search within the fetched documentation from GitHub repository: modelcontextprotocol/python-sdk. Useful for specific queries.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"string\", \"description\": \"The search query to find relevant documentation\"}}, \"required\": [\"query\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}",
+   "canon": "{\"description\":\"Semantically search within the fetched documentation from GitHub repository: modelcontextprotocol/python-sdk. Useful for specific queries.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"query\":{\"description\":\"The search query to find relevant documentation\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_python_sdk_documentation\"}",
+   "hash": "3443444cf1d7a10eecbab190d1fe6d9cfc67ae1c2ce68007e3de1ab63e1e3888",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "gitmcp_python_sdk: search_python_sdk_code",
+   "raw": "{\"name\": \"search_python_sdk_code\", \"description\": \"Search for code within the GitHub repository: \\\"modelcontextprotocol/python-sdk\\\" using the GitHub Search API (exact match). Returns matching files for you to query further if relevant.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"string\", \"description\": \"The search query to find relevant code files\"}, \"page\": {\"type\": \"number\", \"description\": \"Page number to retrieve (starting from 1). Each page contains 30 results.\"}}, \"required\": [\"query\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}",
+   "canon": "{\"description\":\"Search for code within the GitHub repository: \\\"modelcontextprotocol/python-sdk\\\" using the GitHub Search API (exact match). Returns matching files for you to query further if relevant.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"page\":{\"description\":\"Page number to retrieve (starting from 1). Each page contains 30 results.\",\"type\":\"number\"},\"query\":{\"description\":\"The search query to find relevant code files\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_python_sdk_code\"}",
+   "hash": "658c4865d9d86a3e783583c614a0297f17332363649229c08da3b5f5fa47daed",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "gitmcp_python_sdk: fetch_generic_url_content",
+   "raw": "{\"name\": \"fetch_generic_url_content\", \"description\": \"Generic tool to fetch content from any absolute URL, respecting robots.txt rules. Use this to retrieve referenced urls (absolute urls) that were mentioned in previously fetched documentation.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"url\": {\"type\": \"string\", \"description\": \"The URL of the document or page to fetch\"}}, \"required\": [\"url\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}",
+   "canon": "{\"description\":\"Generic tool to fetch content from any absolute URL, respecting robots.txt rules. Use this to retrieve referenced urls (absolute urls) that were mentioned in previously fetched documentation.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"url\":{\"description\":\"The URL of the document or page to fetch\",\"type\":\"string\"}},\"required\":[\"url\"],\"type\":\"object\"},\"name\":\"fetch_generic_url_content\"}",
+   "hash": "63d36fc927161890e155e7b7c529d016ca8c12e9510ea1bceccfd6072a2189e3",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "internetcourt: how_to_install",
+   "raw": "{\"name\": \"how_to_install\", \"title\": \"How to install the Internet Court skill\", \"description\": \"Explain how to install the Internet Court skill — connect this MCP server, or clone the full skill structure into your agent. Call this when the user asks to install, add, set up, or onboard Internet Court.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {}}, \"execution\": {\"taskSupport\": \"forbidden\"}}",
+   "canon": "{\"description\":\"Explain how to install the Internet Court skill — connect this MCP server, or clone the full skill structure into your agent. Call this when the user asks to install, add, set up, or onboard Internet Court.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{},\"type\":\"object\"},\"name\":\"how_to_install\",\"title\":\"How to install the Internet Court skill\"}",
+   "hash": "84521eb7c05664e5261ffea25c481ea5c67711d00f7b866fee6a80f042a26ba2",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "internetcourt: get_internet_court_skill",
+   "raw": "{\"name\": \"get_internet_court_skill\", \"title\": \"Get the latest Internet Court skill\", \"description\": \"Fetch the latest Internet Court skill content directly from the source repo so you can load and act on it. Defaults to the master router (SKILL.md). Internet Court is a structure of skills — pass a repo-relative path (e.g. 'integrations/x402-erc7710/SKILL.md' or 'skills-lock.json') to fetch a specific sub-skill or file.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {\"path\": {\"description\": \"Repo-relative path inside internet-court/internet-court-skill. Defaults to 'SKILL.md' (the master router).\", \"type\": \"string\"}}}, \"execution\": {\"taskSupport\": \"forbidden\"}}",
+   "canon": "{\"description\":\"Fetch the latest Internet Court skill content directly from the source repo so you can load and act on it. Defaults to the master router (SKILL.md). Internet Court is a structure of skills — pass a repo-relative path (e.g. 'integrations/x402-erc7710/SKILL.md' or 'skills-lock.json') to fetch a specific sub-skill or file.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"path\":{\"description\":\"Repo-relative path inside internet-court/internet-court-skill. Defaults to 'SKILL.md' (the master router).\",\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"get_internet_court_skill\",\"title\":\"Get the latest Internet Court skill\"}",
+   "hash": "7b376b4c6fc63d84f49b5141f11a1fdd3ad6bd2b004c71aaec8f6666039164ae",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "internetcourt: consult_internet_court",
+   "raw": "{\"name\": \"consult_internet_court\", \"title\": \"Consult the Internet Court agent (paid, x402)\", \"description\": \"Ask the Internet Court agent a question — dispute framing, mandate design, escrow/arbitration guidance. This tool is x402-paid: calls without a valid payment header receive an HTTP 402 challenge (pricing discovery at GET /x402 on this host). The installation tools (how_to_install, get_internet_court_skill) remain free.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {\"question\": {\"type\": \"string\", \"description\": \"Your question or dispute for the Internet Court agent.\"}}, \"required\": [\"question\"]}, \"execution\": {\"taskSupport\": \"forbidden\"}}",
+   "canon": "{\"description\":\"Ask the Internet Court agent a question — dispute framing, mandate design, escrow/arbitration guidance. This tool is x402-paid: calls without a valid payment header receive an HTTP 402 challenge (pricing discovery at GET /x402 on this host). The installation tools (how_to_install, get_internet_court_skill) remain free.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"question\":{\"description\":\"Your question or dispute for the Internet Court agent.\",\"type\":\"string\"}},\"required\":[\"question\"],\"type\":\"object\"},\"name\":\"consult_internet_court\",\"title\":\"Consult the Internet Court agent (paid, x402)\"}",
+   "hash": "9839285f7fce8fac956b88095b6f29ed4de5b8575ae3c2e3267626c9624700e3",
+   "lossless_parse_required": false
+  }
+ ],
+ "synthetic": [
+  {
+   "name": "key order is irrelevant",
+   "raw": "{\"name\":\"t\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"b\":{\"type\":\"string\"},\"a\":{\"type\":\"number\"}}},\"description\":\"d\"}",
+   "canon": "{\"description\":\"d\",\"inputSchema\":{\"properties\":{\"a\":{\"type\":\"number\"},\"b\":{\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"t\"}",
+   "hash": "93322d74ab103afc976d72db17bb1d18511ace4bdbdb722985b7611c264e05f5",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "_meta is dropped at every depth",
+   "raw": "{\"name\":\"t\",\"_meta\":{\"x\":1},\"inputSchema\":{\"_meta\":{\"y\":2},\"type\":\"object\",\"properties\":{\"p\":{\"_meta\":3,\"type\":\"string\"}}}}",
+   "canon": "{\"inputSchema\":{\"properties\":{\"p\":{\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"t\"}",
+   "hash": "d094c91f407c213972604417e97c281704bbbd125733bd4c38d64b319a7a64e6",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "integral floats become integers",
+   "raw": "{\"name\":\"t\",\"a\":1.0,\"b\":-0.0,\"c\":1e16,\"d\":1.5e16,\"e\":1e22,\"f\":2.0e0}",
+   "canon": "{\"a\":1,\"b\":0,\"c\":10000000000000000,\"d\":15000000000000000,\"e\":10000000000000000000000,\"f\":2,\"name\":\"t\"}",
+   "hash": "3b00d964a06f5ba8b316a5b8ec91ef8fcd7fe9999fb9a7c985fe9e8a9d5641f6",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "non-integral floats keep Python repr",
+   "raw": "{\"name\":\"t\",\"a\":0.5,\"b\":1.5e-7,\"c\":123456789.125,\"d\":-2.75,\"e\":1e-5,\"f\":0.0001,\"g\":1.2345678901234567e-300}",
+   "canon": "{\"a\":0.5,\"b\":1.5e-07,\"c\":123456789.125,\"d\":-2.75,\"e\":1e-05,\"f\":0.0001,\"g\":1.2345678901234568e-300,\"name\":\"t\"}",
+   "hash": "4a9e46c5ba9a6c9b12f943e9f6b7c4a372bec39df6194f863c866affc2641325",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "large integral float prints exactly",
+   "raw": "{\"name\":\"t\",\"big\":1e300}",
+   "canon": "{\"big\":1000000000000000052504760255204420248704468581108159154915854115511802457988908195786371375080447864043704443832883878176942523235360430575644792184786706982848387200926575803737830233794788090059368953234970799945081119038967640880074652742780142494579258788820056842838115669472196386865459400540160,\"name\":\"t\"}",
+   "hash": "93a1ab0e71167a1351a514cd01ec7065af70eba2b5355ccee8d083f2a84a0acd",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "control characters are escaped",
+   "raw": "{\"name\":\"t\",\"description\":\"tab\\there\\nnew line\\r\\u0001\\u001f \\\"quoted\\\" back\\\\slash \\u007f\"}",
+   "canon": "{\"description\":\"tab\\there\\nnew line\\r\\u0001\\u001f \\\"quoted\\\" back\\\\slash \",\"name\":\"t\"}",
+   "hash": "cdeadcf51c2376e3f3d73bd0343306329387522d6d3cbe5c4cd98f0f775529b3",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "unicode is not escaped or normalized",
+   "raw": "{\"name\":\"t\",\"description\":\"caf\\u00e9 vs cafe\\u0301, \\u2028 line sep, emoji \\ud83d\\udc68\\u200d\\ud83d\\udcbb\"}",
+   "canon": "{\"description\":\"café vs café,   line sep, emoji 👨‍💻\",\"name\":\"t\"}",
+   "hash": "1653222d672fe80e8f1b275f1044e42fed092a884df74a67c477d5bfb550abe5",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "invisible characters change the hash",
+   "raw": "{\"name\":\"t\",\"description\":\"read the docs\\u200b\\u200e\\u202e\"}",
+   "canon": "{\"description\":\"read the docs​‎‮\",\"name\":\"t\"}",
+   "hash": "41d940895e51ae97b9452b9498979619d1c06b67cace12c2f83f0270b4e53725",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "unicode tag characters (ASCII smuggling)",
+   "raw": "{\"name\":\"t\",\"description\":\"weather\\udb40\\udc73\\udb40\\udc65\\udb40\\udc6e\\udb40\\udc64\"}",
+   "canon": "{\"description\":\"weather󠁳󠁥󠁮󠁤\",\"name\":\"t\"}",
+   "hash": "c0b07d970c0b8aff6e2dc1fdb1f9fc715b99025152766578fa9dbc10cfb918b9",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "keys sort by code point, not UTF-16 unit",
+   "raw": "{\"name\":\"t\",\"\\uffff\":1,\"\\ud83d\\ude00\":2,\"z\":3,\"\\u00e9\":4,\"A\":5}",
+   "canon": "{\"A\":5,\"name\":\"t\",\"z\":3,\"é\":4,\"￿\":1,\"😀\":2}",
+   "hash": "b48e0a1e4ce3ffb8859ba9ec4519ade04ce467357f40533fae88130c2899be2f",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "nested arrays keep order",
+   "raw": "{\"name\":\"t\",\"enum\":[\"b\",\"a\",[\"y\",\"x\"],{\"k\":[3,2,1]}],\"required\":[\"z\",\"a\"]}",
+   "canon": "{\"enum\":[\"b\",\"a\",[\"y\",\"x\"],{\"k\":[3,2,1]}],\"name\":\"t\",\"required\":[\"z\",\"a\"]}",
+   "hash": "0f69f8b3a5bf863abba64342fbb38c93975e9c44176c8cce403eccf6b6e0ff96",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "booleans and null",
+   "raw": "{\"name\":\"t\",\"readOnlyHint\":true,\"destructiveHint\":false,\"default\":null}",
+   "canon": "{\"default\":null,\"destructiveHint\":false,\"name\":\"t\",\"readOnlyHint\":true}",
+   "hash": "72f80a795ebde362f640829e73ac9cd15045f5900d94f670282acd67460b9ca1",
+   "lossless_parse_required": false
+  },
+  {
+   "name": "big integers stay exact (needs a lossless JSON parser)",
+   "raw": "{\"name\":\"t\",\"maximum\":12345678901234567890,\"minimum\":-9007199254740993}",
+   "canon": "{\"maximum\":12345678901234567890,\"minimum\":-9007199254740993,\"name\":\"t\"}",
+   "hash": "31c6e6bdaffab49edfd1d1b4312c7c6430045864eae419fc26551d4c1b7fb189",
+   "lossless_parse_required": true
+  },
+  {
+   "name": "empty containers",
+   "raw": "{\"name\":\"t\",\"inputSchema\":{\"type\":\"object\",\"properties\":{},\"required\":[]}}",
+   "canon": "{\"inputSchema\":{\"properties\":{},\"required\":[],\"type\":\"object\"},\"name\":\"t\"}",
+   "hash": "ced1ec2561cda84ab3b209f83b06e0713162cea5e7b35ffd549f1fb0674686e8",
+   "lossless_parse_required": false
+  }
+ ],
+ "manifests": [
+  {
+   "name": "cloudflare_docs",
+   "url": "https://docs.mcp.cloudflare.com/mcp",
+   "instructions": "",
+   "tools_raw": "[{\"name\": \"search_cloudflare_documentation\", \"description\": \"Search the Cloudflare documentation.\\n\\n\\t\\tThis tool should be used to answer any question about Cloudflare products or features, including:\\n\\t\\t- Workers, Pages, R2, Images, Stream, D1, Durable Objects, KV, Workflows, Hyperdrive, Queues\\n\\t\\t- AI Search, Workers AI, Vectorize, AI Gateway, Browser Run\\n\\t\\t- Zero Trust, Access, Tunnel, Gateway, Browser Isolation, WARP, DDOS, Magic Transit, Magic WAN\\n\\t\\t- CDN, Cache, DNS, Zaraz, Argo, Rulesets, Terraform, Account and Billing\\n\\n\\t\\tResults are returned as semantically similar chunks to the query.\\n\\t\\t\", \"inputSchema\": {\"type\": \"object\", \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": {\"query\": {\"type\": \"string\"}}, \"required\": [\"query\"]}, \"annotations\": {\"title\": \"Search Cloudflare docs\", \"readOnlyHint\": true}, \"outputSchema\": {\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"properties\": {\"results\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"similarity\": {\"type\": \"number\", \"description\": \"Similarity score from AI Search\"}, \"id\": {\"type\": \"string\", \"description\": \"Source file ID\"}, \"url\": {\"type\": \"string\", \"description\": \"Developer documentation URL\"}, \"title\": {\"type\": \"string\", \"description\": \"Documentation page title\"}, \"text\": {\"type\": \"string\", \"description\": \"Matching documentation chunk text\"}}, \"required\": [\"similarity\", \"id\", \"url\", \"title\", \"text\"], \"additionalProperties\": false}}}, \"required\": [\"results\"], \"additionalProperties\": false}}, {\"name\": \"migrate_pages_to_workers_guide\", \"description\": \"ALWAYS read this guide before migrating Pages projects to Workers.\", \"inputSchema\": {\"type\": \"object\", \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": {}}, \"annotations\": {\"title\": \"Get Pages migration guide\", \"readOnlyHint\": true}}]",
+   "instructions_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "tool_hashes": {
+    "migrate_pages_to_workers_guide": "19d05ff5c13d6aece07f29de1bab65bcf39dbd1fd9e74f26c7a534fd906098b2",
+    "search_cloudflare_documentation": "78cd8bb9d121a5e903f12e74a42372c47f5ff9026ece81b22e5fc69fdfacb65e"
+   },
+   "root": "d1e03bb6d5d07a600c0b84d5a64b606b54a81c847e28ded91b78852f93324a22"
+  },
+  {
+   "name": "deepwiki",
+   "url": "https://mcp.deepwiki.com/mcp",
+   "instructions": "DeepWiki MCP provides AI-powered documentation for GitHub repositories.\n\nAvailable tools:\n- read_wiki_structure: Get a list of documentation topics for a repository\n- read_wiki_contents: View full documentation about a repository\n- ask_wiki_question: Ask any question about a repository's codebase and get an AI-powered answer from its wiki\n- list_wiki_repos: List the repositories that have a DeepWiki index (private mode only)\n- generate_wiki: Generate a codebase wiki for a repository — only use when explicitly requested by the user (private mode only)\n- devin_automation_manage: Manage Devin automations — list, get, create, update, delete, or fetch the trigger event schemas (private mode only)\n- devin_billing_tag_manage: Manage Devin billing tags (groupings of Devin sessions for usage tracking) — list, get, create, assign sessions, look up session tags (private mode only)\n- devin_blueprint_test: Test a candidate blueprint YAML in an authoring VM: start → run initialize → fix → run initialize again (clean VM) → run maintenance → then persist with update_environment_config (private mode only)\n- devin_campaign_manage: Read and publish a bot's campaign documents (plan, readings, status) — get, update, validate (private mode only)\n- devin_code_scan_manage: Manage Devin code scans, sometimes referred to as 'security scans' or 'Devin Security Swarm' — list scans, list findings, list profiles, get a profile, create a scan, remediate a finding (private mode only)\n- devin_knowledge_manage: Manage Devin knowledge notes and suggestions — list, search, get, create, update, delete notes, view folder structure, list/view/dismiss knowledge suggestions (private mode only)\n- devin_mcp_server_manage: Manage org MCP server installations — install (marketplace or custom), update, enable, disable, delete (private mode only)\n- devin_oncall_manage: Devin Oncall operations — get an Oncall report's current responder membership, page through a responder's open issues, and ingest a dashboard into Oncall knowledge (private mode only)\n- devin_playbook_manage: Manage Devin playbooks — list, get, create, update, delete (private mode only)\n- devin_review_manage: Trigger a Devin Review for a pull request, fetch the latest review status, or fetch a completed review's findings (private mode only)\n- devin_schedule_manage: Manage scheduled Devin sessions — list, get, create, update, delete (private mode only)\n- devin_session_create: Create one or more child Devin sessions (private mode only)\n- devin_session_interact: Manage a Devin session — get status (one or many sessions, optionally with a short AI summary of each), send messages, sleep/terminate/archive/unarchive, read messages & attachments, manage tags (private mode only)\n- devin_session_events: Inspect session events — list summaries, fetch full details, or search event contents (private mode only)\n- devin_session_search: Search and filter Devin sessions (private mode only)\n- devin_session_insights: Per-session cost, message counts and AI analysis (issues, action items, classification) — list, get, generate (private mode only)\n- devin_user_list: List the organization's users by membership kind (direct members or IdP-group members) (private mode only)\n- devin_list_integrations: List all native integrations and MCP servers with their status and settings URLs (private mode only)\n- devin_find_setting: Find Devin webapp settings pages and deep-link URLs for them (private mode only)\n",
+   "tools_raw": "[{\"name\": \"ask_wiki_question\", \"description\": \"Ask any question about a GitHub repository's codebase and get an AI-powered answer\\ngrounded in its DeepWiki.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"anyOf\": [{\"type\": \"string\"}, {\"items\": {\"type\": \"string\"}, \"type\": \"array\"}], \"description\": \"GitHub repository or list of repositories (max 10) in owner/repo format.\"}, \"question\": {\"description\": \"The question to ask about the repository.\", \"type\": \"string\"}}, \"required\": [\"repoName\", \"question\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}, {\"name\": \"read_wiki_contents\", \"description\": \"View documentation about a GitHub repository.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"description\": \"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\", \"type\": \"string\"}}, \"required\": [\"repoName\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}, {\"name\": \"read_wiki_structure\", \"description\": \"Get a list of documentation topics for a GitHub repository.\", \"inputSchema\": {\"properties\": {\"repoName\": {\"description\": \"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\", \"type\": \"string\"}}, \"required\": [\"repoName\"], \"type\": \"object\"}, \"outputSchema\": {\"properties\": {\"result\": {\"type\": \"string\"}}, \"required\": [\"result\"], \"type\": \"object\", \"x-fastmcp-wrap-result\": true}, \"_meta\": {\"_fastmcp\": {\"tags\": []}}}]",
+   "instructions_hash": "feeb48d6b0c039c2920b5f3daef5d943df5d527111168fe1dc024d06b57da4bf",
+   "tool_hashes": {
+    "ask_wiki_question": "217e49111cb69fbf14122a7bd2afd8e3d9a2aadaad2ef163371ff7e22e829314",
+    "read_wiki_contents": "c12cb22490a9546c306f38da540fb00e9314f0286ddf8c645e33659b2a2e4767",
+    "read_wiki_structure": "a7cc1371fecf3a21902bd89d107fd0b4cb5b3482d40b7bbde3f6f5790d17a4b1"
+   },
+   "root": "923f63c630de89d0f89d13501916292b7c1e1cc01c076b87a597247b308f576b"
+  },
+  {
+   "name": "gitmcp_python_sdk",
+   "url": "https://gitmcp.io/modelcontextprotocol/python-sdk",
+   "instructions": "",
+   "tools_raw": "[{\"name\": \"fetch_python_sdk_documentation\", \"description\": \"Fetch entire documentation file from GitHub repository: modelcontextprotocol/python-sdk. Useful for general questions. Always call this tool first if asked about modelcontextprotocol/python-sdk.\", \"inputSchema\": {\"type\": \"object\"}, \"annotations\": {\"_def\": {\"options\": [{\"_def\": {\"unknownKeys\": \"strip\", \"catchall\": {\"_def\": {\"typeName\": \"ZodNever\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}, \"typeName\": \"ZodObject\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}, \"_cached\": null}, {\"_def\": {\"typeName\": \"ZodNull\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}], \"typeName\": \"ZodUnion\"}, \"~standard\": {\"version\": 1, \"vendor\": \"zod\"}}}, {\"name\": \"search_python_sdk_documentation\", \"description\": \"Semantically search within the fetched documentation from GitHub repository: modelcontextprotocol/python-sdk. Useful for specific queries.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"string\", \"description\": \"The search query to find relevant documentation\"}}, \"required\": [\"query\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}, {\"name\": \"search_python_sdk_code\", \"description\": \"Search for code within the GitHub repository: \\\"modelcontextprotocol/python-sdk\\\" using the GitHub Search API (exact match). Returns matching files for you to query further if relevant.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"string\", \"description\": \"The search query to find relevant code files\"}, \"page\": {\"type\": \"number\", \"description\": \"Page number to retrieve (starting from 1). Each page contains 30 results.\"}}, \"required\": [\"query\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}, {\"name\": \"fetch_generic_url_content\", \"description\": \"Generic tool to fetch content from any absolute URL, respecting robots.txt rules. Use this to retrieve referenced urls (absolute urls) that were mentioned in previously fetched documentation.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"url\": {\"type\": \"string\", \"description\": \"The URL of the document or page to fetch\"}}, \"required\": [\"url\"], \"additionalProperties\": false, \"$schema\": \"http://json-schema.org/draft-07/schema#\"}}]",
+   "instructions_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "tool_hashes": {
+    "fetch_generic_url_content": "63d36fc927161890e155e7b7c529d016ca8c12e9510ea1bceccfd6072a2189e3",
+    "fetch_python_sdk_documentation": "176a1a915a70e1eeea69733758be509e08dff5b66e3598bd3dcd0f3820aa3ae9",
+    "search_python_sdk_code": "658c4865d9d86a3e783583c614a0297f17332363649229c08da3b5f5fa47daed",
+    "search_python_sdk_documentation": "3443444cf1d7a10eecbab190d1fe6d9cfc67ae1c2ce68007e3de1ab63e1e3888"
+   },
+   "root": "971fa702f24266119451c3914244df6db21395ab462ff1984d5f63e7922ae1f3"
+  },
+  {
+   "name": "internetcourt",
+   "url": "https://mcp.internetcourt.org/mcp",
+   "instructions": "Internet Court — the trust layer for agent-to-agent commerce and delegated agent authority.\n\nThis MCP server helps an agent or its user install and use the Internet Court skill. Internet\nCourt is not a single file: it is a whole structure of skills (a master router plus connector\nand vendored protocol skills) published at https://github.com/internet-court/internet-court-skill.\n\nWhen a user asks to install, load, add, or introduce Internet Court, call \"how_to_install\" for\nsetup steps, and call \"get_internet_court_skill\" to fetch the latest skill content (the master\nSKILL.md by default, or any sub-skill by path) so you can act on it immediately.\n\nInternet Court turns a natural-language mandate into a runnable workflow with bounded\npermissions (ERC-7710/7715), execution, evidence, GenLayer Intelligent Contract supervision,\nrevocation, x402 payments, escrow, and dispute resolution.",
+   "tools_raw": "[{\"name\": \"how_to_install\", \"title\": \"How to install the Internet Court skill\", \"description\": \"Explain how to install the Internet Court skill — connect this MCP server, or clone the full skill structure into your agent. Call this when the user asks to install, add, set up, or onboard Internet Court.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {}}, \"execution\": {\"taskSupport\": \"forbidden\"}}, {\"name\": \"get_internet_court_skill\", \"title\": \"Get the latest Internet Court skill\", \"description\": \"Fetch the latest Internet Court skill content directly from the source repo so you can load and act on it. Defaults to the master router (SKILL.md). Internet Court is a structure of skills — pass a repo-relative path (e.g. 'integrations/x402-erc7710/SKILL.md' or 'skills-lock.json') to fetch a specific sub-skill or file.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {\"path\": {\"description\": \"Repo-relative path inside internet-court/internet-court-skill. Defaults to 'SKILL.md' (the master router).\", \"type\": \"string\"}}}, \"execution\": {\"taskSupport\": \"forbidden\"}}, {\"name\": \"consult_internet_court\", \"title\": \"Consult the Internet Court agent (paid, x402)\", \"description\": \"Ask the Internet Court agent a question — dispute framing, mandate design, escrow/arbitration guidance. This tool is x402-paid: calls without a valid payment header receive an HTTP 402 challenge (pricing discovery at GET /x402 on this host). The installation tools (how_to_install, get_internet_court_skill) remain free.\", \"inputSchema\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {\"question\": {\"type\": \"string\", \"description\": \"Your question or dispute for the Internet Court agent.\"}}, \"required\": [\"question\"]}, \"execution\": {\"taskSupport\": \"forbidden\"}}]",
+   "instructions_hash": "413f02d4fba549bfcfc8217f8369c7bccf2ca4693d1818cfa6fedd50e3214a4f",
+   "tool_hashes": {
+    "consult_internet_court": "9839285f7fce8fac956b88095b6f29ed4de5b8575ae3c2e3267626c9624700e3",
+    "get_internet_court_skill": "7b376b4c6fc63d84f49b5141f11a1fdd3ad6bd2b004c71aaec8f6666039164ae",
+    "how_to_install": "84521eb7c05664e5261ffea25c481ea5c67711d00f7b866fee6a80f042a26ba2"
+   },
+   "root": "07c7b0e1876e65975dfaf1058f0ecff244b965e404a63e3a2796616e4f3d28f0"
+  }
+ ]
+}
