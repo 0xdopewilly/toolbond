@@ -15,8 +15,8 @@ local guard refuses any tool whose bytes are not pinned.
 
 | Part | Path | Status |
 |---|---|---|
-| `gl_mcp`: a minimal MCP client for Intelligent Contracts (Streamable HTTP handshake, session header, SSE parsing, pagination, canonical hashing) | `lib/gl_mcp.py` | working, unit-tested against 4 live servers |
-| `PinnedFetch`: consensus-pinned MCP manifests with drift detection | `contracts/pinned_fetch.py` | working, tested in direct mode |
+| `gl_mcp`: a minimal MCP client for Intelligent Contracts (Streamable HTTP handshake, session header, SSE parsing, pagination, canonical hashing). [Guide](docs/gl_mcp.md) | `lib/gl_mcp.py` | working, unit-tested against 4 live servers |
+| `PinnedFetch`: consensus-pinned MCP manifests with drift detection | `contracts/pinned_fetch.py` | live on Studio Next with 4 real servers pinned ([deployments](docs/DEPLOYMENTS.md)) |
 | Bonded registry, challenges and an LLM judge for poisoned tools | — | next |
 | `mcp-guard` for Claude Code and Cursor, patrol bot, web registry | — | planned |
 
