@@ -226,3 +226,15 @@ def test_list_pins(direct_vm, contract):
     assert page["total"] == 2
     assert [row["url"] for row in page["items"]] == [load("deepwiki")["url"], load("internetcourt")["url"]]
     assert json.loads(contract.list_pins(1, 10))["items"][0]["url"] == load("internetcourt")["url"]
+
+
+def test_pathological_manifest_fails_with_a_classified_error(direct_vm, contract):
+    fixture = load("deepwiki")
+    nested = "[" * 5000 + "]" * 5000
+    body = fixture["initialize"]["body"] + "event: message\ndata: " + '{"jsonrpc":"2.0","id":2,"result":{"tools":' + nested + "}}\n\n"
+    direct_vm.mock_web(
+        fixture["url"].replace(".", r"\."),
+        {"method": "POST", "response": {"status": 200, "headers": {}, "body": body.encode()}},
+    )
+    with direct_vm.expect_revert("[EXTERNAL]"):
+        contract.pin(fixture["url"])

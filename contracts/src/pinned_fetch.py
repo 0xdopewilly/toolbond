@@ -123,6 +123,9 @@ def _snapshot(url: str) -> dict:
         return _fetch_digest(url)
     except McpError as err:
         raise gl.vm.UserError(str(err))
+    except Exception:
+        # e.g. pathologically nested JSON: classify it so validators can agree on the failure
+        raise gl.vm.UserError(ERR_EXTERNAL + " unreadable manifest")
 
 
 def _observation(drift: str, root: str = "", reason: str = "") -> dict:
@@ -145,12 +148,16 @@ def _observe(url: str, pinned_root: str, pinned_hashes: dict, pinned_instruction
         first = _fetch_digest(url)
     except McpError as err:
         return _observation(DRIFT_UNREACHABLE, reason=str(err))
+    except Exception:
+        return _observation(DRIFT_UNREACHABLE, reason=ERR_EXTERNAL + " unreadable manifest")
     if first["root"] == pinned_root:
         return _observation(DRIFT_MATCH, root=first["root"])
     try:
         second = _fetch_digest(url)
     except McpError as err:
         return _observation(DRIFT_UNREACHABLE, reason=str(err))
+    except Exception:
+        return _observation(DRIFT_UNREACHABLE, reason=ERR_EXTERNAL + " unreadable manifest")
     if second["root"] != first["root"]:
         return _observation(DRIFT_UNSTABLE)
     diff = diff_tools(pinned_hashes, first["tools"])
