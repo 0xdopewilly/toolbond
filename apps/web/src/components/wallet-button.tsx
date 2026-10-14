@@ -82,9 +82,14 @@ function AccountMenu({ displayName, displayBalance, openAccountModal }: { displa
             <strong>Get test GEN</strong>
             <span>25 GEN from the Studio faucet: enough for a bond and a few challenges.</span>
           </button>
-          <button type="button" role="menuitem" onClick={item(() => run("Withdraw claimable GEN", "withdraw", []))}>
+          <button
+            type="button"
+            role="menuitem"
+            disabled={claimable === "0"}
+            onClick={item(() => run("Withdraw claimable GEN", "withdraw", []))}
+          >
             <strong>Withdraw</strong>
-            <span>Pay out refunds, rewards and hunter shares the contract owes you.</span>
+            <span>{claimable === "0" ? "Nothing to withdraw yet." : "Pay out refunds, rewards and hunter shares the contract owes you."}</span>
           </button>
           <div className="menu-row">
             <button

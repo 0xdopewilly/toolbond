@@ -53,6 +53,7 @@ export interface Server {
   created_at: string;
   updated_at: string;
   last_verified_at: string;
+  drift_root?: string;
   txs?: TxRef[];
 }
 
@@ -84,6 +85,7 @@ export interface Challenge {
   filed_at: string;
   updated_at: string;
   payout: { hunter?: string; pool?: string; publisher?: string };
+  overflow?: number;
   txs?: TxRef[];
 }
 
@@ -110,6 +112,7 @@ export interface Pins {
   tools?: Record<string, string>;
   verdicts?: Record<string, Verdict>;
   open_challenges?: number;
+  drift_root?: string;
   updated_at?: string;
 }
 

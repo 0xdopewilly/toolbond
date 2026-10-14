@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NetworkStatus } from "./ambient";
 import { ThemeToggle } from "./theme-toggle";
 import { WalletButton } from "./wallet-button";
 
@@ -12,6 +13,7 @@ const LINKS = [
   { href: "/hunters", label: "Hunters", match: (p: string) => p.startsWith("/hunters") },
   { href: "/publish", label: "Publish", match: (p: string) => p.startsWith("/publish") },
   { href: "/guard", label: "Guard", match: (p: string) => p.startsWith("/guard") },
+  { href: "/docs", label: "Docs", match: (p: string) => p.startsWith("/docs") },
 ];
 
 export function Topbar() {
@@ -50,10 +52,20 @@ export function Topbar() {
           </a>
         </nav>
         <div className="topbar-right">
-          <span className="network mono">
-            <span className="dot" aria-hidden="true" />
-            Studio Next · 61997
-          </span>
+          <button
+            type="button"
+            className="palette-trigger"
+            onClick={() => window.dispatchEvent(new Event("toolbond:palette"))}
+            aria-label="Search (Ctrl+K)"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            <span>Search</span>
+            <kbd>⌘K</kbd>
+          </button>
+          <NetworkStatus />
           <ThemeToggle />
           <WalletButton />
         </div>

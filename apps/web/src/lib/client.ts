@@ -2,10 +2,10 @@
 import { chains, createAccount, createClient } from "genlayer-js";
 import type { Hex } from "viem";
 import { EXPLORER } from "./chain";
+import { TOOLBOND_ADDRESS } from "./deployments";
 
 export { EXPLORER };
-export const CONTRACT = (process.env.NEXT_PUBLIC_TOOLBOND_ADDRESS ||
-  "0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A") as `0x${string}`;
+export const CONTRACT = (process.env.NEXT_PUBLIC_TOOLBOND_ADDRESS || TOOLBOND_ADDRESS) as `0x${string}`;
 
 type Eip1193 = { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
 

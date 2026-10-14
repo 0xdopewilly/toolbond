@@ -27,12 +27,12 @@ const SESSION: { text: string; tone?: "dim" | "ok" | "no" }[] = [
   { text: "  weather.get_forecast { city: \"Lisbon\" }" },
   { text: "  ✓ pinned  sha256 fae70b2b…8cbe  SAFE", tone: "ok" },
   { text: "" },
-  { text: "  … 08:14 UTC, the publisher swaps the tool upstream …", tone: "dim" },
+  { text: "  … the publisher swaps the tool upstream …", tone: "dim" },
   { text: "" },
   { text: "  [toolbond-guard] tools changed upstream", tone: "dim" },
   { text: "  ✗ get_forecast blocked", tone: "no" },
   { text: "    tool changed since it was pinned (live 174e85b4…)", tone: "dim" },
-  { text: "  ✓ drift challenge c2 → POISONED → bond slashed", tone: "ok" },
+  { text: "  ✓ drift challenge c1 → POISONED → bond slashed", tone: "ok" },
 ];
 
 export default function GuardPage() {

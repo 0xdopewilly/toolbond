@@ -143,17 +143,25 @@ export function parseRpc(body: string, id: number): Record<string, unknown> {
   throw new McpError(`[EXTERNAL] no rpc response for id ${id}`);
 }
 
+const MAX_RESPONSE_CHARS = 2_000_000;
+
 async function post(url: string, body: unknown, headers: Record<string, string>) {
   const response = await fetch(url, {
     method: "POST",
     headers,
     body: JSON.stringify(body),
     cache: "no-store",
+    redirect: "manual",
     signal: AbortSignal.timeout(15000),
   });
+  if (response.status >= 300 && response.status < 400) {
+    throw new McpError("[EXTERNAL] the server redirects; use the final endpoint URL");
+  }
   if (response.status >= 500 || response.status === 429) throw new McpError(`[TRANSIENT] http ${response.status}`);
   if (response.status >= 400) throw new McpError(`[EXTERNAL] http ${response.status}`);
-  return { headers: response.headers, text: await response.text() };
+  const text = await response.text();
+  if (text.length > MAX_RESPONSE_CHARS) throw new McpError("[EXTERNAL] response too large");
+  return { headers: response.headers, text };
 }
 
 export async function fetchManifest(url: string) {

@@ -47,7 +47,7 @@ function evaluate(live: { name: string; hash: string }[], pins: Pins, bondedOnly
 
 const PRESETS = [
   { label: "DeepWiki", url: "https://mcp.deepwiki.com/mcp" },
-  { label: "Rug-pulled demo", url: "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-14T08:14:00Z" },
+  { label: "Rug-pulled demo", url: "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-14T16:29:00Z" },
   { label: "Unregistered, poisoned", url: "https://toolbond-demo-mcp.vercel.app/mcp/poisoned" },
 ];
 

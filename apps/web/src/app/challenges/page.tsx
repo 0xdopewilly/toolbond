@@ -51,7 +51,7 @@ export default async function ChallengesPage() {
           const lastVotes = challenge.txs?.[challenge.txs.length - 1]?.votes;
           return (
             <Reveal key={challenge.cid} delay={index * 70}>
-              <Link href={`/server/${challenge.sid}#challenges`} className={`challenge-card${challenge.verdict === "POISONED" ? " bad" : ""}`} style={{ color: "inherit" }}>
+              <Link href={`/server/${challenge.sid}#challenges`} className={`challenge-card${challenge.verdict === "POISONED" ? " bad" : ""}`} style={{ color: "inherit" }} data-spotlight>
                 <div className="top">
                   <span className="cid">{challenge.cid}</span>
                   <span className="badge outline">{challenge.kind.toLowerCase()}</span>

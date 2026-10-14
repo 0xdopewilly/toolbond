@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { sidOf, type TxInfo } from "@/lib/client";
-import { revealSegments, shortHash } from "@/lib/format";
+import { sidOf, toWei, type TxInfo } from "@/lib/client";
+import { gen, revealSegments, shortHash } from "@/lib/format";
 import { urlProblem } from "@/lib/names";
 import { useTxs, useWallet, Votes } from "./providers";
 
@@ -62,7 +62,7 @@ export function PublishWizard() {
   const [step, setStep] = useState(0);
   const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
-  const [known, setKnown] = useState<{ sid: string; status: string } | null>(null);
+  const [known, setKnown] = useState<{ sid: string; status: string; tier: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [purpose, setPurpose] = useState("");
   const [caps, setCaps] = useState<string[]>(["network"]);
@@ -73,10 +73,23 @@ export function PublishWizard() {
   const [finished, setFinished] = useState<{ sid: string; verdict: string } | null>(null);
 
   const problem = urlProblem(url);
-  const bondNumber = Number(bond);
-  const bondOk = tier === "REVIEWED" || (Number.isFinite(bondNumber) && bondNumber >= 10);
+  // exact wei arithmetic: floats turn 10.1 + 0.2 into 10.299999999999999
+  const bondWei = (() => {
+    try {
+      return /^\d{1,9}(\.\d{1,18})?$/.test(bond.trim()) ? toWei(bond.trim()) : -1n;
+    } catch {
+      return -1n;
+    }
+  })();
+  const REVIEW_FEE_WEI = toWei("0.2");
+  const bondOk = tier === "REVIEWED" || bondWei >= toWei("10");
   const purposeOk = purpose.trim().length > 0 && purpose.trim().length <= 280;
-  const total = tier === "BONDED" ? (bondOk ? bondNumber + 0.2 : 0) : 0.2;
+  const totalWei = tier === "BONDED" ? (bondOk ? bondWei + REVIEW_FEE_WEI : 0n) : REVIEW_FEE_WEI;
+  const totalGen = gen(totalWei);
+  const bondGen = bondWei > 0n ? gen(bondWei) : "—";
+  // a URL can be registered again after REJECTED or EXITED, and bonding replaces a sponsored review
+  const reusable = !known || known.status === "REJECTED" || known.status === "EXITED" || (known.tier === "REVIEWED" && known.status !== "EXITING");
+  const mustBond = Boolean(known && known.tier === "REVIEWED" && known.status !== "REJECTED" && known.status !== "EXITED");
 
   const loadPreview = async (target = url) => {
     const clean = target.trim();
@@ -88,10 +101,12 @@ export function PublishWizard() {
     try {
       const [manifest, pins] = await Promise.all([
         fetch(`/api/preview?url=${encodeURIComponent(clean)}`).then((r) => r.json() as Promise<Preview>),
-        fetch(`/api/pins?url=${encodeURIComponent(clean)}`).then((r) => r.json() as Promise<{ known?: boolean; sid?: string; status?: string }>),
+        fetch(`/api/pins?url=${encodeURIComponent(clean)}`).then(
+          (r) => r.json() as Promise<{ known?: boolean; sid?: string; status?: string; tier?: string }>,
+        ),
       ]);
       setPreview(manifest);
-      if (pins.known && pins.sid) setKnown({ sid: pins.sid, status: pins.status ?? "" });
+      if (pins.known && pins.sid) setKnown({ sid: pins.sid, status: pins.status ?? "", tier: pins.tier ?? "" });
     } catch (error) {
       setPreview({ ok: false, url: clean, error: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -117,8 +132,8 @@ export function PublishWizard() {
     const plan: RunStep[] = [
       {
         key: "open",
-        title: tier === "BONDED" ? `Register and bond ${bondNumber} GEN` : "Sponsor a review",
-        detail: tier === "BONDED" ? `${total} GEN: the bond plus a 0.2 GEN review fee.` : "0.2 GEN review fee. No bond, never slashed.",
+        title: tier === "BONDED" ? `Register and bond ${bondGen} GEN` : "Sponsor a review",
+        detail: tier === "BONDED" ? `${totalGen} GEN: the bond plus a 0.2 GEN review fee.` : "0.2 GEN review fee. No bond, never slashed.",
         state: "idle",
       },
       { key: "snapshot", title: "Pin the manifest", detail: "Every validator fetches tools/list itself and must derive the same root.", state: "idle" },
@@ -141,7 +156,7 @@ export function PublishWizard() {
     };
 
     try {
-      const opened = await go("open", plan[0].title, tier === "BONDED" ? "register" : "sponsor_review", [clean, purpose.trim(), caps.join(",")], tier === "BONDED" ? String(total) : "0.2");
+      const opened = await go("open", plan[0].title, tier === "BONDED" ? "register" : "sponsor_review", [clean, purpose.trim(), caps.join(",")], totalGen);
       const result = opened?.returned?.ok ? (opened.returned.value as { ok?: boolean; error?: string } | null) : null;
       if (!opened?.success || !result?.ok) {
         patch("open", { state: "err", detail: result?.error || opened?.returned?.error || opened?.status || "The transaction did not go through." });
@@ -286,17 +301,23 @@ export function PublishWizard() {
                     </details>
                   ))}
                 </div>
-                {known ? (
+                {known && (
                   <p className="notice">
-                    <strong>Already in the registry.</strong>
+                    <strong>{reusable ? "Registered before." : "Already in the registry."}</strong>
                     <span>
-                      This exact URL is registered ({known.status.toLowerCase()}).{" "}
+                      This exact URL is {known.tier === "REVIEWED" ? "a sponsored review" : "registered"} ({known.status.toLowerCase().replace("_", " ")}).{" "}
+                      {known.tier === "REVIEWED" && known.status !== "REJECTED" && known.status !== "EXITED"
+                        ? "Bonding it replaces the sponsored review. "
+                        : reusable
+                          ? "You can register it again. "
+                          : ""}
                       <Link href={`/server/${known.sid}`} style={{ color: "var(--accent)" }}>
                         Open its page
                       </Link>
                     </span>
                   </p>
-                ) : (
+                )}
+                {reusable && (
                   <div className="actions" style={{ justifyContent: "flex-end" }}>
                     <button type="button" className="button primary" disabled={!preview.tools.length} onClick={() => setStep(1)}>
                       Continue <span className="arrow">→</span>
@@ -370,7 +391,7 @@ export function PublishWizard() {
               {tier === "BONDED" && (
                 <div>
                   <span>Bond, returned when you exit</span>
-                  <span>{bondOk ? bondNumber : "—"} GEN</span>
+                  <span>{bondOk ? bondGen : "—"} GEN</span>
                 </div>
               )}
               <div>
@@ -379,14 +400,24 @@ export function PublishWizard() {
               </div>
               <div className="total">
                 <span>Sent with the transaction</span>
-                <span>{total ? `${Math.round(total * 1e4) / 1e4} GEN` : "—"}</span>
+                <span>{totalWei > 0n ? `${totalGen} GEN` : "—"}</span>
               </div>
             </div>
             <div className="actions" style={{ justifyContent: "space-between" }}>
               <button type="button" className="button" onClick={() => setStep(0)}>
                 Back
               </button>
-              <button type="button" className="button primary" disabled={!purposeOk || !caps.length || !bondOk} onClick={() => setStep(2)}>
+              {mustBond && tier === "REVIEWED" && (
+                <span className="small" style={{ color: "var(--bad)" }}>
+                  This URL already has a sponsored review: only a bond can replace it.
+                </span>
+              )}
+              <button
+                type="button"
+                className="button primary"
+                disabled={!purposeOk || !caps.length || !bondOk || (mustBond && tier === "REVIEWED")}
+                onClick={() => setStep(2)}
+              >
                 Review and publish <span className="arrow">→</span>
               </button>
             </div>
@@ -418,7 +449,7 @@ export function PublishWizard() {
               <div>
                 <dt>Capabilities · tier</dt>
                 <dd>
-                  {caps.join(", ")} · {tier === "BONDED" ? `bonded ${bondNumber} GEN` : "sponsored review"}
+                  {caps.join(", ")} · {tier === "BONDED" ? `bonded ${bondGen} GEN` : "sponsored review"}
                 </dd>
               </div>
             </dl>
@@ -479,7 +510,7 @@ export function PublishWizard() {
                 Back
               </button>
               <button type="button" className="button accent" disabled={!wallet.mode || running || Boolean(finished)} onClick={publish}>
-                {running ? "Publishing…" : `Publish · ${Math.round(total * 1e4) / 1e4} GEN`}
+                {running ? "Publishing…" : `Publish · ${totalGen} GEN`}
               </button>
             </div>
           </div>

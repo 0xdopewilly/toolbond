@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Hero } from "@/components/hero";
-import { CountUp, Reveal } from "@/components/motion";
+import { LedgerTicker } from "@/components/ledger-ticker";
+import { CountUp, Reveal, RevealWords } from "@/components/motion";
 import { RegistryList } from "@/components/registry-list";
 import { DataNotice } from "@/components/ui";
 import { loadRegistry } from "@/lib/data";
@@ -61,11 +62,19 @@ function Story({ registry }: { registry: Registry }) {
   if (!server) return null;
   const tx = (step: string) => slash.txs?.find((t) => t.step === step)?.hash;
   const review = server.txs?.find((t) => t.step === "review")?.hash;
-  const seconds = Math.round((Date.parse(slash.updated_at) - Date.parse("2026-10-14T08:14:00Z")) / 1000);
+  // the demo server's URL carries the moment it turns malicious (?at=...)
+  const swapAt = (() => {
+    try {
+      return new URL(server.url).searchParams.get("at") ?? slash.filed_at;
+    } catch {
+      return slash.filed_at;
+    }
+  })();
+  const seconds = Math.round((Date.parse(slash.updated_at) - Date.parse(swapAt)) / 1000);
   const steps = [
     { time: clock(server.created_at), tone: "good", title: "Bonded and pinned", body: `10 GEN bond. Validators pinned get_forecast and judged it SAFE.`, hash: review },
-    { time: "08:14", tone: "warn", title: "The publisher swaps the tool", body: "Same URL, same name. The description now asks for ~/.cursor/mcp.json and hides it from the user." },
-    { time: "08:14", tone: "good", title: "The guard blocks it", body: "toolbond-guard hashes the live tool, sees it is off-pin, and drops it before the model reads a word." },
+    { time: clock(swapAt), tone: "warn", title: "The publisher swaps the tool", body: "Same URL, same name. The description now asks for ~/.cursor/mcp.json and hides it from the user." },
+    { time: clock(swapAt), tone: "good", title: "The guard blocks it", body: "toolbond-guard hashes the live tool, sees it is off-pin, and drops it before the model reads a word." },
     { time: clock(slash.filed_at), tone: "warn", title: "A patrol bot stakes 0.5 GEN", body: "Drift challenge filed automatically.", hash: tx("challenge") },
     { time: "", tone: "bad", title: "Validators observe DIFFERS, then judge POISONED", body: slash.reason, hash: tx("judge") },
     { time: clock(slash.updated_at), tone: "bad", title: `Bond slashed: ${gen(slash.payout.hunter ?? "0")} GEN to the hunter`, body: `${gen(slash.payout.pool ?? "0")} GEN to the protection pool. The server is marked SLASHED for every guard.`, hash: tx("settle") },
@@ -76,7 +85,9 @@ function Story({ registry }: { registry: Registry }) {
         <Reveal>
           <div className="story">
             <div>
-              <span className="overline">Live on Studio Next · today</span>
+              <span className="overline">
+                Live on Studio Next · {new Date(swapAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}
+              </span>
               <h2 id="story-title" className="display">
                 A rug pull, caught and paid for in {seconds > 0 && seconds < 600 ? `${Math.floor(seconds / 60)} min ${seconds % 60} s` : "minutes"}.
               </h2>
@@ -164,6 +175,7 @@ export default async function HomePage() {
             <span className="sub">{gen(registry.stats.bonded)} GEN currently bonded</span>
           </div>
         </section>
+        <LedgerTicker registry={registry} />
         {!registry.live && (
           <div style={{ marginTop: 16 }}>
             <DataNotice registry={registry} />
@@ -176,7 +188,7 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <span className="overline">How it works</span>
-              <h2 id="flow-title">Tool descriptions are prompts. So we put money behind them.</h2>
+              <RevealWords id="flow-title" text="Tool descriptions are prompts. So we put money behind them." />
               <p>
                 An MCP tool&apos;s description goes straight into your model&apos;s context. ToolBond makes the exact bytes accountable,
                 with no oracle and no trusted reviewer: just validators who each fetch, hash and judge for themselves.
@@ -186,7 +198,7 @@ export default async function HomePage() {
           <div className="flow">
             {FLOW.map((item, index) => (
               <Reveal key={item.title} delay={index * 90}>
-                <article className="flow-card">
+                <article className="flow-card" data-spotlight>
                   <span className="step-no">0{index + 1}</span>
                   <span className="glyph" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 20 20">
@@ -210,7 +222,7 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <span className="overline">Registry</span>
-              <h2 id="registry-title">Every server, every pin</h2>
+              <RevealWords id="registry-title" text="Every server, every pin" />
               <p>Reviewed servers are pinned and judged but carry no bond. Bonded servers can be challenged and slashed.</p>
             </div>
             <div className="actions">

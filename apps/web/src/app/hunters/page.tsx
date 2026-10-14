@@ -120,7 +120,7 @@ export default async function HuntersPage() {
         <div className="podium">
           {hunters.slice(0, 3).map((hunter, index) => (
             <Reveal key={hunter.address} delay={index * 90}>
-              <article className={`podium-card${index === 0 ? " first" : ""}`}>
+              <article className={`podium-card${index === 0 ? " first" : ""}`} data-spotlight>
                 <span className="rank">#{index + 1}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Identicon address={hunter.address} />

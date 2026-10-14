@@ -94,6 +94,7 @@ export function RegistryList({ servers }: { servers: ServerRow[] }) {
             key={server.sid}
             href={`/server/${server.sid}`}
             className={`server-row ${statusTone(server.status).tone}`}
+            data-spotlight
             style={{ animationDelay: `${index * 45}ms` }}
           >
             <span className="id">

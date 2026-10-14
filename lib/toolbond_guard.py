@@ -29,7 +29,7 @@ VERSION = "0.2.0"
 ALLOWED_STATUSES = ("ACTIVE", "STALE")
 STATUS_TOOL = "toolbond_status"
 CACHE_TTL_SECONDS = 24 * 3600
-SNAPSHOT_MAX_AGE_SECONDS = 72 * 3600
+SNAPSHOT_MAX_AGE_SECONDS = 7 * 24 * 3600  # same as the contract's EXIT_DELAY
 CACHE_PATH = pathlib.Path(os.environ.get("TOOLBOND_CACHE", str(pathlib.Path.home() / ".toolbond" / "pins-cache.json")))
 
 
@@ -322,7 +322,7 @@ def main(argv=None) -> int:
     parser.add_argument("--cache-hours", type=float, default=CACHE_TTL_SECONDS / 3600,
                         help="how long cached pins may stand in for an unreachable registry (default 24)")
     parser.add_argument("--snapshot-max-hours", type=float, default=SNAPSHOT_MAX_AGE_SECONDS / 3600,
-                        help="oldest registry snapshot the guard accepts when live contract reads are down (default 72)")
+                        help="oldest registry snapshot the guard accepts when live contract reads are down (default 168)")
     args = parser.parse_args(argv)
     source = PinSource(args.server_url.strip(), args.pins_url, args.pins_file,
                        cache_ttl=args.cache_hours * 3600, snapshot_max_age=args.snapshot_max_hours * 3600)

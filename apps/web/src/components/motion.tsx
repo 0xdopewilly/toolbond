@@ -78,3 +78,39 @@ export function Reveal({ children, delay = 0, className = "" }: { children: Reac
     </div>
   );
 }
+
+/** A heading whose words rise in one after another when it scrolls into view. */
+export function RevealWords({ text, as: Tag = "h2", id, className = "" }: { text: string; as?: "h1" | "h2"; id?: string; className?: string }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (reducedMotion()) {
+      setVisible(true);
+      return;
+    }
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <Tag ref={ref} id={id} className={`reveal-words${visible ? " in" : ""} ${className}`} aria-label={text}>
+      {text.split(" ").map((word, index) => (
+        <span key={index} aria-hidden="true" style={{ transitionDelay: `${index * 45}ms` }}>
+          {word}&nbsp;
+        </span>
+      ))}
+    </Tag>
+  );
+}

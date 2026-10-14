@@ -19,6 +19,16 @@ function agreeCount(votes: string[]): string {
   return disagree ? `${agree} agree, ${disagree} disagree` : `${agree} agree`;
 }
 
+const DRIFT_TEXT: Record<string, (c: Challenge) => string> = {
+  MATCH: () => "Every validator fetched the server itself: still the pinned bytes.",
+  KNOWN: () => "The same drift an earlier challenge already penalised: only the spam fee applies.",
+  DIFFERS: (c) =>
+    `Validators agree the manifest changed: root ${shortHash(c.observed_root)}${c.changed.length ? `, ${c.changed.map((t) => t.name).join(", ")} judged` : ""}${c.overflow ? `, ${c.overflow} more changed` : ""}.`,
+  UNSTABLE: () => "The server returned different manifests in a row to every validator: a full slash.",
+  UNPINNED: () => "The server answered with something that is not a valid manifest: a quarter of the bond.",
+  UNREACHABLE: () => "Validators could not reach the server. The hunter is refunded.",
+};
+
 export function challengeSteps(challenge: Challenge): Step[] {
   const tx = (step: string) => challenge.txs?.find((item) => item.step === step);
   const closed = challenge.stage === "SETTLED" || challenge.stage === "EXPIRED";
@@ -38,15 +48,15 @@ export function challengeSteps(challenge: Challenge): Step[] {
     steps.push({
       key: "observe",
       title: challenge.drift ? `Observed · ${challenge.drift}` : "Observe",
-      body: challenge.drift
-        ? challenge.drift === "MATCH"
-          ? "Every validator fetched the server itself: still the pinned bytes."
-          : challenge.drift === "DIFFERS"
-            ? `Validators agree the manifest changed: root ${shortHash(challenge.observed_root)}${challenge.changed.length ? `, ${challenge.changed.map((t) => t.name).join(", ")} modified` : ""}.`
-            : `Validators agree: ${challenge.drift.toLowerCase()}.`
-        : "Validators re-fetch the server and compare it with the pin.",
+      body: challenge.drift ? DRIFT_TEXT[challenge.drift]?.(challenge) ?? `Validators agree: ${challenge.drift.toLowerCase()}.` : "Validators re-fetch the server and compare it with the pin.",
       done: observedDone,
-      tone: challenge.drift === "DIFFERS" ? "bad" : challenge.drift === "MATCH" ? "good" : observedDone ? "" : "current",
+      tone: ["DIFFERS", "UNSTABLE", "UNPINNED"].includes(challenge.drift)
+        ? "bad"
+        : challenge.drift === "MATCH" || challenge.drift === "KNOWN"
+          ? "good"
+          : observedDone
+            ? ""
+            : "current",
       tx: tx("observe"),
     });
   }

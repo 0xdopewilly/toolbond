@@ -44,11 +44,12 @@ export async function loadRegistry(): Promise<Registry> {
   }
 }
 
-export async function loadPins(url: string): Promise<Pins & { source: "contract" | "snapshot" }> {
+export async function loadPins(url: string): Promise<Pins & { source: "contract" | "snapshot"; as_of?: string }> {
   try {
     return { ...(await view<Pins>("get_pins", [url.trim()])), source: "contract" };
   } catch {
     const pins = (snapshot.pins as Record<string, Pins>)[url.trim()];
-    return { ...(pins ?? { known: false, url: url.trim() }), source: "snapshot" };
+    // the guard trusts snapshot pins only while they are fresh, so say how old they are
+    return { ...(pins ?? { known: false, url: url.trim() }), source: "snapshot", as_of: snapshot.snapshot_at };
   }
 }

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Ambient } from "@/components/ambient";
+import { CommandPalette } from "@/components/command-palette";
 import { Providers } from "@/components/providers";
 import { Topbar } from "@/components/topbar";
 import { CONTRACT } from "@/lib/data";
@@ -35,26 +37,47 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <Providers>
+          <Ambient />
           <Topbar />
           {children}
+          <CommandPalette />
           <footer className="footer">
-            <div className="wrap footer-inner">
-              <span>
-                Rulings are settled by GenLayer validators under Optimistic Democracy. Anyone can appeal within the finality
-                window.
-              </span>
-              <span className="footer-links">
+            <div className="wrap footer-grid">
+              <div className="footer-brand">
+                <Link href="/" className="brand">
+                  ToolBond
+                </Link>
+                <p>
+                  Bonded MCP tool manifests, adjudicated by GenLayer validators. Rulings follow Optimistic Democracy: anyone can appeal within
+                  the finality window.
+                </p>
+              </div>
+              <nav aria-label="Product">
+                <strong>Product</strong>
+                <Link href="/">Registry</Link>
+                <Link href="/publish">Publish</Link>
+                <Link href="/challenges">Challenges</Link>
+                <Link href="/hunters">Hunters</Link>
+              </nav>
+              <nav aria-label="Developers">
+                <strong>Developers</strong>
+                <Link href="/docs">Docs</Link>
+                <Link href="/docs/quickstart">Quickstart</Link>
+                <Link href="/docs/contract">Contract API</Link>
                 <Link href="/guard">Guard</Link>
-                <a href="https://github.com/0xdopewilly/toolbond/blob/main/docs/CONTRACT_API.md" target="_blank" rel="noreferrer">
-                  Contract API
+              </nav>
+              <nav aria-label="Source">
+                <strong>Source</strong>
+                <a href="https://github.com/0xdopewilly/toolbond" target="_blank" rel="noreferrer">
+                  ToolBond ↗
                 </a>
-                <a href="https://github.com/0xdopewilly/toolbond/blob/main/docs/TBCM-1.md" target="_blank" rel="noreferrer">
-                  TBCM-1
+                <a href="https://github.com/0xdopewilly/pinnedfetch" target="_blank" rel="noreferrer">
+                  PinnedFetch ↗
                 </a>
                 <a className="mono" href={`${EXPLORER}/address/${CONTRACT}`} target="_blank" rel="noreferrer">
                   {CONTRACT.slice(0, 8)}…{CONTRACT.slice(-6)} ↗
                 </a>
-              </span>
+              </nav>
             </div>
           </footer>
         </Providers>

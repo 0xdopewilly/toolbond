@@ -1,4 +1,4 @@
-# ToolBond contract interface (v1)
+# ToolBond contract interface (v2)
 
 The single source of truth shared by the contract (`contracts/src/toolbond.py`),
 `@toolbond/guard`, the patrol bot and the web app. Change it here first.
@@ -51,7 +51,7 @@ web or call an LLM, so wait with `retries`/`interval` well above the SDK default
 | tool `verdict` | `UNREVIEWED`, `SAFE`, `UNCLEAR`, `POISONED` |
 | challenge `kind` | `CONTENT` (a pinned tool is poisoned), `DRIFT` (the live manifest no longer matches the pin) |
 | challenge `stage` | `FILED`, `OBSERVED`, `JUDGED`, `SETTLED`, `EXPIRED` |
-| challenge `drift` | `""`, `MATCH`, `DIFFERS`, `UNSTABLE`, `UNPINNED`, `UNREACHABLE` |
+| challenge `drift` | `""`, `MATCH`, `KNOWN`, `DIFFERS`, `UNSTABLE`, `UNPINNED`, `UNREACHABLE` |
 | challenge `verdict` | `""`, `SAFE`, `POISONED`, `UNCLEAR` |
 
 ## Server lifecycle
@@ -63,9 +63,27 @@ review (LLM judge, batches of 6 tools):
     any POISONED            -> REJECTED   (10% of bond to treasury, rest claimable)
     all SAFE                -> ACTIVE
     otherwise (UNCLEAR)     -> stays PENDING_REVIEW (publisher fixes the server and re-runs snapshot)
-challenge settled against the publisher -> SLASHED or STALE (see payouts)
+challenge settled against the publisher -> SLASHED or STALE (see payouts; a settle never
+    moves a server that is already SLASHED, EXITED or REJECTED)
+snapshot by the publisher on ACTIVE (an announced update) or STALE -> PENDING_REVIEW
 request_exit -> EXITING ; finalize_exit after EXIT_DELAY -> EXITED (bond claimable)
 ```
+
+Drift classes, as validators agree on them in `observe`:
+
+| Class | Meaning | Validator rule |
+|---|---|---|
+| `MATCH` | the live manifest has the pinned root | identical observation |
+| `KNOWN` | the live root is the drift an earlier settled challenge already penalised (`drift_root`) | identical observation |
+| `DIFFERS` | the manifest changed, the same way twice in a row | identical observation, so the stored changed tools are verified content |
+| `UNSTABLE` | two different manifests in a row | each validator must see `UNSTABLE` itself |
+| `UNPINNED` | the server answered, but not with a valid manifest (bad JSON-RPC, invalid Unicode, reserved names, ...) | each validator must see `UNPINNED` itself |
+| `UNREACHABLE` | network or HTTP failure | accepted from any leader; changes nothing but a counter |
+
+Changed tools are judged riskiest first (hard red flags, then soft flags), at most
+`MAX_CHANGED_TOOLS` (4) per ruling. Code-computed flags cover every changed tool, so a
+hard flag anywhere makes SAFE impossible, and when more tools changed than one ruling
+covers, a SAFE reading becomes `UNCLEAR`.
 
 ## Write methods
 
@@ -78,20 +96,25 @@ raise `UserError` with a prefixed message (`[EXPECTED]`, `[EXTERNAL]`,
 |---|---|---|---|
 | `register(url: str, purpose: str, caps: str) -> dict` | yes, ≥ `MIN_BOND + REVIEW_FEE` | anyone (becomes publisher) | new BONDED server; returns `{"ok", "sid"}` |
 | `sponsor_review(url: str, purpose: str, caps: str) -> dict` | yes, ≥ `REVIEW_FEE` | anyone | new REVIEWED server for a third-party URL |
-| `snapshot(sid: str) -> None` | no | anyone | fetch consensus; stores pins; status `PENDING_REVIEW` |
+| `snapshot(sid: str) -> None` | no | anyone while `PENDING_*` or a STALE review; the publisher on ACTIVE/STALE | fetch consensus; stores pins; clears `drift_root`; status `PENDING_REVIEW` |
 | `review(sid: str) -> None` | no | anyone | judges the next batch of unreviewed pinned tools |
 | `challenge(sid: str, tool: str, kind: str) -> dict` | yes, the stake | anyone (hunter) | `tool` is `""` for DRIFT; at most one open challenge per (sid, tool) |
-| `observe(cid: str, mode: str) -> None` | no | anyone | DRIFT only; `mode` is `content` or `presence` |
+| `observe(cid: str, mode: str) -> None` | no | anyone | DRIFT only; `mode` must be `content` (presence checks are `attest`) |
 | `judge(cid: str) -> None` | no | anyone | CONTENT: judges the pinned tool; DRIFT with `DIFFERS`: judges the verified changed tools |
 | `settle(cid: str) -> None` | no | anyone | applies the payout table |
-| `expire(cid: str) -> None` | no | anyone | after `CHALLENGE_TTL` or `MAX_ATTEMPTS`; refunds the hunter |
+| `expire(cid: str) -> None` | no | anyone | FILED or OBSERVED, after `CHALLENGE_TTL`; refunds the hunter (minus the spam fee after a MATCH or KNOWN observation) |
 | `attest(sid: str) -> None` | no | anyone | presence check without a challenge; updates `last_verified_at` / `unreachable` |
-| `request_exit(sid: str) -> None` | no | publisher | badge drops; challenges stay allowed during the delay |
+| `request_exit(sid: str) -> None` | no | publisher | BONDED: badge drops, challenges stay allowed during the delay; REVIEWED: exits at once, only with no open challenge |
 | `finalize_exit(sid: str) -> None` | no | anyone | after `EXIT_DELAY`, no open challenge: bond becomes claimable |
 | `withdraw() -> None` | no | anyone | pays the caller's claimable balance |
 
-`purpose` ≤ 280 chars. `caps` is a comma-separated subset of
-`none,network,filesystem,credentials,shell,payments`.
+`purpose` ≤ 280 chars, with no hard red flag (hidden characters or text aimed at
+the judge), because it reaches the judge prompt. `caps` is a comma-separated subset of
+`none,network,filesystem,credentials,shell,payments`. URLs must be `https://` on a
+public domain name (no IP literals, ports, credentials or `#`/`?`/`\` tricks in the
+host). A URL can be registered again after `REJECTED` or `EXITED`, and a BONDED
+registration replaces a sponsored (REVIEWED) record, as long as no challenge is open.
+A tool named `__instructions__` is reserved: a manifest that uses it cannot be pinned.
 
 ### Payouts (`settle`)
 
@@ -100,11 +123,12 @@ raise `UserError` with a prefixed message (`[EXPECTED]`, `[EXTERNAL]`,
 | CONTENT, `POISONED` | 100% of the bond slashed: 50% to the hunter, 50% to the protection pool; stake refunded; server `SLASHED` |
 | CONTENT, `SAFE` | hunter's stake goes to the publisher |
 | CONTENT, `UNCLEAR` | stake refunded; server marked contested |
-| DRIFT, `MATCH` | stake refunded minus `DRIFT_SPAM_FEE` (to the publisher) |
+| DRIFT, `MATCH` or `KNOWN` | stake refunded minus `DRIFT_SPAM_FEE` (to the publisher) |
 | DRIFT, `DIFFERS` then `POISONED` | 100% slash split 50/50; server `SLASHED` |
-| DRIFT, `DIFFERS` then `SAFE` | 5% of the bond to the hunter; server `STALE` until the publisher re-pins |
-| DRIFT, `DIFFERS` then `UNCLEAR` | stake refunded; server `STALE` |
-| DRIFT, `UNSTABLE` or `UNPINNED` | 25% of the bond slashed, split 50/50; server `STALE` |
+| DRIFT, `DIFFERS` then `SAFE` | 5% of the bond to the hunter; server `STALE` until the publisher re-pins; the live root becomes `drift_root` |
+| DRIFT, `DIFFERS` then `UNCLEAR` | stake refunded; server `STALE`; `drift_root` set |
+| DRIFT, `UNSTABLE` | 100% slash split 50/50; server `SLASHED` (a pinned manifest passed exact-equality consensus, so serving different ones in a row is a choice) |
+| DRIFT, `UNPINNED` | 25% of the bond slashed, split 50/50; server `STALE` |
 | DRIFT, `UNREACHABLE` | stake refunded; `unreachable` counter + 1 |
 
 REVIEWED servers have no bond: hunters get their stake back, and the server state
@@ -117,8 +141,12 @@ still changes, so guards react.
 ```json
 {"known": true, "sid": "a1b2c3d4e5f60718", "url": "https://…/mcp", "status": "ACTIVE", "tier": "BONDED",
  "root": "<64 hex>", "tools": {"get_forecast": "<64 hex>"}, "verdicts": {"get_forecast": "SAFE"},
- "open_challenges": 0, "updated_at": "2026-10-13T16:05:00Z"}
+ "open_challenges": 0, "drift_root": "", "updated_at": "2026-10-13T16:05:00Z"}
 ```
+
+`drift_root` is the live root of the last drift a settled challenge penalised; a new
+DRIFT challenge that finds that same root observes `KNOWN`. `get_server` returns it
+too, and `get_challenge` adds `overflow`: changed tools beyond the ones the ruling judged.
 
 `{"known": false, "url": …}` when the URL is not registered.
 

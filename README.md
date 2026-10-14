@@ -22,12 +22,12 @@ their tools, adjudicated by [GenLayer](https://genlayer.com) validators:
 
 | | |
 |---|---|
-| ToolBond contract | [`0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A`](https://explorer-studio-dev.genlayer.com/address/0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A) |
-| PinnedFetch primitive | [`0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c`](https://explorer-studio-dev.genlayer.com/address/0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c) |
+| ToolBond contract (v2) | [`0xA61c4D1E32ac84d09cd0756712f70dC24294D34C`](https://explorer-studio-dev.genlayer.com/address/0xA61c4D1E32ac84d09cd0756712f70dC24294D34C) |
+| PinnedFetch primitive (v2) | [`0xf9f6FD0E66f79471EAd67feA82fff1c3723Ce5f2`](https://explorer-studio-dev.genlayer.com/address/0xf9f6FD0E66f79471EAd67feA82fff1c3723Ce5f2), also at [0xdopewilly/pinnedfetch](https://github.com/0xdopewilly/pinnedfetch) |
 | Real servers reviewed SAFE by validator consensus | DeepWiki, Cloudflare Docs, gitmcp (MCP Python SDK), Internet Court |
-| Rug pull caught live | A bonded weather server turned malicious at 08:14 UTC. The guard blocked it at once; the patrol bot filed a DRIFT challenge, validators observed `DIFFERS` and judged `POISONED`, and the 10 GEN bond was slashed 1 min 45 s after the swap |
-| Challenge path exercised live | DRIFT challenge on DeepWiki: observe `MATCH` (3 validators agree), settle; patrol `attest` heartbeat |
-| Web app | https://toolbond.vercel.app (registry, publish wizard, challenges, hunters, in-browser guard check) |
+| Rug pull caught live, twice | A bonded weather server turns malicious on a timer. With nobody touching anything, the guard blocks it at once, the patrol bot files a DRIFT challenge, validators observe `DIFFERS` and judge `POISONED`, and the 10 GEN bond is slashed: 1 min 45 s after the swap on v1, 1 min 46 s on v2 |
+| Security audit | An independent review of v1 found 16 issues; v2 fixes every confirmed one, each with a regression test ([summary](https://toolbond.vercel.app/docs/security)) |
+| Web app | https://toolbond.vercel.app: registry, publish wizard, challenges, hunters, in-browser guard check, [docs](https://toolbond.vercel.app/docs) |
 | Demo MCP server | https://toolbond-demo-mcp.vercel.app (`/mcp/honest`, `/mcp/poisoned`, `/mcp/rugpull`) |
 
 Every transaction, vote count and lesson from the live runs is in
@@ -43,7 +43,7 @@ Every transaction, vote count and lesson from the live runs is in
 | Red flags and judge | `lib/redflags.py`, `lib/judge.py` | code-computed hard and soft flags; prompts and verdict parsing with code-verified quotes |
 | `toolbond-guard` | `lib/toolbond_guard.py` | MCP stdio proxy for Claude Code and Cursor |
 | Patrol bot | `bot/patrol.py` | detects drift, files and drives DRIFT challenges, sends heartbeats |
-| Web app | `apps/web` | registry, publish wizard (preview, register, pin, review), server pages with a word-level diff of observed changes, challenge actions, hunters board, in-browser guard check, `/api/pins` |
+| Web app | `apps/web` | registry, publish wizard (preview, register, pin, review), server pages with a word-level diff of observed changes, challenge actions, hunters board, in-browser guard check, docs, RainbowKit wallets, `/api/pins` |
 | Demo server | `apps/demo-mcp` | weather tool that is honest, poisoned, or rug-pulls at a set time |
 
 ## PinnedFetch
@@ -110,7 +110,7 @@ Requires [uv](https://docs.astral.sh/uv/) and Node 20 or newer.
 scripts/setup.sh                    # Python 3.12 venv, GenLayer tools, CLI on Studio Next
 python3 scripts/bundle.py           # regenerate contracts/ from contracts/src + lib (refuses name collisions)
 scripts/glw lint contracts/toolbond.py
-scripts/glw test                    # 82 tests: library, judge, guard over stdio, patrol, contracts in direct mode
+scripts/glw test                    # 107 tests: library, judge, guard over stdio, patrol, contracts in direct mode
 cd apps/web && npm install && npm run dev
 cd apps/demo-mcp && node server.js  # http://127.0.0.1:8787/mcp/{honest,poisoned,rugpull}
 ```
