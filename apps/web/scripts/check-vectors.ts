@@ -1,13 +1,13 @@
 // Checks the TypeScript TBCM-1 port against tests/vectors/tbcm1.json: node --experimental-strip-types scripts/check-vectors.ts
 import { readFileSync } from "node:fs";
-import { canonical, digestManifest, sha256Hex } from "../src/lib/tbcm.ts";
+import { canonical, digestManifest, sha256Hex, toolObject } from "../src/lib/tbcm.ts";
 
 const vectors = JSON.parse(readFileSync(new URL("../../../tests/vectors/tbcm1.json", import.meta.url), "utf8"));
 let pass = 0;
 const failures: string[] = [];
 for (const v of [...vectors.tools, ...vectors.synthetic]) {
   if (v.lossless_parse_required) continue;
-  const canon = canonical(JSON.parse(v.raw));
+  const canon = canonical(toolObject(JSON.parse(v.raw)));
   if (canon === v.canon && sha256Hex(canon) === v.hash) pass += 1;
   else failures.push(`${v.name}\n  want ${v.canon}\n  got  ${canon}`);
 }

@@ -25,9 +25,11 @@ import urllib.request
 
 import gl_mcp
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 ALLOWED_STATUSES = ("ACTIVE", "STALE")
 STATUS_TOOL = "toolbond_status"
+CACHE_TTL_SECONDS = 24 * 3600
+SNAPSHOT_MAX_AGE_SECONDS = 72 * 3600
 CACHE_PATH = pathlib.Path(os.environ.get("TOOLBOND_CACHE", str(pathlib.Path.home() / ".toolbond" / "pins-cache.json")))
 
 
@@ -46,16 +48,27 @@ def http_post(url: str, body: str, headers: dict) -> tuple:
         raise gl_mcp.McpError(gl_mcp.ERR_TRANSIENT + " " + str(error)[:120])
 
 
+def _iso_seconds(text: str) -> float:
+    """Seconds since 1970 for an ISO-8601 UTC timestamp; 0 when unreadable (reads as ancient)."""
+    try:
+        return time.mktime(time.strptime(text[:19], "%Y-%m-%dT%H:%M:%S")) - time.timezone
+    except Exception:
+        return 0.0
+
+
 # ------------------------------------------------------------------------------- pins
 
 
 class PinSource:
     """Pins in the get_pins JSON shape, from a URL, a file, or the last good cache."""
 
-    def __init__(self, server_url: str, pins_url: str = "", pins_file: str = ""):
+    def __init__(self, server_url: str, pins_url: str = "", pins_file: str = "",
+                 cache_ttl: float = CACHE_TTL_SECONDS, snapshot_max_age: float = SNAPSHOT_MAX_AGE_SECONDS):
         self.server_url = server_url
         self.pins_url = pins_url
         self.pins_file = pins_file
+        self.cache_ttl = cache_ttl
+        self.snapshot_max_age = snapshot_max_age
 
     def load(self) -> tuple:
         """-> (pins dict or None, where it came from)."""
@@ -66,6 +79,14 @@ class PinSource:
                 with urllib.request.urlopen(self.pins_url + separator + query, timeout=15) as response:
                     pins = json.loads(response.read().decode("utf-8"))
                 if isinstance(pins, dict) and "known" in pins:
+                    if pins.get("source") == "snapshot":
+                        # the relay could not read the contract and served a published snapshot:
+                        # usable while fresh, never trusted (or cached) once it is old
+                        age = time.time() - _iso_seconds(str(pins.get("as_of") or ""))
+                        if age > self.snapshot_max_age:
+                            log("registry snapshot is older than the allowed age; treating the server as unknown")
+                            return {"known": False, "url": self.server_url}, "registry snapshot (expired)"
+                        return pins, "registry snapshot"
                     self._save_cache(pins)
                     return pins, "registry"
             except Exception as error:  # fall through to file and cache
@@ -87,16 +108,23 @@ class PinSource:
         try:
             CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
             data = json.loads(CACHE_PATH.read_text(encoding="utf-8")) if CACHE_PATH.exists() else {}
-            data[self.server_url] = pins
+            data[self.server_url] = {"pins": pins, "saved_at": time.time()}
             CACHE_PATH.write_text(json.dumps(data, indent=1), encoding="utf-8")
         except Exception as error:
             log("could not write pin cache: " + str(error)[:120])
 
     def _load_cache(self):
         try:
-            return json.loads(CACHE_PATH.read_text(encoding="utf-8")).get(self.server_url)
+            entry = json.loads(CACHE_PATH.read_text(encoding="utf-8")).get(self.server_url)
         except Exception:
             return None
+        # entries without a timestamp come from older versions: too old to trust
+        if not isinstance(entry, dict) or "saved_at" not in entry:
+            return None
+        if time.time() - float(entry["saved_at"]) > self.cache_ttl:
+            log("cached pins expired")
+            return None
+        return entry.get("pins")
 
 
 def evaluate(live_tools: list, pins, bonded_only: bool = False) -> list:
@@ -105,7 +133,9 @@ def evaluate(live_tools: list, pins, bonded_only: bool = False) -> list:
     for item in live_tools:
         name, live_hash = item["name"], item["hash"]
         decision = {"name": name, "live_hash": live_hash, "pinned_hash": "", "verdict": "", "allowed": False, "why": ""}
-        if not pins or not pins.get("known"):
+        if name == STATUS_TOOL:
+            decision["why"] = "name is reserved by the guard"
+        elif not pins or not pins.get("known"):
             decision["why"] = "server is not registered with ToolBond"
         elif pins.get("status") not in ALLOWED_STATUSES:
             decision["why"] = "server status is " + str(pins.get("status"))
@@ -159,11 +189,13 @@ class Guard:
             return changed
         pins, source = self.pins.load()
         decisions = evaluate(digest["tools"], pins, self.bonded_only)
-        raw = {tool["name"]: tool for tool in manifest["tools"] if isinstance(tool, dict)}
+        # hand the client exactly the object that was hashed (no top-level _meta), so nothing
+        # reaches the model that the pin does not cover
+        hashed = {item["name"]: json.loads(item["canon"]) for item in digest["tools"]}
         allowed = frozenset(d["name"] for d in decisions if d["allowed"])
         with self.lock:
             changed = allowed != self.allowed_names
-            self.tools = {name: raw[name] for name in allowed if name in raw}
+            self.tools = {name: hashed[name] for name in allowed if name in hashed}
             self.decisions, self.pin_source, self.last_error, self.allowed_names = decisions, source, "", allowed
         for decision in decisions:
             if not decision["allowed"]:
@@ -287,9 +319,14 @@ def main(argv=None) -> int:
     parser.add_argument("--pins-file", default="", help="get_pins JSON (or {server_url: get_pins}) for offline use")
     parser.add_argument("--bonded-only", action="store_true", help="allow BONDED servers only")
     parser.add_argument("--poll", type=float, default=30.0, help="seconds between manifest checks (0 disables)")
+    parser.add_argument("--cache-hours", type=float, default=CACHE_TTL_SECONDS / 3600,
+                        help="how long cached pins may stand in for an unreachable registry (default 24)")
+    parser.add_argument("--snapshot-max-hours", type=float, default=SNAPSHOT_MAX_AGE_SECONDS / 3600,
+                        help="oldest registry snapshot the guard accepts when live contract reads are down (default 72)")
     args = parser.parse_args(argv)
-    guard = Guard(args.server_url.strip(), PinSource(args.server_url.strip(), args.pins_url, args.pins_file),
-                  bonded_only=args.bonded_only, poll=args.poll)
+    source = PinSource(args.server_url.strip(), args.pins_url, args.pins_file,
+                       cache_ttl=args.cache_hours * 3600, snapshot_max_age=args.snapshot_max_hours * 3600)
+    guard = Guard(args.server_url.strip(), source, bonded_only=args.bonded_only, poll=args.poll)
     log(f"guarding {guard.server_url}")
     guard.serve()
     return 0

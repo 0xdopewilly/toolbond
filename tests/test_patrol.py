@@ -88,3 +88,47 @@ def test_dry_run_sends_nothing():
     runner = patrol.TxRunner("0xabc", dry_run=True)
     reply = runner.write("challenge", "sid", "", "DRIFT", value="0.5")
     assert reply["dry_run"] and reply["command"] == ["0xabc", "challenge", "--value", "0.5", "sid", "", "DRIFT"]
+
+
+class PreemptedTx(FakeTx):
+    """Someone else observed (and later settled) our challenge through the web app."""
+
+    def __init__(self, refuse):
+        super().__init__()
+        self.refuse = refuse
+
+    def write(self, method, *args, value=""):
+        if method in self.refuse:
+            self.calls.append((method, args, value))
+            return {"ok": False, "returned": {"ok": False, "error": self.refuse[method]}}
+        return super().write(method, *args, value=value)
+
+
+def test_a_step_taken_by_someone_else_moves_on(tmp_path):
+    # audit finding: the bot re-sent a step that now failed every round and never patrolled again
+    tx = PreemptedTx({"observe": "[EXPECTED] challenge was already observed"})
+    p, tx = make(tmp_path, ["changed", "changed"], tx=tx)
+    p.check(URL)
+    assert [c[0] for c in tx.calls] == ["challenge", "observe", "judge", "settle"]
+    assert json.loads((tmp_path / "state.json").read_text())["challenges"] == {}
+
+
+def test_a_closed_challenge_is_dropped(tmp_path):
+    tx = PreemptedTx({"settle": "[EXPECTED] challenge is closed"})
+    p, tx = make(tmp_path, ["changed", "changed"], tx=tx)
+    p.check(URL)
+    assert json.loads((tmp_path / "state.json").read_text())["challenges"] == {}
+
+
+def test_open_challenges_are_driven_whatever_the_status(tmp_path):
+    p, tx = make(tmp_path, ["changed"], pin=pins(status="EXITING"))
+    p.state["challenges"][patrol.sid_of(URL)] = {"cid": "c9", "stage": "FILED"}
+    p.check(URL)
+    assert [c[0] for c in tx.calls] == ["observe", "judge", "settle"]
+
+
+def test_a_known_drift_is_not_challenged_again(tmp_path):
+    pin = dict(pins(status="STALE"), drift_root="changed")
+    p, tx = make(tmp_path, ["changed"], pin=pin)
+    p.check(URL)
+    assert tx.calls == []

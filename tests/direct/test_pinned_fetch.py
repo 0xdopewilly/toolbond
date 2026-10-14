@@ -238,3 +238,20 @@ def test_pathological_manifest_fails_with_a_classified_error(direct_vm, contract
     )
     with direct_vm.expect_revert("[EXTERNAL]"):
         contract.pin(fixture["url"])
+
+
+def test_verify_tool_at_pins_a_version(direct_vm, contract):
+    # audit finding: verify_tool follows the latest pin, so a re-pinned swap would pass
+    fixture = load("deepwiki")
+    serve(direct_vm, fixture)
+    contract.pin(fixture["url"])
+    tool = expected_digest(fixture)["tools"][0]
+    assert contract.verify_tool_at(fixture["url"], 1, tool["name"], tool["hash"]) is True
+    assert contract.verify_tool_at(fixture["url"], 2, tool["name"], tool["hash"]) is False
+    assert contract.verify_tool_at(fixture["url"], 1, tool["name"], "0" * 64) is False
+
+
+def test_url_host_tricks_are_refused(direct_vm, contract):
+    for url in ("https://127.0.0.1#.com/mcp", "https://10.0.0.5\\.com/mcp", "https://box.localhost/mcp"):
+        with direct_vm.expect_revert("url"):
+            contract.pin(url)

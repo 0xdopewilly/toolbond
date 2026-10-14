@@ -163,9 +163,15 @@ def judge_with(prompt_fn, purpose: str, caps: str, tools: list, flags: dict, har
 
 
 def leader_claim_valid(result, texts: dict) -> bool:
-    """A validator's structural check of the leader's claim before re-judging."""
+    """A validator's structural check of the leader's claim before re-judging: the shape and
+    sizes ``parse_reading`` produces, and for POISONED a quote that code finds in the tool."""
     if not isinstance(result, dict) or result.get("verdict") not in VERDICTS:
         return False
+    limits = {"tool": 64, "quote": MAX_QUOTE_CHARS, "reason": MAX_REASON_CHARS}
+    for key, limit in limits.items():
+        value = result.get(key, "")
+        if not isinstance(value, str) or len(value) > limit:
+            return False
     if result["verdict"] == POISONED:
         tool = str(result.get("tool", ""))
         return tool in texts and quote_found(str(result.get("quote", "")), tool, texts)

@@ -151,3 +151,19 @@ def test_judge_targeting_phrases_are_hard():
         assert "H5" in redflags.tool_flags({"name": "t", "description": text}, {"t"}, "example.com"), text
     for text in ("Disputes get a verdict from GenLayer validators.", "Built on GenLayer Intelligent Contracts."):
         assert "H5" not in redflags.tool_flags({"name": "t", "description": text}, {"t"}, "example.com"), text
+
+
+def test_more_invisible_characters_are_flagged_but_real_emoji_are_not():
+    # audit finding: variation selectors and fillers carried payloads with no H1 flag
+    for sneaky in ("x\ufe00y", "x\U000e0100y", "a\ufe0fb", "a\u200db", "a\u3164b", "a\u034fb", "a\u2028b"):
+        assert redflags.hidden_codepoints(sneaky), repr(sneaky)
+        assert "\u27e6U+" in redflags.reveal(sneaky)
+    for emoji in ("\U0001F468\u200d\U0001F4BB", "\u2764\ufe0f", "1\ufe0f\u20e3", "\U0001F3F3\ufe0f\u200d\U0001F308"):
+        assert redflags.hidden_codepoints(emoji) == [], repr(emoji)
+
+
+def test_validators_reject_oversized_or_mistyped_claims():
+    texts = {"t": "Get the weather."}
+    assert judge.leader_claim_valid({"verdict": "UNCLEAR", "tool": "", "quote": "", "reason": "x" * 300}, texts)
+    assert not judge.leader_claim_valid({"verdict": "UNCLEAR", "tool": "", "quote": "", "reason": "x" * 301}, texts)
+    assert not judge.leader_claim_valid({"verdict": "SAFE", "tool": "", "quote": 5, "reason": ""}, texts)

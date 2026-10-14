@@ -173,3 +173,25 @@ def test_no_pins_fails_closed(demo, tmp_path):
         assert names(session.request("tools/list")) == ["toolbond_status"]
     finally:
         session.close()
+
+
+def test_guard_forwards_the_hashed_object_and_reserves_its_status_tool():
+    live = [{"name": toolbond_guard.STATUS_TOOL, "hash": "h"}]
+    pins = {"known": True, "status": "ACTIVE", "tier": "BONDED", "tools": {toolbond_guard.STATUS_TOOL: "h"},
+            "verdicts": {toolbond_guard.STATUS_TOOL: "SAFE"}}
+    decision = toolbond_guard.evaluate(live, pins)[0]
+    assert not decision["allowed"] and "reserved" in decision["why"]
+
+
+def test_old_snapshots_and_cache_entries_are_not_trusted(tmp_path, monkeypatch):
+    monkeypatch.setattr(toolbond_guard, "CACHE_PATH", tmp_path / "cache.json")
+    source = toolbond_guard.PinSource("https://example.com/mcp", cache_ttl=60)
+    source._save_cache({"known": True, "status": "ACTIVE"})
+    assert source._load_cache() == {"known": True, "status": "ACTIVE"}
+    data = json.loads((tmp_path / "cache.json").read_text())
+    data["https://example.com/mcp"]["saved_at"] -= 3600
+    (tmp_path / "cache.json").write_text(json.dumps(data))
+    assert source._load_cache() is None
+    (tmp_path / "cache.json").write_text(json.dumps({"https://example.com/mcp": {"known": True}}))  # pre-0.2 format
+    assert source._load_cache() is None
+    assert toolbond_guard._iso_seconds("2026-10-14T08:00:00Z") > 1.7e9

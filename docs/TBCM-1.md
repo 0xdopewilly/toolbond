@@ -10,7 +10,11 @@ tool will look modified. The reference implementation is `lib/gl_mcp.py`;
 
 Given a tool object parsed from a `tools/list` result:
 
-1. Remove every object member whose key is exactly `_meta`, at any depth.
+1. Remove the tool object's own top-level `_meta` member (protocol metadata that
+   clients do not show the model). A key named `_meta` anywhere else, for example a
+   parameter inside `inputSchema`, is ordinary data and stays in the hash. Earlier
+   drafts dropped `_meta` at every depth, which let a publisher hide a poisoned
+   parameter description without changing the hash.
 2. Numbers: a number with no fractional part is written as an integer, with every
    digit of its exact value (`1.0` → `1`, `-0.0` → `0`, `1e16` → `10000000000000000`,
    `1e300` → its exact 301-digit expansion). Other numbers use Python's `repr` of
@@ -24,6 +28,8 @@ Given a tool object parsed from a `tools/list` result:
    except for `"` `\` and control characters below U+0020, which use `\"` `\\`
    `\b` `\f` `\n` `\r` `\t` or lowercase `\u00XX`. Do not escape `/`, U+007F,
    U+2028/U+2029 or any non-ASCII character. Apply no Unicode normalization.
+   A string containing an unpaired UTF-16 surrogate has no UTF-8 encoding: the
+   manifest is invalid and implementations must refuse it.
 4. `tool_hash` = lowercase hex SHA-256 of the UTF-8 bytes of that text.
 
 ## Manifest root

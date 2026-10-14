@@ -20,6 +20,7 @@ Determinism notes:
 
 import hashlib
 import json
+import re
 
 PROTOCOL_VERSION = "2025-06-18"
 MAX_TOOLS = 24
@@ -73,7 +74,9 @@ def _text(body) -> str:
 def _sse_payloads(text: str) -> list:
     """The ``data:`` payload of every server-sent event, multi-line data joined per the SSE spec."""
     payloads, current = [], []
-    for line in text.splitlines():
+    # SSE ends lines with CRLF, LF or CR only. str.splitlines() would also split on U+2028,
+    # NEL and friends, which JSON may carry unescaped inside strings.
+    for line in re.split(r"\r\n|\r|\n", text):
         if line.startswith("data:"):
             current.append(line[5:].lstrip(" "))
         elif line == "" and current:
@@ -173,23 +176,35 @@ def fetch_manifest(post, url: str) -> dict:
 
 
 def _normalize(value):
-    if value is None or isinstance(value, (bool, int, str)):
+    if value is None or isinstance(value, bool) or isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        # a lone surrogate cannot be encoded as UTF-8, so every validator would fail to hash it
+        if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+            raise McpError(f"{ERR_EXTERNAL} invalid unicode in manifest")
         return value
     if isinstance(value, float):
         if value != value or value in (float("inf"), float("-inf")):
             raise McpError(f"{ERR_EXTERNAL} non-finite number in manifest")
         return int(value) if value.is_integer() else value
     if isinstance(value, dict):
-        return {str(key): _normalize(item) for key, item in value.items() if key != "_meta"}
+        return {_normalize(str(key)): _normalize(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_normalize(item) for item in value]
     return str(value)
 
 
 def canonical(value) -> str:
-    """TBCM-1: drop ``_meta``, integral floats become ints, sorted keys, compact, no Unicode
-    normalization (hidden characters must change the hash)."""
+    """TBCM-1 encoding: integral floats become ints, sorted keys, compact, no Unicode
+    normalization (hidden characters must change the hash). See ``tool_object`` for ``_meta``."""
     return json.dumps(_normalize(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+
+
+def tool_object(tool: dict) -> dict:
+    """The part of a tool definition that is hashed: everything except its own top-level
+    ``_meta`` (protocol metadata that clients do not show the model). Nested keys named
+    ``_meta`` are ordinary data and stay in."""
+    return {key: value for key, value in tool.items() if key != "_meta"}
 
 
 def sha256_hex(text: str) -> str:
@@ -210,7 +225,7 @@ def digest_manifest(manifest: dict) -> dict:
         if name in names:
             raise McpError(f"{ERR_EXTERNAL} duplicate tool name")
         names.add(name)
-        text = canonical(tool)
+        text = canonical(tool_object(tool))
         total += len(text.encode("utf-8"))
         tools.append({"name": name, "hash": sha256_hex(text), "canon": text})
     instructions = manifest.get("instructions") or ""

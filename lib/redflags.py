@@ -20,12 +20,17 @@ import re
 
 _TAG_FIRST, _TAG_LAST = 0xE0000, 0xE007F
 _ZWJ = 0x200D
+_EMOJI_VS = (0xFE0E, 0xFE0F)  # text / emoji presentation selectors, legitimate after a pictograph
 _HIDDEN = (
-    set(range(0x200B, 0x2010))
-    | set(range(0x202A, 0x202F))
-    | set(range(0x2060, 0x2065))
-    | set(range(0x2066, 0x206A))
-    | {0x00AD, 0x180E, 0xFEFF}
+    set(range(0x200B, 0x2010))  # zero-width space, joiners, LRM/RLM
+    | set(range(0x202A, 0x202F))  # bidi embeddings and overrides
+    | set(range(0x2060, 0x2065))  # word joiner, invisible operators
+    | set(range(0x2066, 0x206A))  # bidi isolates
+    | set(range(0xFE00, 0xFE10))  # variation selectors 1-16
+    | set(range(0xE0100, 0xE01F0))  # variation selectors 17-256
+    | set(range(0x180B, 0x1810))  # Mongolian free variation selectors and vowel separator
+    | set(range(0x1D173, 0x1D17B))  # invisible musical formatting
+    | {0x00AD, 0x034F, 0x061C, 0x115F, 0x1160, 0x17B4, 0x17B5, 0x2028, 0x2029, 0x3164, 0xFEFF, 0xFFA0}
 )
 
 _SECRET_PLACE = re.compile(
@@ -75,18 +80,50 @@ _FILE_WORDS = re.compile(r"\b(files?|contents?|path|config|configuration|credent
 MAX_DESCRIPTION = 2000
 
 
-def _emoji_joiner(text: str, index: int) -> bool:
-    return 0 < index < len(text) - 1 and ord(text[index - 1]) > 0x2000 and ord(text[index + 1]) > 0x2000
+def _pictographic(code: int) -> bool:
+    """Emoji-capable code points (a deliberately small, deterministic approximation)."""
+    return (
+        0x1F000 <= code <= 0x1FAFF
+        or 0x2600 <= code <= 0x27BF
+        or 0x2300 <= code <= 0x23FF
+        or 0x2B00 <= code <= 0x2BFF
+        or 0x2190 <= code <= 0x21FF
+        or 0x25A0 <= code <= 0x25FF
+        or code in (0x00A9, 0x00AE, 0x203C, 0x2049, 0x2122, 0x2139, 0x24C2, 0x3030, 0x303D, 0x3297, 0x3299)
+    )
+
+
+def _excused(text: str, index: int) -> bool:
+    """True for the two invisible characters that real emoji sequences need, in place:
+    a presentation selector right after a pictograph or keycap base, and a zero-width
+    joiner between two pictographs (an optional presentation selector may precede it)."""
+    code = ord(text[index])
+    prev = ord(text[index - 1]) if index > 0 else 0
+    if code in _EMOJI_VS:
+        return _pictographic(prev) or chr(prev) in "0123456789#*"
+    if code == _ZWJ and index + 1 < len(text):
+        before = prev
+        if before in _EMOJI_VS and index > 1:
+            before = ord(text[index - 2])
+        return _pictographic(before) and _pictographic(ord(text[index + 1]))
+    return False
+
+
+def _hidden(text: str, index: int) -> bool:
+    code = ord(text[index])
+    if code in _EMOJI_VS or code == _ZWJ:
+        return not _excused(text, index)
+    return code in _HIDDEN
 
 
 def hidden_codepoints(text: str) -> list:
-    """Code points of invisible characters, except a zero-width joiner inside an emoji."""
+    """Code points of invisible characters, except the joiners and selectors inside real emoji."""
     found = []
     for index, char in enumerate(text):
         code = ord(char)
         if _TAG_FIRST <= code <= _TAG_LAST:
             found.append(code)
-        elif code in _HIDDEN and not (code == _ZWJ and _emoji_joiner(text, index)):
+        elif _hidden(text, index):
             found.append(code)
     return found
 
@@ -108,7 +145,7 @@ def reveal(text: str) -> str:
                 run.append(chr(code - 0xE0000))
             continue
         flush()
-        if code in _HIDDEN and not (code == _ZWJ and _emoji_joiner(text, index)):
+        if _hidden(text, index):
             out.append("⟦U+" + format(code, "04X") + "⟧")
         else:
             out.append(char)

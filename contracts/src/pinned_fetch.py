@@ -65,13 +65,21 @@ def _validate_url(url: str) -> str:
         _fail("url is longer than " + str(MAX_URL_CHARS) + " characters")
     if not url.startswith("https://"):
         _fail("url must start with https://")
-    if any(ch.isspace() for ch in url):
-        _fail("url must not contain whitespace")
-    host = url[len("https://"):].split("/", 1)[0].split("?", 1)[0]
-    if not host or "@" in host or ":" in host:
-        _fail("url host must be a domain without port or credentials")
+    if any(ch.isspace() for ch in url) or "\\" in url:
+        _fail("url must not contain whitespace or backslashes")
+    rest = url[len("https://"):]
+    end = len(rest)
+    for separator in "/?#":
+        index = rest.find(separator)
+        if 0 <= index < end:
+            end = index
+    host = rest[:end].lower()
+    if not host or any(ch not in "abcdefghijklmnopqrstuvwxyz0123456789.-" for ch in host):
+        _fail("url host must be a domain name without port, credentials or other symbols")
     labels = host.split(".")
     if len(labels) < 2 or not all(labels) or not labels[-1].isalpha():
+        _fail("url host must be a public domain name")
+    if host == "localhost" or host.endswith((".localhost", ".local", ".internal", ".lan", ".home", ".arpa")):
         _fail("url host must be a public domain name")
     return url
 
@@ -208,6 +216,7 @@ class PinnedFetch(gl.contract.Contract):
     pins: gl.storage.TreeMap[str, PinVersion]  # f"{url_id}:{version}"
     latest_version: gl.storage.TreeMap[str, gl.u64]  # url_id -> latest version (1-based)
     last_check: gl.storage.TreeMap[str, DriftCheck]  # url_id -> latest drift check
+    last_drift: gl.storage.TreeMap[str, DriftCheck]  # url_id -> latest DIFFERS/UNSTABLE check (kept when later checks fail)
     url_of: gl.storage.TreeMap[str, str]  # url_id -> url
     url_ids: gl.storage.DynArray[str]
     pins_total: gl.u64
@@ -287,7 +296,7 @@ class PinnedFetch(gl.contract.Contract):
                 return True  # safe harbour: records "unknown", never a pass
             mine = leader_fn()
             if drift == DRIFT_UNSTABLE:
-                return mine["drift"] in (DRIFT_UNSTABLE, DRIFT_DIFFERS)
+                return mine["drift"] == DRIFT_UNSTABLE
             if drift in (DRIFT_MATCH, DRIFT_DIFFERS):
                 return mine == theirs  # DIFFERS: same new root, hence the same verified content
             return False
@@ -311,6 +320,7 @@ class PinnedFetch(gl.contract.Contract):
         self.checks_total = int(self.checks_total) + 1
         if seen["drift"] in (DRIFT_DIFFERS, DRIFT_UNSTABLE):
             self.drifts_total = int(self.drifts_total) + 1
+            self.last_drift[url_id] = self.last_check[url_id]
 
     # ------------------------------------------------------------------- views
 
@@ -335,6 +345,7 @@ class PinnedFetch(gl.contract.Contract):
                 "pinned_at": pin.pinned_at,
                 "tools": {item["name"]: item["hash"] for item in tools},
                 "last_check": self._check_summary(url_id),
+                "last_drift_root": self.last_drift[url_id].root if url_id in self.last_drift else "",
             },
             sort_keys=True,
         )
@@ -400,6 +411,35 @@ class PinnedFetch(gl.contract.Contract):
             if item["name"] == name:
                 return item["hash"] == str(tool_hash).strip().lower()
         return False
+
+    @gl.public.view
+    def verify_tool_at(self, url: str, version: int, name: str, tool_hash: str) -> bool:
+        """True when ``tool_hash`` is tool ``name`` in pin ``version`` of ``url``. Use this when you
+        approved a specific version: anyone can pin a newer one after a change upstream."""
+        key = _url_id(str(url).strip()) + ":" + str(int(version))
+        if key not in self.pins:
+            return False
+        for item in json.loads(self.pins[key].tools_json):
+            if item["name"] == name:
+                return item["hash"] == str(tool_hash).strip().lower()
+        return False
+
+    @gl.public.view
+    def get_last_drift(self, url: str) -> str:
+        """The latest check that found a change (DIFFERS or UNSTABLE), even if later checks failed."""
+        url_id = _url_id(str(url).strip())
+        if url_id not in self.last_drift:
+            return json.dumps({"checked": False})
+        c = self.last_drift[url_id]
+        return json.dumps(
+            {
+                "checked": True, "version": int(c.version), "drift": c.drift, "root": c.root, "reason": c.reason,
+                "added": json.loads(c.added_json), "removed": json.loads(c.removed_json),
+                "modified": json.loads(c.modified_json), "changed": json.loads(c.changed_json),
+                "instructions_changed": bool(c.instructions_changed), "checked_at": c.checked_at,
+            },
+            sort_keys=True,
+        )
 
     @gl.public.view
     def list_pins(self, offset: int, limit: int) -> str:

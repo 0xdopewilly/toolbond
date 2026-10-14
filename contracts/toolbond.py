@@ -13,7 +13,8 @@ contract settles the stakes and slashes the bond.
 Consensus design, in one line per decision:
 - snapshot: exact equality of the canonical digest and the code-computed red flags;
 - observe: agree on a drift class; DIFFERS only with the same new root, so stored
-  changed tools are verified content; UNREACHABLE is a safe harbour;
+  changed tools are verified content; UNSTABLE and UNPINNED only when each validator
+  sees them itself; UNREACHABLE is a safe harbour;
 - judge: agree on the verdict word only; UNCLEAR is a safe harbour; POISONED must quote
   text that code finds in the tool; hard red flags make SAFE impossible.
 The interface is documented in docs/CONTRACT_API.md.
@@ -50,6 +51,7 @@ Determinism notes:
 
 import hashlib
 import json
+import re
 
 PROTOCOL_VERSION = "2025-06-18"
 MAX_TOOLS = 24
@@ -103,7 +105,9 @@ def _text(body) -> str:
 def _sse_payloads(text: str) -> list:
     """The ``data:`` payload of every server-sent event, multi-line data joined per the SSE spec."""
     payloads, current = [], []
-    for line in text.splitlines():
+    # SSE ends lines with CRLF, LF or CR only. str.splitlines() would also split on U+2028,
+    # NEL and friends, which JSON may carry unescaped inside strings.
+    for line in re.split(r"\r\n|\r|\n", text):
         if line.startswith("data:"):
             current.append(line[5:].lstrip(" "))
         elif line == "" and current:
@@ -203,23 +207,35 @@ def fetch_manifest(post, url: str) -> dict:
 
 
 def _normalize(value):
-    if value is None or isinstance(value, (bool, int, str)):
+    if value is None or isinstance(value, bool) or isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        # a lone surrogate cannot be encoded as UTF-8, so every validator would fail to hash it
+        if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+            raise McpError(f"{ERR_EXTERNAL} invalid unicode in manifest")
         return value
     if isinstance(value, float):
         if value != value or value in (float("inf"), float("-inf")):
             raise McpError(f"{ERR_EXTERNAL} non-finite number in manifest")
         return int(value) if value.is_integer() else value
     if isinstance(value, dict):
-        return {str(key): _normalize(item) for key, item in value.items() if key != "_meta"}
+        return {_normalize(str(key)): _normalize(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_normalize(item) for item in value]
     return str(value)
 
 
 def canonical(value) -> str:
-    """TBCM-1: drop ``_meta``, integral floats become ints, sorted keys, compact, no Unicode
-    normalization (hidden characters must change the hash)."""
+    """TBCM-1 encoding: integral floats become ints, sorted keys, compact, no Unicode
+    normalization (hidden characters must change the hash). See ``tool_object`` for ``_meta``."""
     return json.dumps(_normalize(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+
+
+def tool_object(tool: dict) -> dict:
+    """The part of a tool definition that is hashed: everything except its own top-level
+    ``_meta`` (protocol metadata that clients do not show the model). Nested keys named
+    ``_meta`` are ordinary data and stay in."""
+    return {key: value for key, value in tool.items() if key != "_meta"}
 
 
 def sha256_hex(text: str) -> str:
@@ -240,7 +256,7 @@ def digest_manifest(manifest: dict) -> dict:
         if name in names:
             raise McpError(f"{ERR_EXTERNAL} duplicate tool name")
         names.add(name)
-        text = canonical(tool)
+        text = canonical(tool_object(tool))
         total += len(text.encode("utf-8"))
         tools.append({"name": name, "hash": sha256_hex(text), "canon": text})
     instructions = manifest.get("instructions") or ""
@@ -290,12 +306,17 @@ import re
 
 _TAG_FIRST, _TAG_LAST = 0xE0000, 0xE007F
 _ZWJ = 0x200D
+_EMOJI_VS = (0xFE0E, 0xFE0F)  # text / emoji presentation selectors, legitimate after a pictograph
 _HIDDEN = (
-    set(range(0x200B, 0x2010))
-    | set(range(0x202A, 0x202F))
-    | set(range(0x2060, 0x2065))
-    | set(range(0x2066, 0x206A))
-    | {0x00AD, 0x180E, 0xFEFF}
+    set(range(0x200B, 0x2010))  # zero-width space, joiners, LRM/RLM
+    | set(range(0x202A, 0x202F))  # bidi embeddings and overrides
+    | set(range(0x2060, 0x2065))  # word joiner, invisible operators
+    | set(range(0x2066, 0x206A))  # bidi isolates
+    | set(range(0xFE00, 0xFE10))  # variation selectors 1-16
+    | set(range(0xE0100, 0xE01F0))  # variation selectors 17-256
+    | set(range(0x180B, 0x1810))  # Mongolian free variation selectors and vowel separator
+    | set(range(0x1D173, 0x1D17B))  # invisible musical formatting
+    | {0x00AD, 0x034F, 0x061C, 0x115F, 0x1160, 0x17B4, 0x17B5, 0x2028, 0x2029, 0x3164, 0xFEFF, 0xFFA0}
 )
 
 _SECRET_PLACE = re.compile(
@@ -345,18 +366,50 @@ _FILE_WORDS = re.compile(r"\b(files?|contents?|path|config|configuration|credent
 MAX_DESCRIPTION = 2000
 
 
-def _emoji_joiner(text: str, index: int) -> bool:
-    return 0 < index < len(text) - 1 and ord(text[index - 1]) > 0x2000 and ord(text[index + 1]) > 0x2000
+def _pictographic(code: int) -> bool:
+    """Emoji-capable code points (a deliberately small, deterministic approximation)."""
+    return (
+        0x1F000 <= code <= 0x1FAFF
+        or 0x2600 <= code <= 0x27BF
+        or 0x2300 <= code <= 0x23FF
+        or 0x2B00 <= code <= 0x2BFF
+        or 0x2190 <= code <= 0x21FF
+        or 0x25A0 <= code <= 0x25FF
+        or code in (0x00A9, 0x00AE, 0x203C, 0x2049, 0x2122, 0x2139, 0x24C2, 0x3030, 0x303D, 0x3297, 0x3299)
+    )
+
+
+def _excused(text: str, index: int) -> bool:
+    """True for the two invisible characters that real emoji sequences need, in place:
+    a presentation selector right after a pictograph or keycap base, and a zero-width
+    joiner between two pictographs (an optional presentation selector may precede it)."""
+    code = ord(text[index])
+    prev = ord(text[index - 1]) if index > 0 else 0
+    if code in _EMOJI_VS:
+        return _pictographic(prev) or chr(prev) in "0123456789#*"
+    if code == _ZWJ and index + 1 < len(text):
+        before = prev
+        if before in _EMOJI_VS and index > 1:
+            before = ord(text[index - 2])
+        return _pictographic(before) and _pictographic(ord(text[index + 1]))
+    return False
+
+
+def _hidden(text: str, index: int) -> bool:
+    code = ord(text[index])
+    if code in _EMOJI_VS or code == _ZWJ:
+        return not _excused(text, index)
+    return code in _HIDDEN
 
 
 def hidden_codepoints(text: str) -> list:
-    """Code points of invisible characters, except a zero-width joiner inside an emoji."""
+    """Code points of invisible characters, except the joiners and selectors inside real emoji."""
     found = []
     for index, char in enumerate(text):
         code = ord(char)
         if _TAG_FIRST <= code <= _TAG_LAST:
             found.append(code)
-        elif code in _HIDDEN and not (code == _ZWJ and _emoji_joiner(text, index)):
+        elif _hidden(text, index):
             found.append(code)
     return found
 
@@ -378,7 +431,7 @@ def reveal(text: str) -> str:
                 run.append(chr(code - 0xE0000))
             continue
         flush()
-        if code in _HIDDEN and not (code == _ZWJ and _emoji_joiner(text, index)):
+        if _hidden(text, index):
             out.append("⟦U+" + format(code, "04X") + "⟧")
         else:
             out.append(char)
@@ -643,9 +696,15 @@ def judge_with(prompt_fn, purpose: str, caps: str, tools: list, flags: dict, har
 
 
 def leader_claim_valid(result, texts: dict) -> bool:
-    """A validator's structural check of the leader's claim before re-judging."""
+    """A validator's structural check of the leader's claim before re-judging: the shape and
+    sizes ``parse_reading`` produces, and for POISONED a quote that code finds in the tool."""
     if not isinstance(result, dict) or result.get("verdict") not in VERDICTS:
         return False
+    limits = {"tool": 64, "quote": MAX_QUOTE_CHARS, "reason": MAX_REASON_CHARS}
+    for key, limit in limits.items():
+        value = result.get(key, "")
+        if not isinstance(value, str) or len(value) > limit:
+            return False
     if result["verdict"] == POISONED:
         tool = str(result.get("tool", ""))
         return tool in texts and quote_found(str(result.get("quote", "")), tool, texts)
@@ -669,7 +728,7 @@ MAX_ATTEMPTS = 3
 EXIT_DELAY = 7 * 86400
 REVIEW_BATCH = 6
 DRIFT_SAFE_REWARD_PCT = 5
-DRIFT_UNSTABLE_SLASH_PCT = 25
+DRIFT_UNPINNED_SLASH_PCT = 25
 REJECT_FEE_PCT = 10
 
 MAX_URL_CHARS = 200
@@ -705,9 +764,13 @@ DRIFT_DIFFERS = "DIFFERS"
 DRIFT_UNSTABLE = "UNSTABLE"
 DRIFT_UNPINNED = "UNPINNED"
 DRIFT_UNREACHABLE = "UNREACHABLE"
+DRIFT_KNOWN = "KNOWN"
+DRIFT_CLASSES = (DRIFT_MATCH, DRIFT_DIFFERS, DRIFT_UNSTABLE, DRIFT_UNPINNED, DRIFT_UNREACHABLE, DRIFT_KNOWN)
 
 MAX_CHANGED_TOOLS = 4
 MAX_REASON_STORE = 300
+HOST_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789.-"
+PRIVATE_SUFFIXES = (".localhost", ".local", ".internal", ".lan", ".home", ".arpa")
 
 
 # ---------------------------------------------------------------------------- helpers
@@ -770,7 +833,14 @@ def _sid(url: str) -> str:
 
 
 def _host(url: str) -> str:
-    return url[len("https://"):].split("/", 1)[0].split("?", 1)[0].lower()
+    """The authority of an https URL: everything up to the first / ? # or backslash."""
+    rest = url[len("https://"):]
+    end = len(rest)
+    for separator in "/?#\\":
+        index = rest.find(separator)
+        if 0 <= index < end:
+            end = index
+    return rest[:end].lower()
 
 
 def _url_problem(url: str) -> str:
@@ -778,13 +848,15 @@ def _url_problem(url: str) -> str:
         return "url is longer than " + str(MAX_URL_CHARS) + " characters"
     if not url.startswith("https://"):
         return "url must start with https://"
-    if any(ch.isspace() for ch in url):
-        return "url must not contain whitespace"
+    if any(ch.isspace() for ch in url) or "\\" in url:
+        return "url must not contain whitespace or backslashes"
     host = _host(url)
-    if not host or "@" in host or ":" in host:
-        return "url host must be a domain without port or credentials"
+    if not host or any(ch not in HOST_CHARS for ch in host):
+        return "url host must be a domain name without port, credentials or other symbols"
     labels = host.split(".")
     if len(labels) < 2 or not all(labels) or not labels[-1].isalpha():
+        return "url host must be a public domain name"
+    if host == "localhost" or host.endswith(PRIVATE_SUFFIXES):
         return "url host must be a public domain name"
     return ""
 
@@ -858,10 +930,16 @@ def _flags_for(manifest: dict, names: set, host: str, only: set) -> dict:
     return flags
 
 
+def _reserved_name_check(digest: dict) -> None:
+    if any(item["name"] == INSTRUCTIONS_KEY for item in digest["tools"]):
+        raise McpError(ERR_EXTERNAL + " tool name " + INSTRUCTIONS_KEY + " is reserved")
+
+
 def _snapshot_block(url: str, host: str) -> dict:
     try:
         manifest = _fetch(url)
         digest = digest_manifest(manifest)
+        _reserved_name_check(digest)
         names = {item["name"] for item in digest["tools"]}
         flags = _flags_for(manifest, names, host, names | {INSTRUCTIONS_KEY})
         return {"digest": digest, "flags": flags}
@@ -883,47 +961,84 @@ def _observation(drift: str, root: str = "", reason: str = "") -> dict:
         "modified": [],
         "changed": [],
         "flags": {},
+        "overflow": 0,
         "instructions_changed": False,
         "instructions": "",
     }
 
 
-def _observe_block(url: str, host: str, pinned_root: str, pinned_hashes: dict, pinned_instructions_hash: str, mode: str) -> dict:
-    """Classify the live manifest against the pin. Never raises: failures are UNREACHABLE."""
+def _content_failure(message: str) -> bool:
+    """A failure after the server answered: it served something that is not a valid manifest.
+    Network trouble and HTTP errors stay UNREACHABLE (nothing is known about the content)."""
+    return message.startswith(ERR_EXTERNAL) and not message.startswith(ERR_EXTERNAL + " http ")
+
+
+def _risk_order(names: set, flags: dict) -> list:
+    """Changed tools, riskiest first: hard red flags, then soft flags, then the rest; by name within."""
+    def rank(name: str) -> tuple:
+        codes = flags.get(name, [])
+        return (0 if has_hard_flag(codes) else (1 if codes else 2), name)
+
+    return sorted(names, key=rank)
+
+
+def _observe_block(url: str, host: str, pinned_root: str, pinned_hashes: dict, pinned_instructions_hash: str,
+                   known_root: str, mode: str) -> dict:
+    """Classify the live manifest against the pin. Never raises.
+
+    content mode (DRIFT challenges): MATCH, KNOWN (the drift a settled challenge already
+    penalised), DIFFERS with the verified changed tools, UNSTABLE (two different manifests
+    in a row), UNPINNED (the server answered with something that is not a valid manifest),
+    UNREACHABLE (network or HTTP failure). presence mode (attest): MATCH or DIFFERS only."""
     try:
         manifest = _fetch(url)
         first = digest_manifest(manifest)
+        _reserved_name_check(first)
     except McpError as err:
-        return _observation(DRIFT_UNREACHABLE, reason=str(err))
+        message = str(err)
+        if _content_failure(message):
+            return _observation(DRIFT_UNPINNED, reason=message)
+        return _observation(DRIFT_UNREACHABLE, reason=message)
     except Exception:
-        return _observation(DRIFT_UNREACHABLE, reason=ERR_EXTERNAL + " unreadable manifest")
+        return _observation(DRIFT_UNPINNED, reason=ERR_EXTERNAL + " unreadable manifest")
     if first["root"] == pinned_root:
         return _observation(DRIFT_MATCH, root=first["root"])
     if mode == "presence":
-        return _observation(DRIFT_UNPINNED)
+        return _observation(DRIFT_DIFFERS, root=first["root"])
+    if known_root and first["root"] == known_root:
+        return _observation(DRIFT_KNOWN, root=first["root"])
     try:
         second = digest_manifest(_fetch(url))
-    except Exception:
+    except McpError as err:
+        message = str(err)
+        if _content_failure(message):
+            return _observation(DRIFT_UNSTABLE, reason="valid manifest, then an invalid one")
         return _observation(DRIFT_UNREACHABLE, reason=ERR_TRANSIENT + " second fetch failed")
+    except Exception:
+        return _observation(DRIFT_UNSTABLE, reason="valid manifest, then an unreadable one")
     if second["root"] != first["root"]:
-        return _observation(DRIFT_UNSTABLE)
+        return _observation(DRIFT_UNSTABLE, reason="two different manifests in a row")
     diff = diff_tools(pinned_hashes, first["tools"])
     changed_names = set(diff["added"]) | set(diff["modified"])
     observed = _observation(DRIFT_DIFFERS, root=first["root"])
     observed["added"] = diff["added"]
     observed["removed"] = diff["removed"]
     observed["modified"] = diff["modified"]
-    observed["changed"] = [item for item in first["tools"] if item["name"] in changed_names][:MAX_CHANGED_TOOLS]
-    judged_names = {item["name"] for item in observed["changed"]}
+    names = {item["name"] for item in first["tools"]}
+    flag_names = set(changed_names)
     if first["instructions_hash"] != pinned_instructions_hash:
         observed["instructions_changed"] = True
         observed["instructions"] = first["instructions"]
-        judged_names.add(INSTRUCTIONS_KEY)
-    names = {item["name"] for item in first["tools"]}
+        flag_names.add(INSTRUCTIONS_KEY)
     try:
-        observed["flags"] = _flags_for(manifest, names, host, judged_names)
+        # code-computed flags for every changed tool, judged or not: a hard flag anywhere blocks SAFE
+        observed["flags"] = _flags_for(manifest, names, host, flag_names)
     except Exception:
         observed["flags"] = {}
+    ordered = _risk_order(changed_names, observed["flags"])
+    keep = set(ordered[:MAX_CHANGED_TOOLS])
+    observed["changed"] = [item for item in first["tools"] if item["name"] in keep]
+    observed["overflow"] = max(0, len(ordered) - MAX_CHANGED_TOOLS)
     return observed
 
 
@@ -939,11 +1054,12 @@ def _judge_texts(purpose: str, caps: str, tools: list, flags: dict, hard: bool) 
     return judge_with(lambda prompt: _ask_json(prompt), purpose, caps, tools, flags, hard)
 
 
-def _judge_block(purpose: str, caps: str, judged: list, flags: dict) -> dict:
-    """Two readings per validator; agree on the verdict word only (UNCLEAR is a safe harbour)."""
+def _judge_block(purpose: str, caps: str, judged: list, flags: dict, force_hard: bool = False) -> dict:
+    """Two readings per validator; agree on the verdict word only (UNCLEAR is a safe harbour).
+    ``force_hard`` carries hard flags found on changed tools outside the judged batch."""
     tools = [{"name": item["name"], "text": reveal(item["canon"])} for item in judged]
     texts = {tool["name"]: tool["text"] for tool in tools}
-    hard = any(has_hard_flag(codes) for codes in flags.values())
+    hard = force_hard or any(has_hard_flag(codes) for codes in flags.values())
 
     def leader_fn() -> dict:
         return _judge_texts(purpose, caps, tools, flags, hard)
@@ -1004,6 +1120,7 @@ class Server:
     updated_at: str
     last_verified_at: str
     exit_at: gl.u64
+    drift_root: str  # live root of the last drift a settled challenge penalised ("" when none)
 
 
 @allow_storage
@@ -1029,6 +1146,7 @@ class Challenge:
     filed_at_s: gl.u64
     updated_at: str
     payout_json: str
+    overflow: gl.u64  # changed tools beyond the MAX_CHANGED_TOOLS that one ruling covers
 
 
 class ToolBond(gl.contract.Contract):
@@ -1103,7 +1221,7 @@ class ToolBond(gl.contract.Contract):
             sid=sid, tool=tool, kind=kind, hunter=sender, stake=required, stage=STAGE_FILED, drift="",
             observed_root="", changed_json="[]", changed_flags_json="{}", observed_instructions="",
             verdict="", offending="", quote="", reason="", attempts=0, filed_at=now, filed_at_s=_now_s(),
-            updated_at=now, payout_json="{}",
+            updated_at=now, payout_json="{}", overflow=0,
         )
         self.challenge_ids.append(cid)
         self.open_by_target[target] = cid
@@ -1116,9 +1234,10 @@ class ToolBond(gl.contract.Contract):
     def snapshot(self, sid: str) -> None:
         """Validators fetch the live manifest and must derive the identical digest and flags."""
         server = self._server(sid)
-        if server.status == ST_STALE:
-            if server.tier == TIER_BONDED and _sender() != server.publisher:
-                _fail("only the publisher can re-pin a stale server")
+        if server.status in (ST_ACTIVE, ST_STALE):
+            # re-pinning: an announced update (ACTIVE) or a fix after drift (STALE)
+            if (server.status == ST_ACTIVE or server.tier == TIER_BONDED) and _sender() != server.publisher:
+                _fail("only the publisher can re-pin this server")
             if int(server.open_challenges) > 0:
                 _fail("a challenge is open")
         elif server.status not in (ST_PENDING_SNAPSHOT, ST_PENDING_REVIEW):
@@ -1150,6 +1269,7 @@ class ToolBond(gl.contract.Contract):
         server.verdicts_json = _dumps(verdicts)
         server.reviewed_upto = 0
         server.contested = False
+        server.drift_root = ""
         server.status = ST_PENDING_REVIEW
         server.updated_at = _now()
         self.pins_total = int(self.pins_total) + 1
@@ -1185,7 +1305,9 @@ class ToolBond(gl.contract.Contract):
                 server.status = ST_ACTIVE
                 server.last_verified_at = now
         elif verdict == POISONED:
-            verdicts[result["tool"]] = {"verdict": POISONED, "reason": result["reason"], "quote": result["quote"]}
+            verdicts[result["tool"]] = {
+                "verdict": POISONED, "reason": str(result["reason"])[:MAX_REASON_STORE], "quote": str(result["quote"])[:MAX_REASON_STORE],
+            }
             bond = int(server.bond)
             fee = bond * REJECT_FEE_PCT // 100
             self._credit(self.treasury, fee)
@@ -1195,7 +1317,9 @@ class ToolBond(gl.contract.Contract):
             server.status = ST_REJECTED
         else:
             for item in judged:
-                verdicts[item["name"]] = {"verdict": UNCLEAR, "reason": result["reason"], "quote": result["quote"]}
+                verdicts[item["name"]] = {
+                    "verdict": UNCLEAR, "reason": str(result["reason"])[:MAX_REASON_STORE], "quote": str(result["quote"])[:MAX_REASON_STORE],
+                }
         server.verdicts_json = _dumps(verdicts)
         server.updated_at = now
 
@@ -1203,25 +1327,25 @@ class ToolBond(gl.contract.Contract):
 
     @gl.public.write
     def observe(self, cid: str, mode: str) -> None:
-        """DRIFT challenges: validators re-fetch and agree on MATCH / DIFFERS / UNSTABLE /
-        UNPINNED (presence mode) / UNREACHABLE."""
+        """DRIFT challenges: validators re-fetch and agree on MATCH / KNOWN / DIFFERS / UNSTABLE /
+        UNPINNED / UNREACHABLE. ``mode`` must be "content" (presence checks belong to attest)."""
         challenge = self._challenge(cid)
         if challenge.kind != KIND_DRIFT:
             _fail("observe applies to DRIFT challenges")
         if challenge.stage != STAGE_FILED:
             _fail("challenge was already observed")
-        mode = str(mode).strip().lower()
-        if mode not in ("content", "presence"):
-            _fail("mode must be content or presence")
+        if str(mode).strip().lower() not in ("", "content"):
+            _fail("observe compares content; presence checks are made with attest")
         server = self.servers[challenge.sid]
-        seen = self._observe(server, mode)
+        seen = self._observe(server, "content")
         challenge.attempts = int(challenge.attempts) + 1
-        challenge.drift = str(seen["drift"])
-        challenge.observed_root = str(seen["root"])
+        challenge.drift = seen["drift"]
+        challenge.observed_root = seen["root"]
         challenge.changed_json = _dumps(seen["changed"])
         challenge.changed_flags_json = _dumps(seen["flags"])
-        challenge.observed_instructions = str(seen["instructions"])
-        challenge.reason = str(seen["reason"])
+        challenge.observed_instructions = seen["instructions"]
+        challenge.overflow = int(seen["overflow"])
+        challenge.reason = seen["reason"]
         challenge.stage = STAGE_OBSERVED
         challenge.updated_at = _now()
         self.checks_total = int(self.checks_total) + 1
@@ -1247,12 +1371,19 @@ class ToolBond(gl.contract.Contract):
                 judged.append({"name": INSTRUCTIONS_KEY, "canon": str(challenge.observed_instructions)})
             stored_flags = json.loads(challenge.changed_flags_json)
             flags = {item["name"]: list(stored_flags.get(item["name"], [])) for item in judged}
+        force_hard = challenge.kind == KIND_DRIFT and any(has_hard_flag(codes) for codes in json.loads(challenge.changed_flags_json).values())
         now = _now()
         if not judged:
             # only removals: nothing an agent could be told to do
             result = {"verdict": SAFE, "tool": "", "quote": "", "reason": "tools were only removed"}
         else:
-            result = _judge_block(str(server.purpose), str(server.caps), judged, flags)
+            result = _judge_block(str(server.purpose), str(server.caps), judged, flags, force_hard)
+        if result["verdict"] == SAFE and challenge.kind == KIND_DRIFT and int(challenge.overflow) > 0:
+            # unjudged changed tools remain: one ruling cannot clear them
+            result = {
+                "verdict": UNCLEAR, "tool": "", "quote": "",
+                "reason": str(int(challenge.overflow)) + " more changed tools than one ruling covers",
+            }
         challenge.verdict = str(result["verdict"])
         challenge.offending = str(result["tool"]) if result["verdict"] == POISONED else ""
         challenge.quote = str(result["quote"])[:MAX_REASON_STORE]
@@ -1277,7 +1408,7 @@ class ToolBond(gl.contract.Contract):
             if challenge.verdict == POISONED:
                 self._slash(server, int(server.bond), payout)
                 payout["hunter"] += stake
-                server.status = ST_SLASHED
+                self._mark_slashed(server)
                 self._mark_tool(server, challenge.tool, POISONED, challenge.reason, challenge.quote)
             elif challenge.verdict == SAFE:
                 payout["publisher"] += stake
@@ -1288,29 +1419,36 @@ class ToolBond(gl.contract.Contract):
             if challenge.stage == STAGE_FILED:
                 _fail("observe the challenge first")
             drift = challenge.drift
-            if drift == DRIFT_MATCH:
+            if drift in (DRIFT_MATCH, DRIFT_KNOWN):
                 payout["hunter"] += stake - DRIFT_SPAM_FEE
                 payout["publisher"] += DRIFT_SPAM_FEE
-                server.last_verified_at = now
+                if drift == DRIFT_MATCH:
+                    server.last_verified_at = now
             elif drift == DRIFT_DIFFERS:
                 if challenge.stage != STAGE_JUDGED:
                     _fail("judge the drift first")
                 payout["hunter"] += stake
                 if challenge.verdict == POISONED:
                     self._slash(server, int(server.bond), payout)
-                    server.status = ST_SLASHED
-                elif challenge.verdict == SAFE:
-                    reward = int(server.bond) * DRIFT_SAFE_REWARD_PCT // 100
-                    server.bond = int(server.bond) - reward
-                    self.bonded = int(self.bonded) - reward
-                    payout["hunter"] += reward
-                    server.status = ST_STALE if server.status != ST_EXITING else ST_EXITING
+                    self._mark_slashed(server)
                 else:
-                    server.status = ST_STALE if server.status != ST_EXITING else ST_EXITING
-            elif drift in (DRIFT_UNSTABLE, DRIFT_UNPINNED):
+                    if challenge.verdict == SAFE:
+                        reward = int(server.bond) * DRIFT_SAFE_REWARD_PCT // 100
+                        server.bond = int(server.bond) - reward
+                        self.bonded = int(self.bonded) - reward
+                        payout["hunter"] += reward
+                    self._demote(server, ST_STALE)
+                    server.drift_root = challenge.observed_root
+            elif drift == DRIFT_UNSTABLE:
+                # a pinned manifest passed exact-equality consensus, so serving different
+                # manifests in a row is a choice; it must not be cheaper than POISONED
                 payout["hunter"] += stake
-                self._slash(server, int(server.bond) * DRIFT_UNSTABLE_SLASH_PCT // 100, payout)
-                server.status = ST_STALE if server.status != ST_EXITING else ST_EXITING
+                self._slash(server, int(server.bond), payout)
+                self._mark_slashed(server)
+            elif drift == DRIFT_UNPINNED:
+                payout["hunter"] += stake
+                self._slash(server, int(server.bond) * DRIFT_UNPINNED_SLASH_PCT // 100, payout)
+                self._demote(server, ST_STALE)
             else:
                 payout["hunter"] += stake
                 server.unreachable = int(server.unreachable) + 1
@@ -1331,7 +1469,12 @@ class ToolBond(gl.contract.Contract):
             _fail("challenge has not expired yet")
         server = self.servers[challenge.sid]
         payout = {"hunter": int(challenge.stake), "pool": 0, "publisher": 0}
+        if challenge.stage == STAGE_OBSERVED and challenge.drift in (DRIFT_MATCH, DRIFT_KNOWN):
+            # waiting out the TTL must not dodge the fee that settling would have charged
+            payout["hunter"] -= DRIFT_SPAM_FEE
+            payout["publisher"] = DRIFT_SPAM_FEE
         self._credit(challenge.hunter, payout["hunter"])
+        self._credit(server.publisher, payout["publisher"])
         self._close(challenge, server, STAGE_EXPIRED, payout, _now())
 
     # ------------------------------------------------------------- heartbeat and exit
@@ -1362,6 +1505,8 @@ class ToolBond(gl.contract.Contract):
             _fail("cannot exit while " + server.status)
         now = _now()
         if server.tier == TIER_REVIEWED:
+            if int(server.open_challenges) > 0:
+                _fail("a challenge is still open")
             server.status = ST_EXITED
         else:
             server.status = ST_EXITING
@@ -1429,6 +1574,7 @@ class ToolBond(gl.contract.Contract):
                 "tools": {item["name"]: item["hash"] for item in tools},
                 "verdicts": {item["name"]: verdicts.get(item["name"], {}).get("verdict", "UNREVIEWED") for item in tools},
                 "open_challenges": int(server.open_challenges),
+                "drift_root": server.drift_root,
                 "updated_at": server.updated_at,
             }
         )
@@ -1509,7 +1655,9 @@ class ToolBond(gl.contract.Contract):
                 "MIN_BOND": str(MIN_BOND), "REVIEW_FEE": str(REVIEW_FEE), "CONTENT_STAKE": str(CONTENT_STAKE),
                 "DRIFT_STAKE": str(DRIFT_STAKE), "DRIFT_SPAM_FEE": str(DRIFT_SPAM_FEE),
                 "CHALLENGE_TTL": CHALLENGE_TTL, "MAX_ATTEMPTS": MAX_ATTEMPTS, "EXIT_DELAY": EXIT_DELAY,
-                "REVIEW_BATCH": REVIEW_BATCH, "treasury": self.treasury,
+                "REVIEW_BATCH": REVIEW_BATCH, "MAX_CHANGED_TOOLS": MAX_CHANGED_TOOLS,
+                "DRIFT_SAFE_REWARD_PCT": DRIFT_SAFE_REWARD_PCT, "DRIFT_UNPINNED_SLASH_PCT": DRIFT_UNPINNED_SLASH_PCT,
+                "treasury": self.treasury,
             }
         )
 
@@ -1525,9 +1673,17 @@ class ToolBond(gl.contract.Contract):
             problem = "purpose must be 1 to " + str(MAX_PURPOSE_CHARS) + " characters"
         if not problem and not caps_norm:
             problem = "caps must be a comma-separated subset of " + ",".join(ALLOWED_CAPS)
+        if not problem and has_hard_flag(instructions_flags(purpose, set(), _host(clean))):
+            # the purpose is publisher text that reaches the judge: it gets the same hard checks as tools
+            problem = "purpose contains hidden characters or text aimed at the judge"
         sid = _sid(clean) if not problem else ""
-        if not problem and sid in self.servers and self.servers[sid].status not in REUSABLE_STATUSES:
-            problem = "server is already registered"
+        if not problem and sid in self.servers:
+            existing = self.servers[sid]
+            upgrade = tier == TIER_BONDED and existing.tier == TIER_REVIEWED and existing.status != ST_EXITING
+            if existing.status not in REUSABLE_STATUSES and not upgrade:
+                problem = "server is already registered"
+            elif int(existing.open_challenges) > 0:
+                problem = "a challenge on this server is still open"
         if not problem and value < required:
             problem = "send at least " + str(required) + " wei"
         if problem:
@@ -1544,6 +1700,7 @@ class ToolBond(gl.contract.Contract):
             bond=bond, root="", protocol="", instructions="", instructions_hash="", tools_json="[]",
             flags_json="{}", verdicts_json="{}", reviewed_upto=0, open_challenges=0, slashes=0, unreachable=0,
             contested=False, last_attest="", created_at=now, updated_at=now, last_verified_at="", exit_at=0,
+            drift_root="",
         )
         self.bonded = int(self.bonded) + bond
         return {"ok": True, "sid": sid}
@@ -1553,29 +1710,45 @@ class ToolBond(gl.contract.Contract):
         pinned_root = str(server.root)
         pinned_hashes = {item["name"]: item["hash"] for item in json.loads(server.tools_json)}
         pinned_instructions_hash = str(server.instructions_hash)
+        known_root = str(server.drift_root)
 
         def leader_fn() -> dict:
-            return _observe_block(url, host, pinned_root, pinned_hashes, pinned_instructions_hash, mode)
+            return _observe_block(url, host, pinned_root, pinned_hashes, pinned_instructions_hash, known_root, mode)
 
         def validator_fn(leaders_res: typing.Any) -> bool:
             if not isinstance(leaders_res, gl.vm.Return):
                 return False
             theirs = leaders_res.calldata
-            if not isinstance(theirs, dict):
+            if not isinstance(theirs, dict) or theirs.get("drift") not in DRIFT_CLASSES:
                 return False
-            drift = theirs.get("drift")
+            drift = theirs["drift"]
             if drift == DRIFT_UNREACHABLE:
-                return True  # safe harbour: no slash, no pass
+                return True  # safe harbour: no slash, no pass (other fields are discarded)
             mine = leader_fn()
-            if drift == DRIFT_UNSTABLE:
-                return mine["drift"] in (DRIFT_UNSTABLE, DRIFT_DIFFERS)
-            if drift == DRIFT_UNPINNED:
-                return mine["drift"] not in (DRIFT_MATCH, DRIFT_UNREACHABLE)
-            if drift in (DRIFT_MATCH, DRIFT_DIFFERS):
-                return mine == theirs
-            return False
+            if drift in (DRIFT_UNSTABLE, DRIFT_UNPINNED):
+                return mine["drift"] == drift  # each validator must see it for itself
+            if mode == "presence":
+                return mine["drift"] == drift
+            return mine == theirs  # MATCH, KNOWN, DIFFERS: identical observation, hence verified content
 
-        return gl.vm.run_nondet(leader_fn, validator_fn)
+        seen = gl.vm.run_nondet(leader_fn, validator_fn)
+        return self._clean_observation(seen)
+
+    def _clean_observation(self, seen: dict) -> dict:
+        """Keep only what consensus verified, capped. UNREACHABLE is accepted from any leader, and
+        UNSTABLE / UNPINNED are checked by class only, so their other fields are not trusted."""
+        drift = str(seen.get("drift", DRIFT_UNREACHABLE))
+        clean = _observation(drift, reason=str(seen.get("reason", ""))[:MAX_REASON_STORE])
+        if drift in (DRIFT_MATCH, DRIFT_KNOWN, DRIFT_DIFFERS):
+            clean["root"] = str(seen.get("root", ""))[:64]
+        if drift == DRIFT_DIFFERS:
+            for key in ("added", "removed", "modified", "changed"):
+                clean[key] = list(seen.get(key) or [])
+            clean["flags"] = dict(seen.get("flags") or {})
+            clean["overflow"] = int(seen.get("overflow") or 0)
+            clean["instructions_changed"] = bool(seen.get("instructions_changed"))
+            clean["instructions"] = str(seen.get("instructions") or "")
+        return clean
 
     def _slash(self, server: Server, amount: int, payout: dict) -> None:
         amount = min(int(amount), int(server.bond))
@@ -1588,6 +1761,15 @@ class ToolBond(gl.contract.Contract):
         self.bonded = int(self.bonded) - amount
         server.slashes = int(server.slashes) + 1
         self.slashes_total = int(self.slashes_total) + 1
+
+    def _demote(self, server: Server, status: str) -> None:
+        """Drift outcomes only move live servers: never revive SLASHED, EXITED or REJECTED."""
+        if server.status in (ST_ACTIVE, ST_STALE):
+            server.status = status
+
+    def _mark_slashed(self, server: Server) -> None:
+        if server.status not in (ST_EXITED, ST_REJECTED):
+            server.status = ST_SLASHED
 
     def _mark_tool(self, server: Server, tool: str, verdict: str, reason: str, quote: str) -> None:
         verdicts = json.loads(server.verdicts_json)
@@ -1647,7 +1829,7 @@ class ToolBond(gl.contract.Contract):
             "reviewed": int(server.reviewed_upto), "slashes": int(server.slashes), "unreachable": int(server.unreachable),
             "contested": bool(server.contested), "open_challenges": int(server.open_challenges),
             "last_attest": server.last_attest, "created_at": server.created_at, "updated_at": server.updated_at,
-            "last_verified_at": server.last_verified_at, "exit_at": int(server.exit_at),
+            "last_verified_at": server.last_verified_at, "exit_at": int(server.exit_at), "drift_root": server.drift_root,
         }
 
     def _challenge_full(self, cid: str) -> dict:
@@ -1660,4 +1842,5 @@ class ToolBond(gl.contract.Contract):
             "instructions_changed": bool(c.observed_instructions), "verdict": c.verdict, "offending": c.offending,
             "quote": c.quote, "reason": c.reason, "attempts": int(c.attempts), "filed_at": c.filed_at,
             "updated_at": c.updated_at, "payout": json.loads(c.payout_json) if c.payout_json else {},
+            "overflow": int(c.overflow),
         }

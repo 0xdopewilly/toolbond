@@ -48,14 +48,24 @@ function codePointCompare(a: string, b: string): number {
   return ca.length - cb.length;
 }
 
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+/** The hashed part of a tool: everything but its own top-level _meta (nested _meta keys stay). */
+export function toolObject(tool: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(tool).filter(([key]) => key !== "_meta"));
+}
+
 export function canonical(value: unknown): string {
   if (value === null) return "null";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") return pyFloat(value);
-  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "string") {
+    if (LONE_SURROGATE.test(value)) throw new McpError("[EXTERNAL] invalid unicode in manifest");
+    return JSON.stringify(value);
+  }
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>).filter(([k]) => k !== "_meta");
+    const entries = Object.entries(value as Record<string, unknown>);
     entries.sort(([a], [b]) => codePointCompare(a, b));
     return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(",")}}`;
   }
@@ -83,7 +93,7 @@ export function digestManifest(manifest: { protocol: string; instructions: strin
     if (typeof name !== "string" || !name) throw new McpError("[EXTERNAL] tool without a name");
     if (seen.has(name)) throw new McpError("[EXTERNAL] duplicate tool name");
     seen.add(name);
-    const canon = canonical(tool);
+    const canon = canonical(toolObject(tool));
     return { name, hash: sha256Hex(canon), canon, raw: tool };
   });
   tools.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
@@ -100,7 +110,8 @@ export function digestManifest(manifest: { protocol: string; instructions: strin
 function ssePayloads(text: string): string[] {
   const out: string[] = [];
   let current: string[] = [];
-  for (const line of text.split(/\r?\n/)) {
+  // SSE line ends are CRLF, LF or CR; U+2028 inside JSON strings is not a line end
+  for (const line of text.split(/\r\n|\r|\n/)) {
     if (line.startsWith("data:")) current.push(line.slice(5).replace(/^ /, ""));
     else if (line === "" && current.length) {
       out.push(current.join("\n"));

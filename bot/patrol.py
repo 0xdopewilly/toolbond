@@ -30,6 +30,11 @@ from toolbond_guard import http_post  # noqa: E402
 
 DRIFT_STAKE_GEN = "0.5"
 WATCHED_STATUSES = ("ACTIVE", "STALE")
+MAX_STEP_FAILURES = 3
+# contract refusals meaning "this step is no longer the next one": move on instead of retrying
+GONE = ("challenge is closed", "unknown challenge")
+PAST_OBSERVE = ("already observed", "judge the drift first", "judge the challenge first")
+PAST_JUDGE = ("already judged", "judge needs an observed DIFFERS drift")
 
 
 def emit(event: str, **fields) -> None:
@@ -100,15 +105,16 @@ class Patrol:
     def check(self, url: str) -> None:
         pins = self.pins_source(url)
         sid = sid_of(url)
+        open_cid = self.state["challenges"].get(sid)
+        if open_cid:
+            # our own challenge gets driven to the end whatever the server's status now is
+            self.drive(sid, url, open_cid)
+            return
         if not pins or not pins.get("known"):
             emit("skip", url=url, reason="not registered")
             return
         if pins.get("status") not in WATCHED_STATUSES:
             emit("skip", url=url, sid=sid, reason="status " + str(pins.get("status")))
-            return
-        open_cid = self.state["challenges"].get(sid)
-        if open_cid:
-            self.drive(sid, url, open_cid)
             return
         try:
             first = live_root(url, self.fetch)
@@ -117,6 +123,10 @@ class Patrol:
             return
         if first == pins.get("root"):
             self.maybe_attest(sid, url)
+            return
+        if pins.get("drift_root") and first == pins.get("drift_root"):
+            # this drift was already challenged and settled; the publisher has to re-pin
+            emit("known_drift", url=url, sid=sid, live=first)
             return
         try:
             second = live_root(url, self.fetch)
@@ -138,30 +148,63 @@ class Patrol:
         self._save_state()
         self.drive(sid, url, self.state["challenges"][sid])
 
+    def _failed(self, sid: str, record: dict, step: str, reply: dict) -> str:
+        """Classify a failed step: "gone" (drop it), "past" (someone else did it), "retry"."""
+        text = json.dumps(reply).lower()
+        if any(marker in text for marker in GONE):
+            return "gone"
+        if step == "observe" and any(marker in text for marker in PAST_OBSERVE):
+            return "past"
+        if step == "judge" and any(marker in text for marker in PAST_JUDGE):
+            return "past"
+        record["failures"] = int(record.get("failures", 0)) + 1
+        if record["failures"] >= MAX_STEP_FAILURES:
+            return "gone"
+        return "retry"
+
+    def _drop(self, sid: str, cid: str, why: str) -> None:
+        emit("challenge_dropped", sid=sid, cid=cid, reason=why)
+        self.state["challenges"].pop(sid, None)
+        self._save_state()
+
     def drive(self, sid: str, url: str, record: dict) -> None:
         cid = record["cid"]
         if record["stage"] == "FILED":
             reply = self.tx.write("observe", cid, "content")
             if not reply.get("ok"):
-                emit("observe_failed", sid=sid, cid=cid, reply=reply)
-                return
-            drift = (agreed_output(reply) or {}).get("drift", "")
-            record.update(stage="OBSERVED", drift=drift)
+                outcome = self._failed(sid, record, "observe", reply)
+                emit("observe_failed", sid=sid, cid=cid, outcome=outcome, reply=reply)
+                if outcome == "gone":
+                    return self._drop(sid, cid, "observe kept failing or the challenge is closed")
+                if outcome == "retry":
+                    return self._save_state()
+                record.update(stage="OBSERVED", drift="")  # observed by someone else: try judge, then settle
+            else:
+                drift = (agreed_output(reply) or {}).get("drift", "")
+                record.update(stage="OBSERVED", drift=drift, failures=0)
+                emit("observed", sid=sid, cid=cid, drift=drift, votes=reply.get("votes"), tx=reply.get("hash"))
             self._save_state()
-            emit("observed", sid=sid, cid=cid, drift=drift, votes=reply.get("votes"), tx=reply.get("hash"))
-        if record["stage"] == "OBSERVED" and record.get("drift") == "DIFFERS":
+        if record["stage"] == "OBSERVED" and record.get("drift") in ("DIFFERS", ""):
             reply = self.tx.write("judge", cid)
             if not reply.get("ok"):
-                emit("judge_failed", sid=sid, cid=cid, reply=reply)
-                return
-            verdict = (agreed_output(reply) or {}).get("verdict", "")
-            record.update(stage="JUDGED", verdict=verdict)
+                outcome = self._failed(sid, record, "judge", reply)
+                emit("judge_failed", sid=sid, cid=cid, outcome=outcome, reply=reply)
+                if outcome == "gone":
+                    return self._drop(sid, cid, "judge kept failing or the challenge is closed")
+                if outcome == "retry":
+                    return self._save_state()
+            else:
+                verdict = (agreed_output(reply) or {}).get("verdict", "")
+                record.update(stage="JUDGED", verdict=verdict, failures=0)
+                emit("judged", sid=sid, cid=cid, verdict=verdict, votes=reply.get("votes"), tx=reply.get("hash"))
             self._save_state()
-            emit("judged", sid=sid, cid=cid, verdict=verdict, votes=reply.get("votes"), tx=reply.get("hash"))
         reply = self.tx.write("settle", cid)
         if not reply.get("ok"):
-            emit("settle_failed", sid=sid, cid=cid, reply=reply)
-            return
+            outcome = self._failed(sid, record, "settle", reply)
+            emit("settle_failed", sid=sid, cid=cid, outcome=outcome, reply=reply)
+            if outcome == "gone":
+                return self._drop(sid, cid, "settled by someone else or kept failing")
+            return self._save_state()
         emit("settled", sid=sid, cid=cid, drift=record.get("drift"), verdict=record.get("verdict", ""), tx=reply.get("hash"))
         del self.state["challenges"][sid]
         self._save_state()
