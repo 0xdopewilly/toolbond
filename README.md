@@ -46,6 +46,25 @@ Every transaction, vote count and lesson from the live runs is in
 | Web app | `apps/web` | registry, publish wizard (preview, register, pin, review), server pages with a word-level diff of observed changes, challenge actions, hunters board, in-browser guard check, `/api/pins` |
 | Demo server | `apps/demo-mcp` | weather tool that is honest, poisoned, or rug-pulls at a set time |
 
+## PinnedFetch
+
+[`contracts/src/pinned_fetch.py`](contracts/src/pinned_fetch.py) is the standalone primitive under ToolBond,
+deployed on its own at
+[`0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c`](https://explorer-studio-dev.genlayer.com/address/0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c).
+Any contract or client can use it to rely on what a remote MCP server says, without bonds or judging:
+
+- `pin(url)`: every validator runs the MCP handshake itself, canonicalizes the manifest with
+  [TBCM-1](docs/TBCM-1.md) and must derive the identical SHA-256 root.
+- `check(url)`: validators re-fetch and agree on a drift class: `MATCH`, `DIFFERS` (stored only when every
+  validator derived the same new root, so the changed tools on chain are verified content), `UNSTABLE` or
+  `UNREACHABLE`.
+- `verify_tool(url, name, hash)`, `get_pin`, `get_pin_version` and `get_last_check`: views for other contracts
+  and guards. Pins are versioned.
+
+It is built on [`gl_mcp`](docs/gl_mcp.md), the MCP client for Intelligent Contracts in this repo. Live calls and
+the deployed source hash are in [docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md); tests are in
+[`tests/direct/test_pinned_fetch.py`](tests/direct/test_pinned_fetch.py).
+
 ## How consensus is used
 
 | Step | What validators agree on |
