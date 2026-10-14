@@ -211,8 +211,9 @@ def _same_failure(leaders_res: typing.Any, leader_fn: typing.Callable) -> bool:
 def _genvm_post(url: str, body: str, headers: dict) -> tuple:
     try:
         response = gl.nondet.web.post(url, body=body, headers=headers)
-    except Exception:
-        raise McpError(ERR_TRANSIENT + " transport failure")
+    except Exception as exc:
+        # validators agree on any [TRANSIENT] failure, so the detail is free to vary
+        raise McpError(ERR_TRANSIENT + " transport failure: " + type(exc).__name__ + " " + str(exc)[:160])
     return response.status, response.headers, response.body
 
 

@@ -33,6 +33,43 @@ An earlier build was deployed at `0x8dB0c1C6b08245e8986e3931D617aA1ca39238fA`
 with the same pins; it is superseded by the address above, which adds
 classified errors for unreadable manifests.
 
+## ToolBond on Studio Next (chain 61997)
+
+| Contract | Address | Deploy transaction |
+|---|---|---|
+| ToolBond | [`0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A`](https://explorer-studio-dev.genlayer.com/address/0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A) | `0xabf4494b997536d49610a944f927d6d205f888b596d8e1ba42b0a9e9d00fc035` |
+
+Deployed source `contracts/toolbond.py`, SHA-256
+`7469a72ac2431ea2727e21c9cf0eb2b3e8f5445d66adba65e8d8a591f2a7e08c`. Treasury: the deployer
+(`0xe258d2604aec1321ddd58f179001cc6a8c442930`), movable with `set_treasury`.
+
+### Live reviews of real MCP servers
+
+Each server was sponsored (`sponsor_review`), pinned by validator consensus (`snapshot`) and judged
+(`review`, two model readings per validator). Run with `scripts/live_review.sh`.
+
+| Server | Verdict | Votes | Notes |
+|---|---|---|---|
+| `https://mcp.deepwiki.com/mcp` | SAFE | 3 agree | instructions list ~25 private-mode tools; correctly not treated as poison |
+| `https://docs.mcp.cloudflare.com/mcp` | SAFE | 3 agree | "ALWAYS read this guide before migrating" correctly treated as usage guidance |
+| `https://mcp.internetcourt.org/mcp` | SAFE | 3 agree | names GenLayer and verdicts; no longer trips the judge-targeting flag |
+| `https://gitmcp.io/modelcontextprotocol/python-sdk` | UNCLEAR, then SAFE on retry | 3 agree, 2 disagree | generic "fetch any URL" tool is borderline; UNCLEAR grants nothing and the review was simply re-run |
+
+### What the live runs taught us
+
+1. **Inlined modules share one namespace.** `lib/judge.py` had a `_header` that replaced
+   `gl_mcp._header`, so the MCP client sent a multi-line prompt as `Mcp-Session-Id` and GenVM rejected
+   it ("invalid header value"). The mock server in direct-mode tests never validates headers, so only
+   the live network caught it. `scripts/bundle.py` now refuses to build on any top-level name collision.
+2. **Judge calibration matters more than prompt cleverness.** The first prompt let "goes beyond the
+   declared purpose" justify UNCLEAR, and DeepWiki's honest feature list split the two readings. An
+   explicit decision procedure (only sentences instructing (a)-(d) count) made real servers SAFE.
+3. **Brand words are not attacks.** The judge-targeting flag first matched the bare words "GenLayer"
+   and "verdict", which a GenLayer-built court legitimately uses. It now matches phrases that address
+   or instruct a reviewer.
+4. **gltest 0.30rc2 vs the v0.3 SDK:** mocked LLM answers must be double-encoded JSON in direct tests,
+   because the SDK expects JSON *text* from the host (see `tests/direct/test_toolbond.py`).
+
 ### Known issue (2026-10-13)
 
 Contract reads (`gen_call`) on Studio Next fail for every contract with

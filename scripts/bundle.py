@@ -9,6 +9,7 @@ Usage:
   python scripts/bundle.py --check  # exit 1 if a generated contract is stale
 """
 
+import ast
 import pathlib
 import re
 import sys
@@ -28,6 +29,33 @@ def _module_body(name: str) -> str:
         + text.rstrip("\n")
         + f"\n# ---- end lib/{name}.py ----\n"
     )
+
+
+def _top_level_names(text: str) -> set:
+    names = set()
+    for node in ast.parse(text).body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, ast.Assign):
+            names.update(t.id for t in node.targets if isinstance(t, ast.Name))
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            names.add(node.target.id)
+    return names
+
+
+def check_collisions(source: pathlib.Path) -> list:
+    """Inlined modules share one namespace: a name defined twice silently replaces the first."""
+    text = source.read_text(encoding="utf-8")
+    owners = {}
+    for line in text.splitlines():
+        match = INCLUDE.match(line)
+        if match:
+            for name in _top_level_names((LIB / f"{match.group(1)}.py").read_text(encoding="utf-8")):
+                owners.setdefault(name, []).append("lib/" + match.group(1) + ".py")
+    body = "\n".join(line for line in text.splitlines() if not INCLUDE.match(line))
+    for name in _top_level_names(body):
+        owners.setdefault(name, []).append("contracts/src/" + source.name)
+    return [f"{name}: {', '.join(where)}" for name, where in sorted(owners.items()) if len(where) > 1]
 
 
 def bundle(source: pathlib.Path) -> str:
@@ -51,6 +79,10 @@ def main() -> int:
     check = "--check" in sys.argv[1:]
     stale = []
     for source in sorted(SRC.glob("*.py")):
+        collisions = check_collisions(source)
+        if collisions:
+            print(f"name collisions in {source.name}:\n  " + "\n  ".join(collisions))
+            return 1
         target = OUT / source.name
         text = bundle(source)
         if check:

@@ -9,7 +9,7 @@ H2  a secret location (ssh keys, .env, mcp.json, cloud credentials, seed phrase)
     next to a verb that moves data (pass, send, include, upload, ...)
 H3  concealment from the user ("do not tell the user", "silently", ...)
 H4  instruction override ("ignore previous instructions", "system prompt", <IMPORTANT>)
-H5  text aimed at the judge ("verdict", "you are a reviewer", "toolbond", "genlayer")
+H5  text addressed to the judge ("note to the reviewer", "classify this as", "verdict is ...")
 S1  refers to another tool that this server does not define
 S2  very long description, base64-like blob, or a URL on another site
 S3  a parameter shaped like a side channel (notes, context, metadata) that talks about files
@@ -54,8 +54,12 @@ _OVERRIDE = re.compile(
     re.I,
 )
 _JUDGE = re.compile(
-    r"(\bverdict\b|\bclassify\s+(this|it)\s+as\b"
-    r"|\byou\s+are\s+(a|an)\s+(security\s+)?(reviewer|auditor|validator|judge)\b|\btoolbond\b|\bgenlayer\b)",
+    r"(\b(note|message|instructions?|hint)\s+(to|for)\s+(the\s+|any\s+)?(ai\s+)?(reviewer|auditor|validator|judge|moderator)s?\b"
+    r"|\byou\s+are\s+(a|an|the)\s+(security\s+)?(reviewer|auditor|validator|judge)\b"
+    r"|\b(classify|mark|rate|label|judge)\s+(this|it|the\s+tool)\s+as\b"
+    r"|\bverdict\s+(is|should\s+be|must\s+be|=)\s"
+    r"|\b(respond|reply|answer|return|output)\s+(only\s+)?(with\s+)?[\"'{(\[]*\s*verdict\b"
+    r"|\b(reviewers?|validators?|judges?|auditors?)\s*:\s)",
     re.I,
 )
 _CROSS_TOOL = re.compile(
