@@ -6,7 +6,7 @@
 // Arguments are JSON when they parse as JSON, strings otherwise. The signer is
 // DEV_PRIVATE_KEY from .env.local (a testnet-only key). Prints one JSON line.
 import { readFileSync } from "node:fs";
-import { createAccount, createClient, chains } from "genlayer-js";
+import { abi, createAccount, createClient, chains } from "genlayer-js";
 
 function loadEnv(path) {
   try {
@@ -33,7 +33,45 @@ function toWei(gen) {
   return BigInt(whole) * 10n ** 18n + BigInt((fraction + "0".repeat(18)).slice(0, 18) || "0");
 }
 
-const replacer = (_key, value) => (typeof value === "bigint" ? value.toString() : value);
+const replacer = (_key, value) => {
+  if (typeof value === "bigint") return value.toString();
+  if (value instanceof Map) return Object.fromEntries(value);
+  if (value instanceof Uint8Array) return "0x" + Buffer.from(value).toString("hex");
+  return value;
+};
+
+// A receipt result is one status byte (0 = returned, 1 = user error, 2 = VM error) followed by
+// calldata (returned) or UTF-8 text (errors). Equivalence outputs use the same framing.
+function decodeFramed(b64) {
+  if (!b64) return null;
+  const bytes = Buffer.from(b64, "base64");
+  if (bytes.length === 0) return null;
+  if (bytes[0] === 0) {
+    try {
+      return { ok: true, value: abi.calldata.decode(new Uint8Array(bytes.subarray(1))) };
+    } catch {
+      return { ok: true, raw: bytes.subarray(1).toString("hex") };
+    }
+  }
+  return { ok: false, error: bytes.subarray(1).toString("utf8") };
+}
+
+async function consensusDetails(rpc, hash) {
+  const response = await fetch(rpc, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionByHash", params: [hash] }),
+  });
+  const tx = (await response.json()).result ?? {};
+  const data = tx.consensus_data ?? {};
+  const receipt = Array.isArray(data.leader_receipt) ? data.leader_receipt[0] : data.leader_receipt ?? {};
+  const votes = data.votes && typeof data.votes === "object" ? Object.values(data.votes) : [];
+  return {
+    returned: decodeFramed(receipt.result),
+    outputs: Object.values(receipt.eq_outputs ?? {}).map(decodeFramed),
+    votes,
+  };
+}
 
 async function main() {
   loadEnv(new URL("../.env.local", import.meta.url).pathname);
@@ -73,9 +111,10 @@ async function main() {
   await client.waitForTransactionReceipt({ hash, waitUntil: "decided", interval: 4000, retries: 90 });
   const tx = await client.getTransaction({ hash });
   const ok = ["ACCEPTED", "FINALIZED"].includes(tx.statusName) && tx.txExecutionResultName === "FINISHED_WITH_RETURN";
+  const details = await consensusDetails(chains.studioDevnet.rpcUrls.default.http[0], hash).catch(() => ({}));
   console.log(
     JSON.stringify(
-      { ok, hash, status: tx.statusName, execution: tx.txExecutionResultName, result: tx.result_name ?? tx.resultName ?? null },
+      { ok, hash, status: tx.statusName, execution: tx.txExecutionResultName, result: tx.result_name ?? tx.resultName ?? null, ...details },
       replacer,
     ),
   );

@@ -21,3 +21,4 @@ dist/
 # python packaging
 build/
 *.egg-info/
+.patrol-state.json
