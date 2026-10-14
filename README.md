@@ -25,7 +25,10 @@ their tools, adjudicated by [GenLayer](https://genlayer.com) validators:
 | ToolBond contract | [`0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A`](https://explorer-studio-dev.genlayer.com/address/0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A) |
 | PinnedFetch primitive | [`0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c`](https://explorer-studio-dev.genlayer.com/address/0x8D4B7B2376069251E05f3aef7C3f1F433c2F040c) |
 | Real servers reviewed SAFE by validator consensus | DeepWiki, Cloudflare Docs, gitmcp (MCP Python SDK), Internet Court |
+| Rug pull caught live | A bonded weather server turned malicious at 08:14 UTC. The guard blocked it at once; the patrol bot filed a DRIFT challenge, validators observed `DIFFERS` and judged `POISONED`, and the 10 GEN bond was slashed 1 min 45 s after the swap |
 | Challenge path exercised live | DRIFT challenge on DeepWiki: observe `MATCH` (3 validators agree), settle; patrol `attest` heartbeat |
+| Web app | https://toolbond.vercel.app (registry, publish wizard, challenges, hunters, in-browser guard check) |
+| Demo MCP server | https://toolbond-demo-mcp.vercel.app (`/mcp/honest`, `/mcp/poisoned`, `/mcp/rugpull`) |
 
 Every transaction, vote count and lesson from the live runs is in
 [docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md).
@@ -40,7 +43,7 @@ Every transaction, vote count and lesson from the live runs is in
 | Red flags and judge | `lib/redflags.py`, `lib/judge.py` | code-computed hard and soft flags; prompts and verdict parsing with code-verified quotes |
 | `toolbond-guard` | `lib/toolbond_guard.py` | MCP stdio proxy for Claude Code and Cursor |
 | Patrol bot | `bot/patrol.py` | detects drift, files and drives DRIFT challenges, sends heartbeats |
-| Web registry | `apps/web` | registry, server pages with revealed hidden characters, challenges, guard install, `/api/pins` |
+| Web app | `apps/web` | registry, publish wizard (preview, register, pin, review), server pages with a word-level diff of observed changes, challenge actions, hunters board, in-browser guard check, `/api/pins` |
 | Demo server | `apps/demo-mcp` | weather tool that is honest, poisoned, or rug-pulls at a set time |
 
 ## How consensus is used
