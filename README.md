@@ -61,6 +61,8 @@ Any contract or client can use it to rely on what a remote MCP server says, with
 - `verify_tool(url, name, hash)`, `get_pin`, `get_pin_version` and `get_last_check`: views for other contracts
   and guards. Pins are versioned.
 
+It is also published on its own, with the history of its files, at
+[github.com/0xdopewilly/pinnedfetch](https://github.com/0xdopewilly/pinnedfetch).
 It is built on [`gl_mcp`](docs/gl_mcp.md), the MCP client for Intelligent Contracts in this repo. Live calls and
 the deployed source hash are in [docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md); tests are in
 [`tests/direct/test_pinned_fetch.py`](tests/direct/test_pinned_fetch.py).
