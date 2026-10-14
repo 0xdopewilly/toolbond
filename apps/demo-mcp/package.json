@@ -1,0 +1,14 @@
+{
+  "name": "toolbond-demo-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Demo MCP server for ToolBond: an honest weather tool that can pull the rug at a known time.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

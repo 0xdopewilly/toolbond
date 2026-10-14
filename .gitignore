@@ -17,3 +17,7 @@ dist/
 # editor / os
 .DS_Store
 .vscode/
+
+# python packaging
+build/
+*.egg-info/
