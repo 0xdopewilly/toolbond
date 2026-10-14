@@ -1,0 +1,383 @@
+{
+ "contract": "0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A",
+ "snapshot_at": "2026-10-14T07:39:06Z",
+ "servers": {
+  "ac8625207ef936e9": {
+   "found": true,
+   "sid": "ac8625207ef936e9",
+   "url": "https://mcp.deepwiki.com/mcp",
+   "publisher": "0xe258d2604aec1321ddd58f179001cc6a8c442930",
+   "tier": "REVIEWED",
+   "status": "ACTIVE",
+   "purpose": "Answers questions about public GitHub repositories from their generated documentation.",
+   "caps": "network",
+   "bond": "0",
+   "root": "923f63c630de89d0f89d13501916292b7c1e1cc01c076b87a597247b308f576b",
+   "protocol": "2025-06-18",
+   "instructions": "DeepWiki MCP provides AI-powered documentation for GitHub repositories.\n\nAvailable tools:\n- read_wiki_structure: Get a list of documentation topics for a repository\n- read_wiki_contents: View full documentation about a repository\n- ask_wiki_question: Ask any question about a repository's codebase and get an AI-powered answer from its wiki\n- list_wiki_repos: List the repositories that have a DeepWiki index (private mode only)\n- generate_wiki: Generate a codebase wiki for a repository — only use when explicitly requested by the user (private mode only)\n- devin_automation_manage: Manage Devin automations — list, get, create, update, delete, or fetch the trigger event schemas (private mode only)\n- devin_billing_tag_manage: Manage Devin billing tags (groupings of Devin sessions for usage tracking) — list, get, create, assign sessions, look up session tags (private mode only)\n- devin_blueprint_test: Test a candidate blueprint YAML in an authoring VM: start → run initialize → fix → run initialize again (clean VM) → run maintenance → then persist with update_environment_config (private mode only)\n- devin_campaign_manage: Read and publish a bot's campaign documents (plan, readings, status) — get, update, validate (private mode only)\n- devin_code_scan_manage: Manage Devin code scans, sometimes referred to as 'security scans' or 'Devin Security Swarm' — list scans, list findings, list profiles, get a profile, create a scan, remediate a finding (private mode only)\n- devin_knowledge_manage: Manage Devin knowledge notes and suggestions — list, search, get, create, update, delete notes, view folder structure, list/view/dismiss knowledge suggestions (private mode only)\n- devin_mcp_server_manage: Manage org MCP server installations — install (marketplace or custom), update, enable, disable, delete (private mode only)\n- devin_oncall_manage: Devin Oncall operations — get an Oncall report's current responder membership, page through a responder's open issues, and ingest a dashboard into Oncall knowledge (private mode only)\n- devin_playbook_manage: Manage Devin playbooks — list, get, create, update, delete (private mode only)\n- devin_review_manage: Trigger a Devin Review for a pull request, fetch the latest review status, or fetch a completed review's findings (private mode only)\n- devin_schedule_manage: Manage scheduled Devin sessions — list, get, create, update, delete (private mode only)\n- devin_session_create: Create one or more child Devin sessions (private mode only)\n- devin_session_interact: Manage a Devin session — get status (one or many sessions, optionally with a short AI summary of each), send messages, sleep/terminate/archive/unarchive, read messages & attachments, manage tags (private mode only)\n- devin_session_events: Inspect session events — list summaries, fetch full details, or search event contents (private mode only)\n- devin_session_search: Search and filter Devin sessions (private mode only)\n- devin_session_insights: Per-session cost, message counts and AI analysis (issues, action items, classification) — list, get, generate (private mode only)\n- devin_user_list: List the organization's users by membership kind (direct members or IdP-group members) (private mode only)\n- devin_list_integrations: List all native integrations and MCP servers with their status and settings URLs (private mode only)\n- devin_find_setting: Find Devin webapp settings pages and deep-link URLs for them (private mode only)\n",
+   "instructions_hash": "feeb48d6b0c039c2920b5f3daef5d943df5d527111168fe1dc024d06b57da4bf",
+   "instructions_verdict": {
+    "verdict": "SAFE"
+   },
+   "flags": {
+    "ask_wiki_question": [],
+    "read_wiki_contents": [],
+    "read_wiki_structure": [],
+    "__instructions__": []
+   },
+   "tools": [
+    {
+     "name": "ask_wiki_question",
+     "hash": "217e49111cb69fbf14122a7bd2afd8e3d9a2aadaad2ef163371ff7e22e829314",
+     "canon": "{\"description\":\"Ask any question about a GitHub repository's codebase and get an AI-powered answer\\ngrounded in its DeepWiki.\",\"inputSchema\":{\"properties\":{\"question\":{\"description\":\"The question to ask about the repository.\",\"type\":\"string\"},\"repoName\":{\"anyOf\":[{\"type\":\"string\"},{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"GitHub repository or list of repositories (max 10) in owner/repo format.\"}},\"required\":[\"repoName\",\"question\"],\"type\":\"object\"},\"name\":\"ask_wiki_question\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "read_wiki_contents",
+     "hash": "c12cb22490a9546c306f38da540fb00e9314f0286ddf8c645e33659b2a2e4767",
+     "canon": "{\"description\":\"View documentation about a GitHub repository.\",\"inputSchema\":{\"properties\":{\"repoName\":{\"description\":\"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\",\"type\":\"string\"}},\"required\":[\"repoName\"],\"type\":\"object\"},\"name\":\"read_wiki_contents\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "read_wiki_structure",
+     "hash": "a7cc1371fecf3a21902bd89d107fd0b4cb5b3482d40b7bbde3f6f5790d17a4b1",
+     "canon": "{\"description\":\"Get a list of documentation topics for a GitHub repository.\",\"inputSchema\":{\"properties\":{\"repoName\":{\"description\":\"GitHub repository in owner/repo format (e.g. \\\"facebook/react\\\").\",\"type\":\"string\"}},\"required\":[\"repoName\"],\"type\":\"object\"},\"name\":\"read_wiki_structure\",\"outputSchema\":{\"properties\":{\"result\":{\"type\":\"string\"}},\"required\":[\"result\"],\"type\":\"object\",\"x-fastmcp-wrap-result\":true}}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    }
+   ],
+   "reviewed": 3,
+   "slashes": 0,
+   "unreachable": 0,
+   "contested": false,
+   "open_challenges": 0,
+   "last_attest": "MATCH",
+   "created_at": "2026-10-14T07:39:06Z",
+   "updated_at": "2026-10-14T07:39:06Z",
+   "last_verified_at": "2026-10-14T07:39:06Z",
+   "exit_at": 0
+  },
+  "c33b751bf4d7e474": {
+   "found": true,
+   "sid": "c33b751bf4d7e474",
+   "url": "https://docs.mcp.cloudflare.com/mcp",
+   "publisher": "0xe258d2604aec1321ddd58f179001cc6a8c442930",
+   "tier": "REVIEWED",
+   "status": "ACTIVE",
+   "purpose": "Searches Cloudflare's product documentation.",
+   "caps": "network",
+   "bond": "0",
+   "root": "d1e03bb6d5d07a600c0b84d5a64b606b54a81c847e28ded91b78852f93324a22",
+   "protocol": "2025-06-18",
+   "instructions": "",
+   "instructions_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "instructions_verdict": {},
+   "flags": {
+    "search_cloudflare_documentation": [
+     "S2"
+    ],
+    "migrate_pages_to_workers_guide": [
+     "S2"
+    ],
+    "__instructions__": []
+   },
+   "tools": [
+    {
+     "name": "migrate_pages_to_workers_guide",
+     "hash": "19d05ff5c13d6aece07f29de1bab65bcf39dbd1fd9e74f26c7a534fd906098b2",
+     "canon": "{\"annotations\":{\"readOnlyHint\":true,\"title\":\"Get Pages migration guide\"},\"description\":\"ALWAYS read this guide before migrating Pages projects to Workers.\",\"inputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{},\"type\":\"object\"},\"name\":\"migrate_pages_to_workers_guide\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "search_cloudflare_documentation",
+     "hash": "78cd8bb9d121a5e903f12e74a42372c47f5ff9026ece81b22e5fc69fdfacb65e",
+     "canon": "{\"annotations\":{\"readOnlyHint\":true,\"title\":\"Search Cloudflare docs\"},\"description\":\"Search the Cloudflare documentation.\\n\\n\\t\\tThis tool should be used to answer any question about Cloudflare products or features, including:\\n\\t\\t- Workers, Pages, R2, Images, Stream, D1, Durable Objects, KV, Workflows, Hyperdrive, Queues\\n\\t\\t- AI Search, Workers AI, Vectorize, AI Gateway, Browser Run\\n\\t\\t- Zero Trust, Access, Tunnel, Gateway, Browser Isolation, WARP, DDOS, Magic Transit, Magic WAN\\n\\t\\t- CDN, Cache, DNS, Zaraz, Argo, Rulesets, Terraform, Account and Billing\\n\\n\\t\\tResults are returned as semantically similar chunks to the query.\\n\\t\\t\",\"inputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"properties\":{\"query\":{\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_cloudflare_documentation\",\"outputSchema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"additionalProperties\":false,\"properties\":{\"results\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"id\":{\"description\":\"Source file ID\",\"type\":\"string\"},\"similarity\":{\"description\":\"Similarity score from AI Search\",\"type\":\"number\"},\"text\":{\"description\":\"Matching documentation chunk text\",\"type\":\"string\"},\"title\":{\"description\":\"Documentation page title\",\"type\":\"string\"},\"url\":{\"description\":\"Developer documentation URL\",\"type\":\"string\"}},\"required\":[\"similarity\",\"id\",\"url\",\"title\",\"text\"],\"type\":\"object\"},\"type\":\"array\"}},\"required\":[\"results\"],\"type\":\"object\"}}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    }
+   ],
+   "reviewed": 2,
+   "slashes": 0,
+   "unreachable": 0,
+   "contested": false,
+   "open_challenges": 0,
+   "last_attest": "MATCH",
+   "created_at": "2026-10-14T07:39:06Z",
+   "updated_at": "2026-10-14T07:39:06Z",
+   "last_verified_at": "2026-10-14T07:39:06Z",
+   "exit_at": 0
+  },
+  "089646c9573b843e": {
+   "found": true,
+   "sid": "089646c9573b843e",
+   "url": "https://gitmcp.io/modelcontextprotocol/python-sdk",
+   "publisher": "0xe258d2604aec1321ddd58f179001cc6a8c442930",
+   "tier": "REVIEWED",
+   "status": "ACTIVE",
+   "purpose": "Fetches and searches the documentation and code of the MCP Python SDK repository.",
+   "caps": "network",
+   "bond": "0",
+   "root": "971fa702f24266119451c3914244df6db21395ab462ff1984d5f63e7922ae1f3",
+   "protocol": "2025-03-26",
+   "instructions": "",
+   "instructions_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "instructions_verdict": {},
+   "flags": {
+    "fetch_python_sdk_documentation": [],
+    "search_python_sdk_documentation": [
+     "S2"
+    ],
+    "search_python_sdk_code": [
+     "S2"
+    ],
+    "fetch_generic_url_content": [
+     "S2"
+    ],
+    "__instructions__": []
+   },
+   "tools": [
+    {
+     "name": "fetch_generic_url_content",
+     "hash": "63d36fc927161890e155e7b7c529d016ca8c12e9510ea1bceccfd6072a2189e3",
+     "canon": "{\"description\":\"Generic tool to fetch content from any absolute URL, respecting robots.txt rules. Use this to retrieve referenced urls (absolute urls) that were mentioned in previously fetched documentation.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"url\":{\"description\":\"The URL of the document or page to fetch\",\"type\":\"string\"}},\"required\":[\"url\"],\"type\":\"object\"},\"name\":\"fetch_generic_url_content\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "fetch_python_sdk_documentation",
+     "hash": "176a1a915a70e1eeea69733758be509e08dff5b66e3598bd3dcd0f3820aa3ae9",
+     "canon": "{\"annotations\":{\"_def\":{\"options\":[{\"_cached\":null,\"_def\":{\"catchall\":{\"_def\":{\"typeName\":\"ZodNever\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},\"typeName\":\"ZodObject\",\"unknownKeys\":\"strip\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},{\"_def\":{\"typeName\":\"ZodNull\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}}],\"typeName\":\"ZodUnion\"},\"~standard\":{\"vendor\":\"zod\",\"version\":1}},\"description\":\"Fetch entire documentation file from GitHub repository: modelcontextprotocol/python-sdk. Useful for general questions. Always call this tool first if asked about modelcontextprotocol/python-sdk.\",\"inputSchema\":{\"type\":\"object\"},\"name\":\"fetch_python_sdk_documentation\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "search_python_sdk_code",
+     "hash": "658c4865d9d86a3e783583c614a0297f17332363649229c08da3b5f5fa47daed",
+     "canon": "{\"description\":\"Search for code within the GitHub repository: \\\"modelcontextprotocol/python-sdk\\\" using the GitHub Search API (exact match). Returns matching files for you to query further if relevant.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"page\":{\"description\":\"Page number to retrieve (starting from 1). Each page contains 30 results.\",\"type\":\"number\"},\"query\":{\"description\":\"The search query to find relevant code files\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_python_sdk_code\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "search_python_sdk_documentation",
+     "hash": "3443444cf1d7a10eecbab190d1fe6d9cfc67ae1c2ce68007e3de1ab63e1e3888",
+     "canon": "{\"description\":\"Semantically search within the fetched documentation from GitHub repository: modelcontextprotocol/python-sdk. Useful for specific queries.\",\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"properties\":{\"query\":{\"description\":\"The search query to find relevant documentation\",\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"},\"name\":\"search_python_sdk_documentation\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    }
+   ],
+   "reviewed": 4,
+   "slashes": 0,
+   "unreachable": 0,
+   "contested": false,
+   "open_challenges": 0,
+   "last_attest": "MATCH",
+   "created_at": "2026-10-14T07:39:06Z",
+   "updated_at": "2026-10-14T07:39:06Z",
+   "last_verified_at": "2026-10-14T07:39:06Z",
+   "exit_at": 0
+  },
+  "02b9bc1d92321122": {
+   "found": true,
+   "sid": "02b9bc1d92321122",
+   "url": "https://mcp.internetcourt.org/mcp",
+   "publisher": "0xe258d2604aec1321ddd58f179001cc6a8c442930",
+   "tier": "REVIEWED",
+   "status": "ACTIVE",
+   "purpose": "Explains and installs the Internet Court skill for agent dispute resolution.",
+   "caps": "network",
+   "bond": "0",
+   "root": "07c7b0e1876e65975dfaf1058f0ecff244b965e404a63e3a2796616e4f3d28f0",
+   "protocol": "2025-06-18",
+   "instructions": "Internet Court — the trust layer for agent-to-agent commerce and delegated agent authority.\n\nThis MCP server helps an agent or its user install and use the Internet Court skill. Internet\nCourt is not a single file: it is a whole structure of skills (a master router plus connector\nand vendored protocol skills) published at https://github.com/internet-court/internet-court-skill.\n\nWhen a user asks to install, load, add, or introduce Internet Court, call \"how_to_install\" for\nsetup steps, and call \"get_internet_court_skill\" to fetch the latest skill content (the master\nSKILL.md by default, or any sub-skill by path) so you can act on it immediately.\n\nInternet Court turns a natural-language mandate into a runnable workflow with bounded\npermissions (ERC-7710/7715), execution, evidence, GenLayer Intelligent Contract supervision,\nrevocation, x402 payments, escrow, and dispute resolution.",
+   "instructions_hash": "413f02d4fba549bfcfc8217f8369c7bccf2ca4693d1818cfa6fedd50e3214a4f",
+   "instructions_verdict": {
+    "verdict": "SAFE"
+   },
+   "flags": {
+    "how_to_install": [
+     "S2"
+    ],
+    "get_internet_court_skill": [
+     "S2"
+    ],
+    "consult_internet_court": [
+     "S2"
+    ],
+    "__instructions__": [
+     "S2"
+    ]
+   },
+   "tools": [
+    {
+     "name": "consult_internet_court",
+     "hash": "9839285f7fce8fac956b88095b6f29ed4de5b8575ae3c2e3267626c9624700e3",
+     "canon": "{\"description\":\"Ask the Internet Court agent a question — dispute framing, mandate design, escrow/arbitration guidance. This tool is x402-paid: calls without a valid payment header receive an HTTP 402 challenge (pricing discovery at GET /x402 on this host). The installation tools (how_to_install, get_internet_court_skill) remain free.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"question\":{\"description\":\"Your question or dispute for the Internet Court agent.\",\"type\":\"string\"}},\"required\":[\"question\"],\"type\":\"object\"},\"name\":\"consult_internet_court\",\"title\":\"Consult the Internet Court agent (paid, x402)\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "get_internet_court_skill",
+     "hash": "7b376b4c6fc63d84f49b5141f11a1fdd3ad6bd2b004c71aaec8f6666039164ae",
+     "canon": "{\"description\":\"Fetch the latest Internet Court skill content directly from the source repo so you can load and act on it. Defaults to the master router (SKILL.md). Internet Court is a structure of skills — pass a repo-relative path (e.g. 'integrations/x402-erc7710/SKILL.md' or 'skills-lock.json') to fetch a specific sub-skill or file.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"path\":{\"description\":\"Repo-relative path inside internet-court/internet-court-skill. Defaults to 'SKILL.md' (the master router).\",\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"get_internet_court_skill\",\"title\":\"Get the latest Internet Court skill\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    },
+    {
+     "name": "how_to_install",
+     "hash": "84521eb7c05664e5261ffea25c481ea5c67711d00f7b866fee6a80f042a26ba2",
+     "canon": "{\"description\":\"Explain how to install the Internet Court skill — connect this MCP server, or clone the full skill structure into your agent. Call this when the user asks to install, add, set up, or onboard Internet Court.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{},\"type\":\"object\"},\"name\":\"how_to_install\",\"title\":\"How to install the Internet Court skill\"}",
+     "verdict": "SAFE",
+     "reason": "",
+     "quote": ""
+    }
+   ],
+   "reviewed": 3,
+   "slashes": 0,
+   "unreachable": 0,
+   "contested": false,
+   "open_challenges": 0,
+   "last_attest": "MATCH",
+   "created_at": "2026-10-14T07:39:06Z",
+   "updated_at": "2026-10-14T07:39:06Z",
+   "last_verified_at": "2026-10-14T07:39:06Z",
+   "exit_at": 0
+  }
+ },
+ "pins": {
+  "https://mcp.deepwiki.com/mcp": {
+   "known": true,
+   "sid": "ac8625207ef936e9",
+   "url": "https://mcp.deepwiki.com/mcp",
+   "status": "ACTIVE",
+   "tier": "REVIEWED",
+   "root": "923f63c630de89d0f89d13501916292b7c1e1cc01c076b87a597247b308f576b",
+   "tools": {
+    "ask_wiki_question": "217e49111cb69fbf14122a7bd2afd8e3d9a2aadaad2ef163371ff7e22e829314",
+    "read_wiki_contents": "c12cb22490a9546c306f38da540fb00e9314f0286ddf8c645e33659b2a2e4767",
+    "read_wiki_structure": "a7cc1371fecf3a21902bd89d107fd0b4cb5b3482d40b7bbde3f6f5790d17a4b1"
+   },
+   "verdicts": {
+    "ask_wiki_question": "SAFE",
+    "read_wiki_contents": "SAFE",
+    "read_wiki_structure": "SAFE"
+   },
+   "open_challenges": 0,
+   "updated_at": "2026-10-14T07:39:06Z"
+  },
+  "https://docs.mcp.cloudflare.com/mcp": {
+   "known": true,
+   "sid": "c33b751bf4d7e474",
+   "url": "https://docs.mcp.cloudflare.com/mcp",
+   "status": "ACTIVE",
+   "tier": "REVIEWED",
+   "root": "d1e03bb6d5d07a600c0b84d5a64b606b54a81c847e28ded91b78852f93324a22",
+   "tools": {
+    "migrate_pages_to_workers_guide": "19d05ff5c13d6aece07f29de1bab65bcf39dbd1fd9e74f26c7a534fd906098b2",
+    "search_cloudflare_documentation": "78cd8bb9d121a5e903f12e74a42372c47f5ff9026ece81b22e5fc69fdfacb65e"
+   },
+   "verdicts": {
+    "migrate_pages_to_workers_guide": "SAFE",
+    "search_cloudflare_documentation": "SAFE"
+   },
+   "open_challenges": 0,
+   "updated_at": "2026-10-14T07:39:06Z"
+  },
+  "https://gitmcp.io/modelcontextprotocol/python-sdk": {
+   "known": true,
+   "sid": "089646c9573b843e",
+   "url": "https://gitmcp.io/modelcontextprotocol/python-sdk",
+   "status": "ACTIVE",
+   "tier": "REVIEWED",
+   "root": "971fa702f24266119451c3914244df6db21395ab462ff1984d5f63e7922ae1f3",
+   "tools": {
+    "fetch_generic_url_content": "63d36fc927161890e155e7b7c529d016ca8c12e9510ea1bceccfd6072a2189e3",
+    "fetch_python_sdk_documentation": "176a1a915a70e1eeea69733758be509e08dff5b66e3598bd3dcd0f3820aa3ae9",
+    "search_python_sdk_code": "658c4865d9d86a3e783583c614a0297f17332363649229c08da3b5f5fa47daed",
+    "search_python_sdk_documentation": "3443444cf1d7a10eecbab190d1fe6d9cfc67ae1c2ce68007e3de1ab63e1e3888"
+   },
+   "verdicts": {
+    "fetch_generic_url_content": "SAFE",
+    "fetch_python_sdk_documentation": "SAFE",
+    "search_python_sdk_code": "SAFE",
+    "search_python_sdk_documentation": "SAFE"
+   },
+   "open_challenges": 0,
+   "updated_at": "2026-10-14T07:39:06Z"
+  },
+  "https://mcp.internetcourt.org/mcp": {
+   "known": true,
+   "sid": "02b9bc1d92321122",
+   "url": "https://mcp.internetcourt.org/mcp",
+   "status": "ACTIVE",
+   "tier": "REVIEWED",
+   "root": "07c7b0e1876e65975dfaf1058f0ecff244b965e404a63e3a2796616e4f3d28f0",
+   "tools": {
+    "consult_internet_court": "9839285f7fce8fac956b88095b6f29ed4de5b8575ae3c2e3267626c9624700e3",
+    "get_internet_court_skill": "7b376b4c6fc63d84f49b5141f11a1fdd3ad6bd2b004c71aaec8f6666039164ae",
+    "how_to_install": "84521eb7c05664e5261ffea25c481ea5c67711d00f7b866fee6a80f042a26ba2"
+   },
+   "verdicts": {
+    "consult_internet_court": "SAFE",
+    "get_internet_court_skill": "SAFE",
+    "how_to_install": "SAFE"
+   },
+   "open_challenges": 0,
+   "updated_at": "2026-10-14T07:39:06Z"
+  }
+ },
+ "challenges": [
+  {
+   "found": true,
+   "cid": "c1",
+   "sid": "ac8625207ef936e9",
+   "tool": "",
+   "kind": "DRIFT",
+   "hunter": "0xe258d2604aec1321ddd58f179001cc6a8c442930",
+   "stake": "500000000000000000",
+   "stage": "SETTLED",
+   "drift": "MATCH",
+   "observed_root": "923f63c630de89d0f89d13501916292b7c1e1cc01c076b87a597247b308f576b",
+   "changed": [],
+   "changed_flags": {},
+   "instructions_changed": false,
+   "verdict": "",
+   "offending": "",
+   "quote": "",
+   "reason": "",
+   "attempts": 1,
+   "filed_at": "2026-10-14T07:39:06Z",
+   "updated_at": "2026-10-14T07:39:06Z",
+   "payout": {
+    "hunter": "400000000000000000",
+    "pool": "0",
+    "publisher": "100000000000000000"
+   }
+  }
+ ],
+ "stats": {
+  "servers": 4,
+  "active": 4,
+  "slashed": 0,
+  "bonded": "0",
+  "pool": "0",
+  "challenges": 1,
+  "open_challenges": 0,
+  "pins": 4,
+  "checks": 3,
+  "slashes": 0
+ }
+}
