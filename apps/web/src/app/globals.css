@@ -3799,3 +3799,161 @@ select.input {
 .topbar.on-night .theme-toggle:hover {
   border-color: rgba(244, 244, 241, 0.5);
 }
+
+/* ------------------------------------------------------------------ wallet (RainbowKit) */
+.button.connect {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.connect-glow {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 20%, rgba(240, 138, 75, 0.35) 45%, transparent 70%);
+  background-size: 250% 100%;
+  animation: sweep 3.6s var(--ease) infinite;
+}
+
+.button.account .balance {
+  padding-left: 8px;
+  margin-left: 2px;
+  border-left: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.topbar.on-night .button.account .balance {
+  border-left-color: rgba(244, 244, 241, 0.2);
+  color: var(--night-muted);
+}
+
+.menu-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 12px;
+}
+
+.menu-head img,
+.menu-avatar {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.menu-avatar {
+  background: conic-gradient(from 200deg, #c2410c, #f0803c, #7cc39a, #93b2f6, #c2410c);
+}
+
+.menu-head > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.menu-head strong {
+  font-size: 13px;
+}
+
+.menu-head .mono {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.menu-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 0 6px 6px;
+}
+
+.menu-stats > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.menu-stats small {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.menu-stats b {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.menu-row {
+  display: flex;
+  gap: 2px;
+}
+
+.menu-row > * {
+  flex: 1;
+  align-items: center;
+  text-align: center;
+}
+
+.menu a[role="menuitem"] {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.menu a[role="menuitem"]:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.menu .menu-danger strong {
+  color: var(--bad);
+}
+
+.toast {
+  position: relative;
+  overflow: hidden;
+}
+
+.toast-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--night-accent), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: toast-run 1.6s linear infinite;
+}
+
+.pulse.switching {
+  animation: breathe-night-accent 1.4s ease-out infinite;
+}
+
+@keyframes sweep {
+  0% {
+    background-position: 150% 0;
+  }
+  60%,
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes toast-run {
+  from {
+    background-position: -50% 0;
+  }
+  to {
+    background-position: 150% 0;
+  }
+}

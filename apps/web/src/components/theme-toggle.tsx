@@ -1,42 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const KEY = "toolbond.theme";
-type Mode = "light" | "dark";
-
-function current(): Mode {
-  const set = document.documentElement.dataset.theme;
-  if (set === "light" || set === "dark") return set;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
+import { useTheme } from "./providers";
 
 /** Light or dark. Follows the system until the visitor picks one; the choice is remembered. */
 export function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("light");
-
-  useEffect(() => {
-    setMode(current());
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const follow = () => {
-      if (!document.documentElement.dataset.theme) setMode(current());
-    };
-    media.addEventListener("change", follow);
-    return () => media.removeEventListener("change", follow);
-  }, []);
-
-  const toggle = () => {
-    const next: Mode = current() === "dark" ? "light" : "dark";
-    const root = document.documentElement;
-    root.classList.add("theme-switching");
-    root.dataset.theme = next;
-    setMode(next);
-    try {
-      localStorage.setItem(KEY, next);
-    } catch {}
-    window.setTimeout(() => root.classList.remove("theme-switching"), 350);
-  };
-
+  const { mode, toggle } = useTheme();
   return (
     <button
       type="button"

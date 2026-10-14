@@ -1,68 +1,22 @@
-// Browser-side GenLayer helpers: wallet clients, fee-estimated writes and transaction tracking.
-import { chains, createAccount, createClient, generatePrivateKey } from "genlayer-js";
+// Browser-side GenLayer helpers: fee-estimated writes from either wallet kind, and tracking.
+import { chains, createAccount, createClient } from "genlayer-js";
+import type { Hex } from "viem";
+import { EXPLORER } from "./chain";
 
+export { EXPLORER };
 export const CONTRACT = (process.env.NEXT_PUBLIC_TOOLBOND_ADDRESS ||
   "0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A") as `0x${string}`;
-export const EXPLORER = "https://explorer-studio-dev.genlayer.com";
-const BURNER_KEY = "toolbond.burner.v1";
-
-export type WalletMode = "burner" | "injected";
 
 type Eip1193 = { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
 
-function injectedProvider(): Eip1193 | undefined {
-  return (globalThis as unknown as { ethereum?: Eip1193 }).ethereum;
-}
+/** Who signs: the built-in test wallet's local key, or a browser wallet through its provider. */
+export type Signer = { kind: "local"; key: Hex } | { kind: "provider"; address: `0x${string}`; provider: Eip1193 };
 
-export function hasInjectedWallet(): boolean {
-  return Boolean(injectedProvider());
-}
-
-export function burnerKey(): `0x${string}` {
-  try {
-    const stored = localStorage.getItem(BURNER_KEY);
-    if (stored && /^0x[0-9a-f]{64}$/i.test(stored)) return stored as `0x${string}`;
-    const fresh = generatePrivateKey();
-    localStorage.setItem(BURNER_KEY, fresh);
-    return fresh;
-  } catch {
-    return generatePrivateKey();
+function clientFor(signer: Signer) {
+  if (signer.kind === "local") {
+    return createClient({ chain: chains.studioDevnet, account: createAccount(signer.key) });
   }
-}
-
-export function burnerAddress(): string {
-  return createAccount(burnerKey()).address;
-}
-
-export async function connectInjected(): Promise<string> {
-  const provider = injectedProvider();
-  if (!provider) throw new Error("No browser wallet found");
-  const chain = chains.studioDevnet;
-  const chainHex = "0x" + chain.id.toString(16);
-  try {
-    await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: chainHex }] });
-  } catch {
-    await provider.request({
-      method: "wallet_addEthereumChain",
-      params: [{
-        chainId: chainHex,
-        chainName: "GenLayer Studio Next",
-        nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 },
-        rpcUrls: chain.rpcUrls.default.http,
-        blockExplorerUrls: [EXPLORER],
-      }],
-    });
-  }
-  const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
-  if (!accounts?.length) throw new Error("The wallet returned no account");
-  return accounts[0];
-}
-
-function clientFor(mode: WalletMode, address?: string) {
-  if (mode === "injected") {
-    return createClient({ chain: chains.studioDevnet, account: address as `0x${string}`, provider: injectedProvider() as never });
-  }
-  return createClient({ chain: chains.studioDevnet, account: createAccount(burnerKey()) });
+  return createClient({ chain: chains.studioDevnet, account: signer.address, provider: signer.provider as never });
 }
 
 export function toWei(gen: string): bigint {
@@ -72,13 +26,12 @@ export function toWei(gen: string): bigint {
 
 /** Estimate fees and send one ToolBond write. Returns the GenLayer transaction hash. */
 export async function sendWrite(
-  mode: WalletMode,
-  address: string | undefined,
+  signer: Signer,
   method: string,
   args: (string | number)[],
   valueGen = "0",
 ): Promise<`0x${string}`> {
-  const client = clientFor(mode, address);
+  const client = clientFor(signer);
   const estimate = await client.estimateTransactionFees();
   return client.writeContract({
     address: CONTRACT,
@@ -135,4 +88,15 @@ export function sidOf(url: string): Promise<string> {
   return crypto.subtle.digest("SHA-256", bytes).then((digest) =>
     Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16),
   );
+}
+
+/** Human message for a wallet or RPC error, including the common EIP-1193 codes. */
+export function walletError(error: unknown): string {
+  const record = (error ?? {}) as { code?: number; shortMessage?: string; message?: string; cause?: { code?: number } };
+  const code = record.code ?? record.cause?.code;
+  if (code === 4001) return "You rejected the request in your wallet.";
+  if (code === -32002) return "Your wallet already has a request open. Check the extension.";
+  if (code === 4902) return "Your wallet does not know GenLayer Studio Next yet. Approve adding the network.";
+  const text = record.shortMessage || record.message || String(error);
+  return text.length > 220 ? text.slice(0, 220) + "…" : text;
 }
