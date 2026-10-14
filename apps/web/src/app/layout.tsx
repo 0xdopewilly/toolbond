@@ -18,12 +18,21 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111110",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0c0b" },
+  ],
 };
+
+// Applies a saved theme before first paint, so a dark-mode visitor never sees a light flash.
+const THEME_SCRIPT = `try{var t=localStorage.getItem("toolbond.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>
         <Providers>
           <Topbar />

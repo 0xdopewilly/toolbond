@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 import { WalletButton } from "./wallet-button";
 
 const LINKS = [
@@ -53,6 +54,7 @@ export function Topbar() {
             <span className="dot" aria-hidden="true" />
             Studio Next · 61997
           </span>
+          <ThemeToggle />
           <WalletButton />
         </div>
       </div>
