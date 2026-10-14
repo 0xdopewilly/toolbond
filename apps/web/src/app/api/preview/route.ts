@@ -1,7 +1,12 @@
+import { revealSegments } from "@/lib/format";
 import { digestManifest, fetchManifest } from "@/lib/tbcm";
 
 // GET /api/preview?url=… → the manifest validators will see, hashed with TBCM-1, before you bond.
-const HIDDEN = /[​-‏‪-‮⁠-⁤⁦-⁩﻿]|\udb40[\udc00-\udc7f]/u;
+// The same rules validators use (lib/redflags.reveal), applied to the tool's real characters:
+// canonical text escapes non-ASCII, so testing it directly would miss smuggled tag characters.
+function hasHidden(tool: Record<string, unknown>): boolean {
+  return revealSegments(JSON.stringify(tool)).some((segment) => segment.hidden);
+}
 
 export async function GET(request: Request) {
   const url = (new URL(request.url).searchParams.get("url") ?? "").trim();
@@ -22,7 +27,7 @@ export async function GET(request: Request) {
         hash: tool.hash,
         canon: tool.canon,
         description: typeof tool.raw.description === "string" ? tool.raw.description : "",
-        hidden: HIDDEN.test(tool.canon),
+        hidden: hasHidden(tool.raw),
       })),
     });
   } catch (error) {
