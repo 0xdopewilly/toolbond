@@ -9,12 +9,16 @@ import type { Challenge, Pins, Registry, Server, Stats } from "./types";
 export const CONTRACT = process.env.TOOLBOND_ADDRESS || snapshot.contract;
 const READ_TIMEOUT_MS = 8000;
 
-async function view<T>(functionName: string, args: (string | number)[] = []): Promise<T> {
+/** One contract view as the raw string it returns. */
+export async function readRaw(functionName: string, args: (string | number)[] = []): Promise<string> {
   const client = createClient({ chain: chains.studioDevnet });
   const read = client.readContract({ address: CONTRACT as `0x${string}`, functionName, args });
   const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("read timed out")), READ_TIMEOUT_MS));
-  const raw = await Promise.race([read, timeout]);
-  return JSON.parse(String(raw)) as T;
+  return String(await Promise.race([read, timeout]));
+}
+
+async function view<T>(functionName: string, args: (string | number)[] = []): Promise<T> {
+  return JSON.parse(await readRaw(functionName, args)) as T;
 }
 
 function fromSnapshot(): Registry {

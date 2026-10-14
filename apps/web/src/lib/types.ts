@@ -12,6 +12,13 @@ export type Status =
 
 export type Verdict = "UNREVIEWED" | "SAFE" | "UNCLEAR" | "POISONED";
 
+/** A recorded transaction (snapshot only; the contract does not store hashes). */
+export interface TxRef {
+  step: string;
+  hash: string;
+  votes: string[];
+}
+
 export interface ToolRow {
   name: string;
   hash: string;
@@ -46,6 +53,7 @@ export interface Server {
   created_at: string;
   updated_at: string;
   last_verified_at: string;
+  txs?: TxRef[];
 }
 
 export interface ChangedTool {
@@ -76,6 +84,7 @@ export interface Challenge {
   filed_at: string;
   updated_at: string;
   payout: { hunter?: string; pool?: string; publisher?: string };
+  txs?: TxRef[];
 }
 
 export interface Stats {
