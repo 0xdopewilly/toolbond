@@ -43,6 +43,29 @@ Deployed source `contracts/toolbond.py`, SHA-256
 `7469a72ac2431ea2727e21c9cf0eb2b3e8f5445d66adba65e8d8a591f2a7e08c`. Treasury: the deployer
 (`0xe258d2604aec1321ddd58f179001cc6a8c442930`), movable with `set_treasury`.
 
+### Public endpoints
+
+| | |
+|---|---|
+| Web registry | https://toolbond.vercel.app (pins relay: `/api/pins?url=`) |
+| Demo MCP server | https://toolbond-demo-mcp.vercel.app/mcp/{honest,poisoned,rugpull} |
+
+### Treasury
+
+Moved to the project owner's wallet `0xa09e3fb12ef1495a607835778bf1cc5a786a99eb` with `set_treasury`
+(accepted, 3 validators agreeing). Review fees and rejection fees accrue there from now on.
+
+### Bonded demo server (rug pull)
+
+`https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-14T08:14:00Z` serves an honest weather tool until
+08:14 UTC and a poisoned one after it (prompt injection plus invisible Unicode tag characters).
+
+| Call | Transaction | Result |
+|---|---|---|
+| `register` (10.2 GEN: 10 bond + 0.2 review fee) | `0x45ae4d6059608cbb8f29a427b97a2940103ed5039e6fcbb92fb7737524c96e03` | sid `1fce3949b24228d6` |
+| `snapshot` | `0x4a3e12f640c1252bc8f9ce6e31fc71ae6ad885f98500253832de5bd62db8d7c2` | 3 agree, root `99224815…93f3` |
+| `review` | `0x6f9d6b60c5c82a9e3554c3d0a2908b82f7c504290589f81b629f7d2de6330b67` | SAFE, 3 agree, server ACTIVE |
+
 ### Live reviews of real MCP servers
 
 Each server was sponsored (`sponsor_review`), pinned by validator consensus (`snapshot`) and judged
