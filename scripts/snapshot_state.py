@@ -24,12 +24,17 @@ SPONSOR = "0xe258d2604aec1321ddd58f179001cc6a8c442930"
 GEN = 10**18
 
 # Outcomes on the deployed contract (docs/DEPLOYMENTS.md).
+DEMO_URL = "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-14T08:14:00Z"
 SERVERS = [
-    ("https://mcp.deepwiki.com/mcp", "Answers questions about public GitHub repositories from their generated documentation.", "SAFE"),
-    ("https://docs.mcp.cloudflare.com/mcp", "Searches Cloudflare's product documentation.", "SAFE"),
-    ("https://gitmcp.io/modelcontextprotocol/python-sdk", "Fetches and searches the documentation and code of the MCP Python SDK repository.", "SAFE"),
-    ("https://mcp.internetcourt.org/mcp", "Explains and installs the Internet Court skill for agent dispute resolution.", "SAFE"),
+    {"url": DEMO_URL, "purpose": "Weather forecasts for a city.", "verdict": "SAFE", "tier": "BONDED", "bond": str(10 * GEN),
+     "status": "ACTIVE", "pinned_from": "https://toolbond-demo-mcp.vercel.app/mcp/honest"},
+    {"url": "https://mcp.deepwiki.com/mcp", "purpose": "Answers questions about public GitHub repositories from their generated documentation.", "verdict": "SAFE"},
+    {"url": "https://docs.mcp.cloudflare.com/mcp", "purpose": "Searches Cloudflare's product documentation.", "verdict": "SAFE"},
+    {"url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "purpose": "Fetches and searches the documentation and code of the MCP Python SDK repository.", "verdict": "SAFE"},
+    {"url": "https://mcp.internetcourt.org/mcp", "purpose": "Explains and installs the Internet Court skill for agent dispute resolution.", "verdict": "SAFE"},
 ]
+POOL = "0"
+CHECKS = 3
 CHALLENGES = [
     {
         "cid": "c1", "url": "https://mcp.deepwiki.com/mcp", "tool": "", "kind": "DRIFT", "hunter": SPONSOR,
@@ -42,26 +47,31 @@ CHALLENGES = [
 def main() -> None:
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     servers, pins = {}, {}
-    for url, purpose, verdict in SERVERS:
-        manifest = gl_mcp.fetch_manifest(http_post, url)
+    for entry in SERVERS:
+        url, purpose, verdict = entry["url"], entry["purpose"], entry["verdict"]
+        tier, bond, status = entry.get("tier", "REVIEWED"), entry.get("bond", "0"), entry.get("status", "ACTIVE")
+        # the pinned bytes: a rug-pull server is captured from its honest twin, which serves the same tools
+        manifest = gl_mcp.fetch_manifest(http_post, entry.get("pinned_from", url))
         digest = gl_mcp.digest_manifest(manifest)
         sid = gl_mcp.sha256_hex(url)[:16]
         names = {t["name"] for t in digest["tools"]}
         host = url.split("/")[2]
         flags = {t["name"]: redflags.tool_flags(t, names, host) for t in manifest["tools"]}
         flags["__instructions__"] = redflags.instructions_flags(manifest["instructions"], names, host)
-        tools = [dict(t, verdict=verdict, reason="", quote="") for t in digest["tools"]]
+        overrides = entry.get("tool_verdicts", {})
+        tools = [dict(t, verdict=overrides.get(t["name"], {}).get("verdict", verdict), reason=overrides.get(t["name"], {}).get("reason", ""),
+                      quote=overrides.get(t["name"], {}).get("quote", "")) for t in digest["tools"]]
         servers[sid] = {
-            "found": True, "sid": sid, "url": url, "publisher": SPONSOR, "tier": "REVIEWED", "status": "ACTIVE",
-            "purpose": purpose, "caps": "network", "bond": "0", "root": digest["root"], "protocol": digest["protocol"],
+            "found": True, "sid": sid, "url": url, "publisher": SPONSOR, "tier": tier, "status": status,
+            "purpose": purpose, "caps": "network", "bond": bond, "root": digest["root"], "protocol": digest["protocol"],
             "instructions": digest["instructions"], "instructions_hash": digest["instructions_hash"],
             "instructions_verdict": {"verdict": verdict} if digest["instructions"] else {}, "flags": flags, "tools": tools,
-            "reviewed": len(tools), "slashes": 0, "unreachable": 0, "contested": False, "open_challenges": 0,
+            "reviewed": len(tools), "slashes": entry.get("slashes", 0), "unreachable": 0, "contested": False, "open_challenges": 0,
             "last_attest": "MATCH", "created_at": now, "updated_at": now, "last_verified_at": now, "exit_at": 0,
         }
         pins[url] = {
-            "known": True, "sid": sid, "url": url, "status": "ACTIVE", "tier": "REVIEWED", "root": digest["root"],
-            "tools": {t["name"]: t["hash"] for t in digest["tools"]}, "verdicts": {t["name"]: verdict for t in digest["tools"]},
+            "known": True, "sid": sid, "url": url, "status": status, "tier": tier, "root": digest["root"],
+            "tools": {t["name"]: t["hash"] for t in digest["tools"]}, "verdicts": {t["name"]: t["verdict"] for t in tools},
             "open_challenges": 0, "updated_at": now,
         }
     challenges = []
@@ -80,8 +90,11 @@ def main() -> None:
         "pins": pins,
         "challenges": challenges,
         "stats": {
-            "servers": len(servers), "active": len(servers), "slashed": 0, "bonded": "0", "pool": "0",
-            "challenges": len(challenges), "open_challenges": 0, "pins": len(servers), "checks": 3, "slashes": 0,
+            "servers": len(servers), "active": sum(1 for v in servers.values() if v["status"] == "ACTIVE"),
+            "slashed": sum(1 for v in servers.values() if v["status"] == "SLASHED"),
+            "bonded": str(sum(int(v["bond"]) for v in servers.values())), "pool": POOL,
+            "challenges": len(challenges), "open_challenges": 0, "pins": len(servers), "checks": CHECKS,
+            "slashes": sum(v["slashes"] for v in servers.values()),
         },
     }
     out = ROOT / "apps/web/data/snapshot.json"
