@@ -1,0 +1,313 @@
+{"ts": "2026-10-15T11:34:33Z", "event": "attested", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "tx": "0x1d81fc94318f4d0ca9400a8f6d2226d6a5308c1c4f1845370154ad9c80bdd7ad"}
+{"ts": "2026-10-15T11:34:47Z", "event": "attested", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "tx": "0x02a56d70c7d778e7c2bf1f1a7b9886c306dc3a2256e907135083218dbf14ac3b"}
+{"ts": "2026-10-15T11:35:11Z", "event": "attested", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9", "tx": "0x097eb797bcd0bf851279e2ad01f7594698fc8efc7c0a90c5bb1a2a8c97455bec"}
+{"ts": "2026-10-15T11:35:32Z", "event": "attested", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474", "tx": "0x4fbc459aa9d31711a4ba7cf9255770f1b45044edcfcfa5e7c0f32a1ffacb1492"}
+{"ts": "2026-10-15T11:37:13Z", "event": "attested", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e", "tx": "0xb68237656c2b8c7902c6a93f192a6a068089d693e39ba619847c8837d78e6bd3"}
+{"ts": "2026-10-15T11:37:33Z", "event": "attested", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122", "tx": "0x50a5eadf1891b389106e7c6582682bbe6ff42b635508357ecfbd931a1ed02bcc"}
+{"ts": "2026-10-15T11:37:53Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd"}
+{"ts": "2026-10-15T11:37:56Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:38:02Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:38:14Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:38:45Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:38:49Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:39:08Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd"}
+{"ts": "2026-10-15T11:39:11Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:39:18Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:39:21Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:39:46Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:39:50Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:40:12Z", "event": "drift_detected", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "pinned": "99224815cff8179b8ce07cbe77efde2e8b315f2b7347375d0c6d7b14307e93f3", "live": "16b4627c1d8eb8ca3a3105d028db415d8f2c269688a6e5fc6c8ec01b7d810ad0", "unstable": false}
+{"ts": "2026-10-15T11:40:22Z", "event": "challenge_filed", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "cid": "c1", "tx": "0x2a9d79ef136f7eba826f3cb879d8312b1db5e435538acce097387fbba7d86cf2"}
+{"ts": "2026-10-15T11:40:33Z", "event": "observed", "sid": "64117771723f65cd", "cid": "c1", "drift": "DIFFERS", "votes": ["idle", "agree", "idle", "agree", "agree"], "tx": "0x8cda6a91c48baee67a38e9419cb0dba4f709e8d9153976bfde98cc54b1fb86c9"}
+{"ts": "2026-10-15T11:41:18Z", "event": "judged", "sid": "64117771723f65cd", "cid": "c1", "verdict": "POISONED", "votes": ["agree", "idle", "disagree", "agree", "agree"], "tx": "0xbcead7a6d978153061109a958c5c06fabe2d497c061233a428f6be1480998667"}
+{"ts": "2026-10-15T11:41:28Z", "event": "settled", "sid": "64117771723f65cd", "cid": "c1", "drift": "DIFFERS", "verdict": "POISONED", "tx": "0x38cf1a1326fd3b7208d53faa59c2aa67f52550412f8a68cfa4b89fa07a3e8b96"}
+{"ts": "2026-10-15T11:41:32Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:41:36Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:41:40Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:42:04Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:42:08Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:42:24Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:42:28Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:42:33Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:42:37Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:43:02Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:43:06Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:43:23Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:43:27Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:43:34Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:43:41Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:44:08Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:44:13Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:44:29Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:44:33Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:44:38Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:44:42Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:45:06Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:45:10Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:45:26Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:45:29Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:45:34Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:45:37Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:46:02Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:46:07Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:46:23Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:46:27Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:46:31Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:46:34Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:46:58Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:47:02Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:47:19Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:47:22Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:47:27Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:47:31Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:47:55Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:47:59Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:48:16Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:48:19Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:48:24Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:48:29Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:48:56Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:49:02Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:49:18Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:49:22Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:49:26Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:49:35Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:50:00Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:50:06Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:50:23Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:50:26Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:50:31Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:50:34Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:50:58Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:51:02Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:51:19Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:51:23Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:51:27Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:51:31Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:51:56Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:51:59Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:52:16Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:52:19Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:52:25Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:52:25Z", "event": "pins_unavailable", "url": "https://docs.mcp.cloudflare.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:25Z", "event": "skip", "url": "https://docs.mcp.cloudflare.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:26Z", "event": "pins_unavailable", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:26Z", "event": "skip", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:27Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:27Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:44Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:52:44Z", "event": "pins_unavailable", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:44Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:45Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:52:45Z", "event": "pins_unavailable", "url": "https://mcp.deepwiki.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:45Z", "event": "skip", "url": "https://mcp.deepwiki.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:46Z", "event": "pins_unavailable", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:46Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:46Z", "event": "pins_unavailable", "url": "https://docs.mcp.cloudflare.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:46Z", "event": "skip", "url": "https://docs.mcp.cloudflare.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:46Z", "event": "pins_unavailable", "url": "https://mcp.deepwiki.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:46Z", "event": "skip", "url": "https://mcp.deepwiki.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:46Z", "event": "pins_unavailable", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:46Z", "event": "skip", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:47Z", "event": "pins_unavailable", "url": "https://docs.mcp.cloudflare.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:47Z", "event": "skip", "url": "https://docs.mcp.cloudflare.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:47Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:47Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:48Z", "event": "pins_unavailable", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:48Z", "event": "skip", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "reason": "not registered"}
+{"ts": "2026-10-15T11:52:49Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:52:49Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:04Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:53:04Z", "event": "pins_unavailable", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:53:04Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:05Z", "event": "pins_unavailable", "url": "https://mcp.deepwiki.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:53:05Z", "event": "skip", "url": "https://mcp.deepwiki.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:06Z", "event": "pins_unavailable", "url": "https://docs.mcp.cloudflare.com/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:53:06Z", "event": "skip", "url": "https://docs.mcp.cloudflare.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:07Z", "event": "pins_unavailable", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:53:07Z", "event": "skip", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:07Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: HTTP Error 429: Too Many Requests"}
+{"ts": "2026-10-15T11:53:07Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:53:21Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:53:24Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:53:31Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:53:31Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:53:35Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:53:35Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:53:41Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:53:41Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:54:09Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:54:09Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:54:14Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:54:15Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:54:31Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:54:36Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:54:46Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:54:46Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:54:50Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:54:50Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:54:55Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:54:58Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:55:15Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:55:23Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:55:25Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:55:27Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:55:41Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:55:45Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:55:50Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:55:54Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:56:00Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:56:03Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:56:08Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:56:19Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:56:29Z", "event": "pins_unavailable", "url": "https://docs.mcp.cloudflare.com/mcp", "error": "rpc unreachable: The read operation timed out"}
+{"ts": "2026-10-15T11:56:29Z", "event": "skip", "url": "https://docs.mcp.cloudflare.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:39Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: The read operation timed out"}
+{"ts": "2026-10-15T11:56:39Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:49Z", "event": "pins_unavailable", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "error": "rpc unreachable: The read operation timed out"}
+{"ts": "2026-10-15T11:56:49Z", "event": "skip", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:50Z", "event": "pins_unavailable", "url": "https://mcp.internetcourt.org/mcp", "error": "rpc unreachable: HTTP Error 503: Service Unavailable"}
+{"ts": "2026-10-15T11:56:50Z", "event": "skip", "url": "https://mcp.internetcourt.org/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:55Z", "event": "pins_unavailable", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "error": "rpc unreachable: HTTP Error 503: Service Unavailable"}
+{"ts": "2026-10-15T11:56:55Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:56Z", "event": "pins_unavailable", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "error": "rpc unreachable: HTTP Error 503: Service Unavailable"}
+{"ts": "2026-10-15T11:56:56Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "reason": "not registered"}
+{"ts": "2026-10-15T11:56:57Z", "event": "pins_unavailable", "url": "https://mcp.deepwiki.com/mcp", "error": "rpc unreachable: HTTP Error 503: Service Unavailable"}
+{"ts": "2026-10-15T11:56:57Z", "event": "skip", "url": "https://mcp.deepwiki.com/mcp", "reason": "not registered"}
+{"ts": "2026-10-15T11:57:01Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:57:22Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:57:25Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:57:26Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:57:30Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:57:30Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:57:33Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:57:46Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:57:50Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:57:55Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:57:58Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:57:58Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:58:01Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:58:23Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:58:27Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:58:33Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:58:36Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:58:41Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:58:43Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:58:46Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:58:46Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:58:51Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:58:54Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:59:13Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:59:16Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:59:19Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T11:59:22Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T11:59:40Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:59:43Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:59:48Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T11:59:50Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T11:59:52Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T11:59:54Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T11:59:56Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:00:00Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:00:18Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:00:23Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:00:25Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:00:28Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:00:40Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:00:46Z", "event": "drift_detected", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "pinned": "08ed95f97d4521bc9d8fef7ada9d68853bc813670e469084ca582a28a8dd698c", "live": "ee2b58cc28a2e6ce4a0c7da941ccc6d99baba77ab3954d09ea7586e691379175", "unstable": false}
+{"ts": "2026-10-15T12:00:57Z", "event": "challenge_filed", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "cid": "c2", "tx": "0xadac11d156c24ec01114f55a21f53c6e0fe3c6442a8544440eb6f14999cbc867"}
+{"ts": "2026-10-15T12:01:00Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:01:06Z", "event": "drift_detected", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "pinned": "08ed95f97d4521bc9d8fef7ada9d68853bc813670e469084ca582a28a8dd698c", "live": "ee2b58cc28a2e6ce4a0c7da941ccc6d99baba77ab3954d09ea7586e691379175", "unstable": false}
+{"ts": "2026-10-15T12:01:06Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "reason": "a challenge is already open on-chain"}
+{"ts": "2026-10-15T12:01:11Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:01:12Z", "event": "observed", "sid": "b2a2cf33d3f78396", "cid": "c2", "drift": "DIFFERS", "votes": ["agree", "idle", "agree", "idle", "agree"], "tx": "0x0879a78fd7852ea9f9346ef621c52fd8c7f2fef52a116cd22ec578c1cef926ff"}
+{"ts": "2026-10-15T12:01:15Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:01:38Z", "event": "judged", "sid": "b2a2cf33d3f78396", "cid": "c2", "verdict": "SAFE", "votes": ["idle", "agree", "idle", "agree", "agree"], "tx": "0x72ea67c831c40d3f08c9f41ec05c49f8017c172c375d530e811cfef37b9667df"}
+{"ts": "2026-10-15T12:01:45Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:01:48Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:02:02Z", "event": "settled", "sid": "b2a2cf33d3f78396", "cid": "c2", "drift": "DIFFERS", "verdict": "SAFE", "tx": "0x3e9d39b57626ab62cdcdf14a5bd7cfcc4358de32e9879eade4ef3fd078fe4b56"}
+{"ts": "2026-10-15T12:02:07Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:02:11Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:02:20Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:02:24Z", "event": "known_drift", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "live": "ee2b58cc28a2e6ce4a0c7da941ccc6d99baba77ab3954d09ea7586e691379175"}
+{"ts": "2026-10-15T12:02:28Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:02:31Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:02:35Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:02:39Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:02:56Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:02:56Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:02:59Z", "event": "known_drift", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "live": "ee2b58cc28a2e6ce4a0c7da941ccc6d99baba77ab3954d09ea7586e691379175"}
+{"ts": "2026-10-15T12:03:00Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:03:04Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:03:08Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:03:31Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:03:32Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:03:33Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396", "reason": "status PENDING_REVIEW"}
+{"ts": "2026-10-15T12:03:35Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:03:37Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:03:41Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:03:51Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:03:55Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:03:59Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:04:04Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:04:07Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:04:10Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:04:28Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:04:32Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:04:42Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:04:46Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:04:49Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:04:53Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:04:53Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:04:56Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:04:57Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:05:01Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:05:20Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:05:25Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:05:26Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:05:29Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:05:45Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:05:48Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:05:53Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:05:56Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:05:57Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:06:02Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:06:07Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:06:11Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:06:21Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:06:24Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:06:35Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:06:38Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:06:41Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:06:45Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:06:49Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:06:53Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:07:09Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:07:13Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:07:17Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:07:17Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:07:21Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:07:21Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:07:38Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:07:41Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:07:45Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:07:46Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:07:49Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:07:50Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:08:15Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:08:18Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:08:21Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:08:24Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:08:29Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:08:34Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:08:35Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:08:40Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:08:45Z", "event": "match", "url": "https://mcp.deepwiki.com/mcp", "sid": "ac8625207ef936e9"}
+{"ts": "2026-10-15T12:08:49Z", "event": "match", "url": "https://docs.mcp.cloudflare.com/mcp", "sid": "c33b751bf4d7e474"}
+{"ts": "2026-10-15T12:08:58Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:09:01Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:09:15Z", "event": "match", "url": "https://gitmcp.io/modelcontextprotocol/python-sdk", "sid": "089646c9573b843e"}
+{"ts": "2026-10-15T12:09:20Z", "event": "match", "url": "https://mcp.internetcourt.org/mcp", "sid": "02b9bc1d92321122"}
+{"ts": "2026-10-15T12:09:33Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}
+{"ts": "2026-10-15T12:09:36Z", "event": "match", "url": "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z", "sid": "b2a2cf33d3f78396"}
+{"ts": "2026-10-15T12:09:37Z", "event": "skip", "url": "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z", "sid": "64117771723f65cd", "reason": "status SLASHED"}

@@ -31,8 +31,13 @@ def main() -> int:
     args = parser.parse_args()
 
     def view(method, *call_args):
-        time.sleep(0.6)  # stay under Studio Next's 20 reads per 10 s per contract
-        return json.loads(genlayer_read.read_view(args.rpc, args.contract, method, list(call_args)))
+        for attempt in range(4):
+            time.sleep(2.5 * attempt + 0.6)  # Studio Next: 20 reads per 10 s per contract, 30 per minute per client
+            try:
+                return json.loads(genlayer_read.read_view(args.rpc, args.contract, method, list(call_args)))
+            except genlayer_read.ReadError:
+                if attempt == 3:
+                    raise
 
     books = view("get_accounting")
     constants = view("get_constants")

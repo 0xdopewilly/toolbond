@@ -14,24 +14,32 @@ their tools, adjudicated by [GenLayer](https://genlayer.com) validators:
    handshake and must derive identical hashes, so no oracle or uploader is trusted.
    Two independent model readings per validator rule SAFE, POISONED or UNCLEAR.
 3. **Enforcement happens on your machine.** `toolbond-guard` sits between Claude
-   Code or Cursor and the server and drops any tool whose bytes are not pinned and
-   judged SAFE, the moment it changes. A poisoned or rug-pulled tool gets the
-   publisher's bond slashed to whoever caught it.
+   Code or Cursor and the server, reads the approvals from the contract itself, and
+   drops any tool whose bytes are not pinned and judged SAFE, the moment it changes.
+   A poisoned or rug-pulled tool gets the publisher's bond slashed to whoever caught it.
+
+What this protects is **manifest integrity**: the text your model reads is the text
+validators pinned and judged. It is not a runtime sandbox (what a tool does when called
+is not judged), and registering a URL does not make anyone its owner. See
+[the security model](https://toolbond.vercel.app/docs/security) for every limit.
 
 ## Live on GenLayer Studio Next
 
 | | |
 |---|---|
-| ToolBond contract (v2) | [`0xA61c4D1E32ac84d09cd0756712f70dC24294D34C`](https://explorer-studio-dev.genlayer.com/address/0xA61c4D1E32ac84d09cd0756712f70dC24294D34C) |
+| ToolBond contract (v3) | [`0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b`](https://explorer-studio-dev.genlayer.com/address/0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b), source SHA-256 `80100765…61f0` from commit `b5bde68`; v2 and v1 stay deployed with their history |
 | PinnedFetch primitive (v2) | [`0xf9f6FD0E66f79471EAd67feA82fff1c3723Ce5f2`](https://explorer-studio-dev.genlayer.com/address/0xf9f6FD0E66f79471EAd67feA82fff1c3723Ce5f2), also at [0xdopewilly/pinnedfetch](https://github.com/0xdopewilly/pinnedfetch) |
 | Real servers reviewed SAFE by validator consensus | DeepWiki, Cloudflare Docs, gitmcp (MCP Python SDK), Internet Court |
-| Rug pull caught live, twice | A bonded weather server turns malicious on a timer. With nobody touching anything, the guard blocks it at once, the patrol bot files a DRIFT challenge, validators observe `DIFFERS` and judge `POISONED`, and the 10 GEN bond is slashed: 1 min 45 s after the swap on v1, 1 min 46 s on v2 |
-| Security audit | An independent review of v1 found 16 issues; v2 fixes every confirmed one, each with a regression test ([summary](https://toolbond.vercel.app/docs/security)) |
+| Rug pull caught live, three times | A bonded weather server turns malicious on a timer. With nobody touching anything, the guard blocks it at once, a patrol bot (on v3 under its own hunter account) files a DRIFT challenge, validators observe `DIFFERS` and judge `POISONED`, and the 10 GEN bond is slashed: 1 min 45 s after the swap on v1, 1 min 46 s on v2, 1 min 20 s on v3 |
+| Collateral invariant, live | A harmless update is ruled SAFE and costs 5% of the bond, which leaves it at 9.5 GEN: the server reads `UNDERCOLLATERALIZED`, the publisher's re-pin is refused on chain, and after `top_up` it is reviewed back to `BONDED` |
+| Accounting readback | `get_accounting` after the v3 run: balance 22.7 GEN = bonded 10 + pool 5 + claimable 7.7 + staked 0, `conserved: true` |
+| Reviews | An independent review of v1 found 16 issues, fixed in v2; a steward review of v2 led to v3 (collateral, guard trust, ownership, evidence). Both are summarised in [the security model](https://toolbond.vercel.app/docs/security) |
 | Web app | https://toolbond.vercel.app: registry, publish wizard, challenges, hunters, in-browser guard check, [docs](https://toolbond.vercel.app/docs) |
-| Demo MCP server | https://toolbond-demo-mcp.vercel.app (`/mcp/honest`, `/mcp/poisoned`, `/mcp/rugpull`) |
+| Demo MCP server | https://toolbond-demo-mcp.vercel.app (`/mcp/honest`, `/mcp/poisoned`, `/mcp/rugpull`, `/mcp/update` with an owner proof) |
 
 Every transaction, vote count and lesson from the live runs is in
-[docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md).
+[docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md); the v3 evidence (decoded transactions,
+readbacks, guard runs, and how to verify each) is in [docs/evidence](docs/evidence).
 
 ## What is in the repository
 
@@ -41,7 +49,7 @@ Every transaction, vote count and lesson from the live runs is in
 | PinnedFetch contract | `contracts/src/pinned_fetch.py` | reusable primitive: consensus-pinned manifests with drift detection |
 | `gl_mcp` | `lib/gl_mcp.py` | MCP client for Intelligent Contracts and TBCM-1 hashing ([guide](docs/gl_mcp.md), [spec](docs/TBCM-1.md)) |
 | Red flags and judge | `lib/redflags.py`, `lib/judge.py` | code-computed hard and soft flags; prompts and verdict parsing with code-verified quotes |
-| `toolbond-guard` | `lib/toolbond_guard.py` | MCP stdio proxy for Claude Code and Cursor |
+| `toolbond-guard` | `lib/toolbond_guard.py`, `lib/genlayer_read.py` | MCP stdio proxy for Claude Code and Cursor; reads approvals from the contract with `gen_call` ([trust model](docs/GUARD.md)) |
 | Patrol bot | `bot/patrol.py` | detects drift, files and drives DRIFT challenges, sends heartbeats |
 | Web app | `apps/web` | registry, publish wizard (preview, register, pin, review), server pages with a word-level diff of observed changes, challenge actions, hunters board, in-browser guard check, docs, RainbowKit wallets, `/api/pins` |
 | Demo server | `apps/demo-mcp` | weather tool that is honest, poisoned, or rug-pulls at a set time |
@@ -76,17 +84,25 @@ the deployed source hash are in [docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md); test
 | `observe` | a drift class. DIFFERS is accepted only when every validator derived the same new root, so the changed tools stored for judging are verified content, never the leader's word. UNREACHABLE is accepted from anyone and only refunds. |
 
 Payable methods never raise (they refund to a claimable balance), payouts are pull
-payments, and every rule is tested in direct mode (`tests/direct/test_toolbond.py`).
+payments, and every rule is tested in direct mode (`tests/direct/test_toolbond.py`), with the
+version 3 invariants attacked in `tests/direct/test_toolbond_adversarial.py`: repeated benign
+drift, re-pinning a drained bond, collateral depletion, a colluding publisher and hunter, and
+conservation after every payout row.
 
 ## Install the guard
 
 ```bash
 claude mcp add weather -- uvx --from git+https://github.com/0xdopewilly/toolbond \
-    toolbond-guard https://weather.example.com/mcp --pins-url https://<registry-site>/api/pins
+    toolbond-guard https://weather.example.com/mcp
 ```
 
-Options: `--pins-file` (offline pins), `--bonded-only`, `--poll <seconds>`. Call the
-`toolbond_status` tool to see why each upstream tool is allowed or blocked.
+The guard reads `get_pins` from the v3 contract through the Studio Next RPC on every
+refresh and blocks everything when it cannot. Options: `--bonded-only` (bond at the
+minimum now), `--owner-verified-only`, `--poll <seconds>`, and opt-in fallbacks
+`--cache-minutes`, `--relay <url>`, `--accept-snapshot-hours`, `--pins-file`. Call the
+`toolbond_status` tool to see where each approval came from and why each upstream tool
+is allowed or blocked. The trust model and its tested failure cases are in
+[docs/GUARD.md](docs/GUARD.md).
 
 ## Publish a server
 
@@ -110,9 +126,9 @@ Requires [uv](https://docs.astral.sh/uv/) and Node 20 or newer.
 scripts/setup.sh                    # Python 3.12 venv, GenLayer tools, CLI on Studio Next
 python3 scripts/bundle.py           # regenerate contracts/ from contracts/src + lib (refuses name collisions)
 scripts/glw lint contracts/toolbond.py
-scripts/glw test                    # 107 tests: library, judge, guard over stdio, patrol, contracts in direct mode
+scripts/glw test                    # 134 tests: library, judge, guard (stdio and trust), patrol, contracts and adversarial invariants in direct mode
 cd apps/web && npm install && npm run dev
-cd apps/demo-mcp && node server.js  # http://127.0.0.1:8787/mcp/{honest,poisoned,rugpull}
+cd apps/demo-mcp && node server.js  # http://127.0.0.1:8787/mcp/{honest,poisoned,rugpull,update}
 ```
 
 The toolchain is pinned to GenLayer's Studio Next line: runner `py-genlayer:5jycge4q…`,
@@ -129,8 +145,13 @@ The toolchain is pinned to GenLayer's Studio Next line: runner `py-genlayer:5jyc
   slashed for it.
 - Tool *outputs* are not judged yet, only the manifest models read before calling.
 - Manifests are capped at 24 tools, 3 pages and 64 KB.
-- Studio Next contract reads were failing network-wide during development; the web
-  app shows a labelled snapshot when they do.
+- Approvals are as honest as the RPC that serves the contract reads. Studio Next is a
+  hosted preview network; it rate-limits `gen_call` (20 per 10 s per contract), and
+  under heavier load the guard fails closed. Its reads also failed network-wide on
+  2026-10-13 and 14; the web app labels anything it shows in that case as a stored,
+  non-authoritative copy.
+- A registrant is not the server's owner unless the server's own instructions say so
+  (`owner_verified`). Sponsored reviews put no money at stake.
 
 ## License
 

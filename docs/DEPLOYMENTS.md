@@ -1,6 +1,86 @@
 # Deployments
 
-## Version 2 (live): Studio Next, chain 61997
+## Version 3 (live): Studio Next, chain 61997
+
+Deployed after a steward review of v2, which asked for a collateral invariant, a guard that verifies
+approvals against the contract, clearer guarantees, and verifiable evidence. Every transaction below
+is `FINALIZED`; [`docs/evidence/`](evidence/) has the raw logs, the decoded transaction table
+(rebuilt from `eth_getTransactionByHash` by `scripts/tx_index.py`), contract readbacks and guard runs.
+
+| Contract | Address | Deploy transaction | Source SHA-256 | Commit |
+|---|---|---|---|---|
+| ToolBond v3 | [`0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b`](https://explorer-studio-dev.genlayer.com/address/0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b) | [`0x4f0cd77a…`](https://explorer-studio-dev.genlayer.com/tx/0x4f0cd77a2d0e8f5ca2fd83fec6ead3b7b68ec0d8c92dbaf785942d1f90e551b3) (FINALIZED, 3 agree) | `8010076531b4ed1af0c39ef096dc9435f5f7cd9f122c1895ad068237a07961f0` (`contracts/toolbond.py`) | [`b5bde68`](https://github.com/0xdopewilly/toolbond/commit/b5bde688380c3c79534b436b7932f8f286f0c9f2) |
+
+Treasury: `0xa09e3fb12ef1495a607835778bf1cc5a786a99eb`. Publisher and sponsor: the dev account
+`0xe258d2604aec1321ddd58f179001cc6a8c442930`. Hunter (patrol bot): a separate account,
+`0x8fb5c97a1a90675caec56a12e1f20cebf7b68be7`. Verify the source hash with
+`git show b5bde68:contracts/toolbond.py | sha256sum`.
+
+### Sponsored reviews of public servers
+
+DeepWiki, Cloudflare Docs, gitmcp (MCP Python SDK) and Internet Court: each `sponsor_review`
+(0.2 GEN), `snapshot` and `review`, all `ACTIVE` with every tool `SAFE` and assurance `REVIEWED`
+(no bond). Transactions: [`evidence/v3-transactions.md`](evidence/v3-transactions.md).
+
+### A harmless update, the collateral invariant, and a top-up
+
+`https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z` serves the honest weather
+tool until 12:00 UTC, then a revised description (humidity, 48 hours, no injection). Its instructions
+carry `toolbond-owner:0xe258…2930`, so validators set `owner_verified`.
+
+| Time (UTC) | Signer | Call | Transaction | Result |
+|---|---|---|---|---|
+| 11:26:03 | publisher | `register` (10.2 GEN) | [`0xc10def07…`](https://explorer-studio-dev.genlayer.com/tx/0xc10def07c5b1d8e1a6e40114b505474546e5e41c596034d02160a31f1ee95c96) | sid `b2a2cf33d3f78396`, BONDED |
+| 11:26:21 | publisher | `snapshot` | [`0x76b8a27b…`](https://explorer-studio-dev.genlayer.com/tx/0x76b8a27b29433b7486c57063b0f1d00bdf0a6bc9702f1a0da2d7565c954b5e18) | pinned, `owner_verified: true` |
+| 11:26:36 | publisher | `review` | [`0x1f3b58bd…`](https://explorer-studio-dev.genlayer.com/tx/0x1f3b58bd5c1262ebe47ad3bce3ecdf90758aaab8299fdd6f8acfcbd38f5cc485) | SAFE: ACTIVE, assurance BONDED |
+| 12:00:48 | hunter (patrol bot) | `challenge` DRIFT, 0.5 GEN | [`0xadac11d1…`](https://explorer-studio-dev.genlayer.com/tx/0xadac11d156c24ec01114f55a21f53c6e0fe3c6442a8544440eb6f14999cbc867) | `c2` |
+| 12:00:59 | hunter | `observe` | [`0x0879a78f…`](https://explorer-studio-dev.genlayer.com/tx/0x0879a78fd7852ea9f9346ef621c52fd8c7f2fef52a116cd22ec578c1cef926ff) | `DIFFERS`, 3 agree |
+| 12:01:14 | hunter | `judge` | [`0x72ea67c8…`](https://explorer-studio-dev.genlayer.com/tx/0x72ea67c831c40d3f08c9f41ec05c49f8017c172c375d530e811cfef37b9667df) | `SAFE`, 3 agree |
+| 12:01:40 | hunter | `settle` | [`0x3e9d39b5…`](https://explorer-studio-dev.genlayer.com/tx/0x3e9d39b57626ab62cdcdf14a5bd7cfcc4358de32e9879eade4ef3fd078fe4b56) | 5% of the bond (0.5 GEN) to the hunter; STALE, bond 9.5 GEN, assurance **UNDERCOLLATERALIZED** |
+| 12:02:24 | publisher | `snapshot` | [`0x43e523f8…`](https://explorer-studio-dev.genlayer.com/tx/0x43e523f89e5453ea354ff5260bd28995e7b04cfac7381b3a17acbaea68a6b7c9) | **refused**: `[EXPECTED] bond is below the minimum of 10000000000000000000 wei: top_up first` |
+| 12:03:04 | publisher | `top_up` (0.5 GEN) | [`0x9d6700ba…`](https://explorer-studio-dev.genlayer.com/tx/0x9d6700ba90179bfe3c8a1da659b602df44e90fbdf3690689d0d5c13d599731e6) | bond 10 GEN, assurance BONDED |
+| 12:03:18 | publisher | `snapshot` | [`0x2c4e79a7…`](https://explorer-studio-dev.genlayer.com/tx/0x2c4e79a75b6852dd7c75aa9b6096ed443a3662ecfc0b51d6e52aadd6cd088c0a) | revised manifest pinned, `drift_root` cleared |
+| 12:03:33 | publisher | `review` | [`0xb74dd76c…`](https://explorer-studio-dev.genlayer.com/tx/0xb74dd76c1e6cc81f2e14b3739f20c0ae5328c8711b997dfca7379d96eecfbc9e) | SAFE: ACTIVE, assurance BONDED, owner verified |
+
+While the bond was short, the guard blocked the tool by default (its manifest had changed) and
+`--bonded-only` blocked it for its assurance: [`evidence/v3-guard-undercollateralized.md`](evidence/v3-guard-undercollateralized.md).
+
+### Rug pull on v3, unattended
+
+`https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z`: honest until 11:40 UTC,
+then poisoned (prompt injection plus invisible Unicode tag characters). The patrol bot ran under the
+hunter account and read pins from the contract.
+
+| Time (UTC) | Signer | Call | Transaction | Result |
+|---|---|---|---|---|
+| 11:27:16 | publisher | `register` (10.2 GEN) | [`0x3ff95e26…`](https://explorer-studio-dev.genlayer.com/tx/0x3ff95e26ea525572b23af95fdd5c9931caa355e496eb621e5a18edcb89233566) | sid `64117771723f65cd` |
+| 11:27:27 | publisher | `snapshot` | [`0x76dccc6f…`](https://explorer-studio-dev.genlayer.com/tx/0x76dccc6f8fb2ee98d301efa5602bd8e0f2d8e3af8f558876c463aeb684a528c3) | root `99224815…93f3` |
+| 11:27:43 | publisher | `review` | [`0xd388fdd0…`](https://explorer-studio-dev.genlayer.com/tx/0xd388fdd0ef2776d27817daf4c9b04eccb4910894c800926e48bf2a8cfa8d5ced) | SAFE: ACTIVE, BONDED |
+| 11:40:00 | (server) | swaps the tool | | |
+| 11:40:14 | hunter (patrol bot) | `challenge` DRIFT, 0.5 GEN | [`0x2a9d79ef…`](https://explorer-studio-dev.genlayer.com/tx/0x2a9d79ef136f7eba826f3cb879d8312b1db5e435538acce097387fbba7d86cf2) | `c1` |
+| 11:40:24 | hunter | `observe` | [`0x8cda6a91…`](https://explorer-studio-dev.genlayer.com/tx/0x8cda6a91c48baee67a38e9419cb0dba4f709e8d9153976bfde98cc54b1fb86c9) | `DIFFERS`, 3 agree |
+| 11:40:34 | hunter | `judge` | [`0xbcead7a6…`](https://explorer-studio-dev.genlayer.com/tx/0xbcead7a6d978153061109a958c5c06fabe2d497c061233a428f6be1480998667) | `POISONED`, 3 agree, 1 disagree |
+| 11:41:19 | hunter | `settle` | [`0x38cf1a13…`](https://explorer-studio-dev.genlayer.com/tx/0x38cf1a1326fd3b7208d53faa59c2aa67f52550412f8a68cfa4b89fa07a3e8b96) | 10 GEN slashed: 5.5 GEN to the hunter, 5 GEN to the pool; SLASHED |
+
+The contract records the settlement at 11:41:19.7 (`get_challenge("c1").updated_at`): 1 min 20 s
+after the swap.
+
+### Readbacks
+
+After the run, through `gen_call` ([`evidence/v3-readbacks.md`](evidence/v3-readbacks.md)):
+`get_accounting` returned balance 22.7 GEN = bonded 10 + pool 5 + claimable 7.7 + staked 0, with
+`conserved: true`. `get_pins` shows the updated server ACTIVE, BONDED and owner-verified, the rug pull
+SLASHED with no bond, and the four public servers REVIEWED.
+
+### Limits of the network
+
+- Studio Next is a hosted preview network and can be reset; that is why every transaction is listed.
+- Contract reads worked throughout this run. They failed network-wide on 2026-10-13 and 14; when they
+  fail, the site labels what it shows, and the guard blocks by default.
+- `gen_call` is rate-limited (20 reads per 10 s per contract, about 30 per minute per client). Over
+  that, reads fail and the guard fails closed unless the operator opted into a cache or relay.
+
+## Version 2: Studio Next, chain 61997
 
 Deployed after an independent audit of v1; every confirmed finding is fixed and has a regression
 test (summary: https://toolbond.vercel.app/docs/security). Treasury: the project owner's wallet
