@@ -3,7 +3,12 @@
 //
 // Transaction hashes are not stored by the contract, so they come from data/txs.json, built
 // by scripts/tx_index.py from the evidence logs, and are merged into whatever the contract says.
+//
+// Studio Next rate-limits contract reads (20 per 10 s per contract, about 30 a minute per client),
+// so every page shares one cached registry read, refreshed at most every REGISTRY_TTL seconds.
+// A failed refresh throws, so it is never cached, and the last good read keeps being served.
 import { chains, createClient } from "genlayer-js";
+import { unstable_cache } from "next/cache";
 import snapshot from "../../data/snapshot.json";
 import txIndex from "../../data/txs.json";
 import { TOOLBOND_ADDRESS } from "./deployments";
@@ -54,21 +59,41 @@ function fromSnapshot(): Registry {
   });
 }
 
-export async function loadRegistry(): Promise<Registry> {
-  try {
+const REGISTRY_TTL = 20;
+const PINS_TTL = 10;
+
+const readRegistry = unstable_cache(
+  async () => {
     const listed = await view<{ items: { sid: string }[] }>("list_servers", [0, 50]);
     const servers = await Promise.all(listed.items.map((item) => view<Server>("get_server", [item.sid])));
     const challenges = (await view<{ items: Challenge[] }>("list_challenges", [""])).items;
     const stats = await view<Stats>("get_stats");
-    return withTxs({ live: true, as_of: new Date().toISOString(), contract: CONTRACT, servers, challenges, stats });
+    return { live: true, as_of: new Date().toISOString(), contract: CONTRACT, servers, challenges, stats };
+  },
+  ["toolbond-registry", CONTRACT.toLowerCase()],
+  { revalidate: REGISTRY_TTL, tags: ["registry"] },
+);
+
+export async function loadRegistry(): Promise<Registry> {
+  try {
+    return withTxs(await readRegistry());
   } catch {
     return fromSnapshot();
   }
 }
 
+const readPins = unstable_cache(
+  async (url: string) => ({ pins: await view<Pins>("get_pins", [url]), read_at: new Date().toISOString() }),
+  ["toolbond-pins", CONTRACT.toLowerCase()],
+  {
+    revalidate: PINS_TTL,
+    tags: ["pins"],
+  },
+);
+
 export type RelayedPins = Pins & {
   source: "contract" | "snapshot";
-  /** true only for a contract read made for this request */
+  /** true only for a recent contract read (within PINS_TTL seconds), never for a stored snapshot */
   authoritative: boolean;
   contract: string;
   rpc?: string;
@@ -79,14 +104,15 @@ export type RelayedPins = Pins & {
 export async function loadPins(url: string): Promise<RelayedPins> {
   const clean = url.trim();
   try {
+    const { pins, read_at } = await readPins(clean);
     return {
-      ...(await view<Pins>("get_pins", [clean])),
+      ...pins,
       source: "contract",
       authoritative: true,
       contract: CONTRACT,
       rpc: RPC_URL,
-      as_of: new Date().toISOString(),
-      relay_note: "Read from the contract by this site for this request. To a guard this is still a relay: run toolbond-guard without --relay to read the chain yourself.",
+      as_of: read_at,
+      relay_note: `Read from the contract by this site within the last ${PINS_TTL} seconds. To a guard this is still a relay: run toolbond-guard without --relay to read the chain yourself.`,
     };
   } catch {
     const pins = sameContract(snapshot.contract) ? (snapshot.pins as Record<string, Pins>)[clean] : undefined;

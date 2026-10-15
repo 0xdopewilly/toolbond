@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Ambient } from "@/components/ambient";
 import { CommandPalette } from "@/components/command-palette";
 import { Providers } from "@/components/providers";
+import { TabBar } from "@/components/tabbar";
 import { Topbar } from "@/components/topbar";
 import { CONTRACT } from "@/lib/data";
 import { EXPLORER } from "@/lib/format";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f4f4f1" },
     { media: "(prefers-color-scheme: dark)", color: "#0c0c0b" },
@@ -41,6 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Topbar />
           {children}
           <CommandPalette />
+          <TabBar />
           <footer className="footer">
             <div className="wrap footer-grid">
               <div className="footer-brand">

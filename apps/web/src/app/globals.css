@@ -5378,3 +5378,177 @@ select.input {
   font-size: 12px;
   white-space: nowrap;
 }
+
+/* ------------------------------------------------------------------ phones and tablets */
+.tabbar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .nav {
+    display: none;
+  }
+
+  .tabbar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: var(--topbar-bg);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-top: 1px solid var(--line);
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--ink-2);
+    font: 500 11px/1 var(--font-sans), system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+
+  .tab[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .tab:active {
+    background: rgba(127, 127, 127, 0.14);
+  }
+
+  body {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+
+  .dock {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  /* the search stays one tap away as an icon */
+  .palette-trigger span,
+  .palette-trigger kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .account .balance {
+    display: none;
+  }
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.45);
+  animation: tb-fade 0.2s var(--ease) both;
+}
+
+.sheet {
+  width: 100%;
+  padding: 8px 16px calc(84px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, 0.5);
+  animation: tb-sheet 0.28s var(--ease) both;
+}
+
+.sheet-grip {
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 4px auto 10px;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.sheet-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 60px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.sheet-item:active {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.sheet-item strong {
+  font-weight: 600;
+}
+
+.sheet-item span {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.sheet-item[aria-current="page"] strong {
+  color: var(--accent);
+}
+
+@keyframes tb-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes tb-sheet {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+}
+
+/* thumbs need room: 44 px targets wherever the pointer is a finger */
+@media (pointer: coarse) {
+  .button,
+  .button.small {
+    min-height: 44px;
+  }
+
+  .palette-trigger,
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .topbar .brand {
+    min-height: 44px;
+  }
+
+  .linklike {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  [role="tab"],
+  .tabs a,
+  .tabs button {
+    min-height: 44px;
+  }
+
+  .footer a {
+    display: inline-block;
+    padding: 8px 0;
+  }
+}
