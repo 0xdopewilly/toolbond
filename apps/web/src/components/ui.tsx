@@ -52,10 +52,11 @@ export function DataNotice({ registry }: { registry: Registry }) {
   if (registry.live) return null;
   return (
     <p className="notice" role="status">
-      <strong>Live reads unavailable.</strong>
+      <strong>Not live contract state.</strong>
       <span>
-        Studio Next contract reads are failing network-wide, so this page shows a snapshot of the registry taken{" "}
-        {new Date(registry.as_of).toUTCString()}. Writes and consensus are unaffected.
+        {registry.as_of
+          ? `Contract reads failed for this request, so this page shows a stored snapshot from ${new Date(registry.as_of).toUTCString()}. It is not authoritative: check the transactions on the explorer, or reload.`
+          : "Contract reads failed for this request and no snapshot of this contract is stored, so nothing is shown. Reload, or read the contract on the explorer."}
       </span>
     </p>
   );

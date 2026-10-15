@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ASSURANCE_LABEL, assuranceOf } from "@/lib/assurance";
 import { shortHash } from "@/lib/format";
 
 // The guard's client rules (docs/CONTRACT_API.md), run in the browser against the live manifest.
+// Approvals reach the browser through this site's /api/pins relay, so the result says where they
+// came from; the CLI guard reads the contract itself.
 const ALLOWED_STATUSES = new Set(["ACTIVE", "STALE"]);
 
 interface Decision {
@@ -19,9 +22,14 @@ interface Pins {
   known: boolean;
   status?: string;
   tier?: string;
+  assurance?: string;
+  bond?: string;
+  owner_verified?: boolean;
   tools?: Record<string, string>;
   verdicts?: Record<string, string>;
   source?: string;
+  authoritative?: boolean;
+  as_of?: string;
 }
 
 function evaluate(live: { name: string; hash: string }[], pins: Pins, bondedOnly: boolean): Decision[] {
@@ -29,7 +37,8 @@ function evaluate(live: { name: string; hash: string }[], pins: Pins, bondedOnly
     const decision: Decision = { name, live: hash, pinned: "", verdict: "", allowed: false, why: "" };
     if (!pins.known) decision.why = "server is not registered with ToolBond";
     else if (!ALLOWED_STATUSES.has(pins.status ?? "")) decision.why = `server status is ${pins.status}`;
-    else if (bondedOnly && pins.tier !== "BONDED") decision.why = "server is not bonded (--bonded-only)";
+    else if (pins.source !== "contract") decision.why = "approval is a stored snapshot, not a contract read (refused by default)";
+    else if (bondedOnly && assuranceOf(pins) !== "BONDED") decision.why = `assurance is ${ASSURANCE_LABEL[assuranceOf(pins)].toLowerCase()}, not bonded (--bonded-only)`;
     else {
       decision.pinned = pins.tools?.[name] ?? "";
       decision.verdict = pins.verdicts?.[name] ?? "";
@@ -47,7 +56,8 @@ function evaluate(live: { name: string; hash: string }[], pins: Pins, bondedOnly
 
 const PRESETS = [
   { label: "DeepWiki", url: "https://mcp.deepwiki.com/mcp" },
-  { label: "Rug-pulled demo", url: "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-14T16:29:00Z" },
+  { label: "Rug-pulled demo", url: "https://toolbond-demo-mcp.vercel.app/mcp/rugpull?at=2026-10-15T11:40:00Z" },
+  { label: "Bonded, updated", url: "https://toolbond-demo-mcp.vercel.app/mcp/update?at=2026-10-15T12:00:00Z" },
   { label: "Unregistered, poisoned", url: "https://toolbond-demo-mcp.vercel.app/mcp/poisoned" },
 ];
 
@@ -126,8 +136,10 @@ export function GuardCheck() {
           <div className={`verdict-banner ${blocked ? "bad" : "good"}`}>
             <strong>{blocked ? (allowed ? `${blocked} blocked, ${allowed} allowed` : "Every tool blocked") : "Every tool allowed"}</strong>
             <span>
-              {result.pins.known ? `${result.pins.status?.toLowerCase()} · ${result.pins.tier?.toLowerCase()}` : "not registered"}
-              {result.pins.source === "snapshot" ? " · pins from snapshot" : ""}
+              {result.pins.known
+                ? `${result.pins.status?.toLowerCase()} · ${ASSURANCE_LABEL[assuranceOf(result.pins)].toLowerCase()}${result.pins.owner_verified ? " · owner verified" : ""}`
+                : "not registered"}
+              {result.pins.source === "contract" ? " · contract read, relayed by this site" : " · stored snapshot, not authoritative"}
             </span>
           </div>
           <div>

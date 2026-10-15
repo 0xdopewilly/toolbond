@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ASSURANCE_HINT, OWNER_HINT, assuranceOf } from "@/lib/assurance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { gen, hostPath, relativeTime, shortHash, statusTone } from "@/lib/format";
 import { displayName, initial } from "@/lib/names";
@@ -9,8 +10,8 @@ import { StatusBadge } from "./ui";
 
 const FILTERS = [
   { key: "all", label: "All", test: () => true },
-  { key: "bonded", label: "Bonded", test: (s: ServerRow) => s.tier === "BONDED" },
-  { key: "reviewed", label: "Reviewed", test: (s: ServerRow) => s.tier === "REVIEWED" },
+  { key: "bonded", label: "Bonded", test: (s: ServerRow) => assuranceOf(s) === "BONDED" },
+  { key: "reviewed", label: "Reviewed", test: (s: ServerRow) => assuranceOf(s) === "REVIEWED" },
   { key: "pinned", label: "Pinned", test: (s: ServerRow) => s.status === "ACTIVE" },
   { key: "stale", label: "Stale", test: (s: ServerRow) => s.status === "STALE" },
   { key: "slashed", label: "Slashed", test: (s: ServerRow) => s.status === "SLASHED" || s.status === "REJECTED" },
@@ -111,13 +112,27 @@ export function RegistryList({ servers }: { servers: ServerRow[] }) {
               <StatusBadge status={server.status} />
             </span>
             <span className="tier">
-              <span className="cell-label">Tier</span>
-              {server.tier === "BONDED" ? (
-                <>
-                  Bonded <span className="muted num">· {gen(server.bond)} GEN</span>
-                </>
-              ) : (
-                "Reviewed"
+              <span className="cell-label">Assurance</span>
+              <span title={ASSURANCE_HINT[assuranceOf(server)]}>
+                {server.tier === "BONDED" ? (
+                  <>
+                    {server.status === "SLASHED" ? (
+                      "Bond slashed"
+                    ) : assuranceOf(server) === "BONDED" ? (
+                      "Bonded"
+                    ) : (
+                      <span className="warn-text">Under-collateralized</span>
+                    )}{" "}
+                    <span className="muted num">· {gen(server.bond)} GEN</span>
+                  </>
+                ) : (
+                  "Reviewed, no bond"
+                )}
+              </span>
+              {server.owner_verified && (
+                <span className="owner-tick" title={OWNER_HINT.verified}>
+                  {" "}· owner verified
+                </span>
               )}
             </span>
             <span className="num" style={{ textAlign: "right" }}>

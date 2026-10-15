@@ -12,7 +12,7 @@ export type Status =
 
 export type Verdict = "UNREVIEWED" | "SAFE" | "UNCLEAR" | "POISONED";
 
-/** A recorded transaction (snapshot only; the contract does not store hashes). */
+/** A recorded transaction (from data/txs.json: the contract does not store hashes). */
 export interface TxRef {
   step: string;
   hash: string;
@@ -34,6 +34,11 @@ export interface Server {
   url: string;
   publisher: string;
   tier: "BONDED" | "REVIEWED";
+  /** version 3: BONDED only while the bond meets the minimum */
+  assurance?: "BONDED" | "UNDERCOLLATERALIZED" | "REVIEWED";
+  min_bond?: string;
+  /** version 3: the pinned instructions name the publisher (toolbond-owner:<address>) */
+  owner_verified?: boolean;
   status: Status;
   purpose: string;
   caps: string;
@@ -108,6 +113,11 @@ export interface Pins {
   url: string;
   status?: Status;
   tier?: string;
+  assurance?: string;
+  bond?: string;
+  min_bond?: string;
+  owner_verified?: boolean;
+  contract_version?: string;
   root?: string;
   tools?: Record<string, string>;
   verdicts?: Record<string, Verdict>;

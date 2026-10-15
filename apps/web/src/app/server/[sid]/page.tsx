@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ASSURANCE_HINT, ASSURANCE_LABEL, OWNER_HINT, assuranceOf } from "@/lib/assurance";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChallengePanel } from "@/components/challenge-panel";
@@ -243,6 +244,8 @@ export default async function ServerPage({ params }: { params: Promise<{ sid: st
     });
   }
 
+  const assurance = assuranceOf(server);
+
   return (
     <main className="wrap page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
@@ -258,7 +261,17 @@ export default async function ServerPage({ params }: { params: Promise<{ sid: st
           <div className="title-row">
             <h1>{displayName(server.url)}</h1>
             <StatusBadge status={server.status} />
-            <span className="badge outline">{server.tier === "BONDED" ? "Bonded" : "Reviewed"}</span>
+            {!slashed && (
+              <span className={`badge ${assurance === "UNDERCOLLATERALIZED" ? "warn" : "outline"}`} title={ASSURANCE_HINT[assurance]}>
+                {ASSURANCE_LABEL[assurance]}
+              </span>
+            )}
+            <span
+              className={`badge ${server.owner_verified ? "good" : "outline"}`}
+              title={server.owner_verified ? OWNER_HINT.verified : OWNER_HINT.unverified}
+            >
+              {server.owner_verified ? "Owner verified" : "Registrant, owner not verified"}
+            </span>
           </div>
           <span className="url-pill mono">
             <span>{server.url}</span>
@@ -286,6 +299,9 @@ export default async function ServerPage({ params }: { params: Promise<{ sid: st
             <dt>Bond</dt>
             <dd className="num">
               {server.tier === "BONDED" ? `${gen(server.bond)} GEN` : "none"}
+              {assurance === "UNDERCOLLATERALIZED" && server.status !== "SLASHED" && (
+                <span className="muted"> · below the 10 GEN minimum</span>
+              )}
               {slashedWei > 0n && <span className="muted"> · {gen(slashedWei)} GEN slashed</span>}
             </dd>
           </div>

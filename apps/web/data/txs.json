@@ -1,0 +1,457 @@
+{
+ "contract": "0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b",
+ "rpc": "https://studio-dev.genlayer.com/api",
+ "built_from": "eth_getTransactionByHash",
+ "servers": {
+  "b2a2cf33d3f78396": [
+   {
+    "step": "register",
+    "hash": "0xc10def07c5b1d8e1a6e40114b505474546e5e41c596034d02160a31f1ee95c96",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "idle",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:26:03Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0x76b8a27b29433b7486c57063b0f1d00bdf0a6bc9702f1a0da2d7565c954b5e18",
+    "votes": [
+     "agree",
+     "agree",
+     "idle",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:26:21Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0x1f3b58bd5c1262ebe47ad3bce3ecdf90758aaab8299fdd6f8acfcbd38f5cc485",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "idle",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:26:36Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0x02a56d70c7d778e7c2bf1f1a7b9886c306dc3a2256e907135083218dbf14ac3b",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:34:38Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ],
+  "64117771723f65cd": [
+   {
+    "step": "register",
+    "hash": "0x3ff95e26ea525572b23af95fdd5c9931caa355e496eb621e5a18edcb89233566",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:27:16Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0x76dccc6f8fb2ee98d301efa5602bd8e0f2d8e3af8f558876c463aeb684a528c3",
+    "votes": [
+     "agree",
+     "agree",
+     "idle",
+     "idle",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:27:27Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0xd388fdd0ef2776d27817daf4c9b04eccb4910894c800926e48bf2a8cfa8d5ced",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:27:43Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0x1d81fc94318f4d0ca9400a8f6d2226d6a5308c1c4f1845370154ad9c80bdd7ad",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:34:23Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "challenge",
+    "hash": "0x2a9d79ef136f7eba826f3cb879d8312b1db5e435538acce097387fbba7d86cf2",
+    "votes": [
+     "idle",
+     "agree",
+     "idle",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:40:14Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ],
+  "ac8625207ef936e9": [
+   {
+    "step": "sponsor_review",
+    "hash": "0xba86f38c41c6ef3668bd1fd97c486db814a83ea97c04504677a5a4015b4581c2",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "idle",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:28:29Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0x531649dcc0f76194e4ca0cd0ba4d6e7470792a481ba19142c9990a13c79c0408",
+    "votes": [
+     "agree",
+     "idle",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:28:41Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0x17f02ef515cd579df84e6fc9553712cb7a17403e32946cabc5c013e551d34346",
+    "votes": [
+     "agree",
+     "agree",
+     "idle",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:28:51Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0x097eb797bcd0bf851279e2ad01f7594698fc8efc7c0a90c5bb1a2a8c97455bec",
+    "votes": [
+     "agree",
+     "agree",
+     "agree",
+     "idle",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:34:57Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ],
+  "c33b751bf4d7e474": [
+   {
+    "step": "sponsor_review",
+    "hash": "0xb78004a2b7eac612b00354c2646319b9184bfbf533db91742674b589da5f21bd",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:29:14Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0xf7de813469b38e0f5f2105cae634d4ae3149ac90bda82c8f4822949597e834a6",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:29:30Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0x1c6102991a58099790cf1818d5ec68a98214473e07feae805c907d03136a5ecb",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:29:40Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0x4fbc459aa9d31711a4ba7cf9255770f1b45044edcfcfa5e7c0f32a1ffacb1492",
+    "votes": [
+     "agree",
+     "agree",
+     "idle",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:35:17Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ],
+  "089646c9573b843e": [
+   {
+    "step": "sponsor_review",
+    "hash": "0xd24c791a2a372e18aa346661d5278e44584d0509b1f2e6a9ae2cb097661b0efc",
+    "votes": [
+     "idle",
+     "agree",
+     "idle",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:30:08Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0x315cf07ea62fbec4f8a06087fe0ca0df72f7f2f7612d6c12ebdf45d5668f3e93",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:30:24Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0xdd2492ae9ad3adfde01569bb35ced8cb4a7600fda7533f1e3f5ca275fe94ee49",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:31:42Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0xec8dec4d7cf5e712d292241faf896a89ee76fb9af1e261dc56c286f6b511dcee",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:32:09Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0x5f065c64e64c472ca8b8363893abad0d74d2c8f1b7565856ff4650e7965f5942",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:32:36Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0xb68237656c2b8c7902c6a93f192a6a068089d693e39ba619847c8837d78e6bd3",
+    "votes": [
+     "agree",
+     "agree",
+     "idle",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:35:59Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ],
+  "02b9bc1d92321122": [
+   {
+    "step": "sponsor_review",
+    "hash": "0x87e392cf8ba5fb776f3915c5c0080597ff48e3770bdb8221ce28f33eae330873",
+    "votes": [
+     "idle",
+     "agree",
+     "agree",
+     "agree",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:32:57Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "snapshot",
+    "hash": "0xeb88f072c0bf170a9e1468fe7ca19db991a232a718655ad605d932491271f58b",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:33:09Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "review",
+    "hash": "0xfc2968a63e984896a4a22d72a8b41d2b7d533b9cee8acf229eb5f08f4e3aecf1",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:33:19Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "attest",
+    "hash": "0x50a5eadf1891b389106e7c6582682bbe6ff42b635508357ecfbd931a1ed02bcc",
+    "votes": [
+     "agree",
+     "agree",
+     "agree",
+     "idle",
+     "idle"
+    ],
+    "created_at": "2026-10-15T11:37:20Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ]
+ },
+ "challenges": {
+  "c1": [
+   {
+    "step": "challenge",
+    "hash": "0x2a9d79ef136f7eba826f3cb879d8312b1db5e435538acce097387fbba7d86cf2",
+    "votes": [
+     "idle",
+     "agree",
+     "idle",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:40:14Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "observe",
+    "hash": "0x8cda6a91c48baee67a38e9419cb0dba4f709e8d9153976bfde98cc54b1fb86c9",
+    "votes": [
+     "idle",
+     "agree",
+     "idle",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:40:24Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "judge",
+    "hash": "0xbcead7a6d978153061109a958c5c06fabe2d497c061233a428f6be1480998667",
+    "votes": [
+     "agree",
+     "idle",
+     "disagree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:40:34Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   },
+   {
+    "step": "settle",
+    "hash": "0x38cf1a1326fd3b7208d53faa59c2aa67f52550412f8a68cfa4b89fa07a3e8b96",
+    "votes": [
+     "idle",
+     "idle",
+     "agree",
+     "agree",
+     "agree"
+    ],
+    "created_at": "2026-10-15T11:41:19Z",
+    "status": "FINALIZED",
+    "execution": "FINISHED_WITH_RETURN"
+   }
+  ]
+ }
+}

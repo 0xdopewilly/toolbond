@@ -14,7 +14,7 @@ export default function ContractApi() {
         title="Contract API"
         lede={
           <>
-            ToolBond v2 on GenLayer Studio Next at{" "}
+            ToolBond v3 on GenLayer Studio Next at{" "}
             <a href={`${EXPLORER}/address/${TOOLBOND_ADDRESS}`} className="mono">
               {TOOLBOND_ADDRESS.slice(0, 10)}…{TOOLBOND_ADDRESS.slice(-6)}
             </a>
@@ -43,8 +43,9 @@ export default function ContractApi() {
         rows={[
           [<C key="1">register(url, purpose, caps)</C>, "≥ 10.2 GEN", "anyone", "New BONDED server; returns sid"],
           [<C key="2">sponsor_review(url, purpose, caps)</C>, "≥ 0.2 GEN", "anyone", "New REVIEWED server for a third-party URL"],
-          [<C key="3">snapshot(sid)</C>, "", "anyone while pending; the publisher on ACTIVE or STALE", "Fetch consensus, store pins → PENDING_REVIEW"],
-          [<C key="4">review(sid)</C>, "", "anyone", "Judge the next batch of 6 pinned tools"],
+          [<C key="3">snapshot(sid)</C>, "", "anyone while pending; the publisher on ACTIVE or STALE", "Fetch consensus, store pins, check the owner proof → PENDING_REVIEW. A BONDED server needs its bond at the minimum"],
+          [<C key="4">review(sid)</C>, "", "anyone", "Judge the next batch of 6 pinned tools; a BONDED server below the minimum is not reactivated"],
+          [<C key="14">top_up(sid)</C>, "any amount", "publisher", "Add GEN to a BONDED server's bond, for example to restore the minimum after a drift settlement"],
           [<C key="5">challenge(sid, tool, kind)</C>, "the stake", "anyone", "CONTENT (1 GEN, tool named) or DRIFT (0.5 GEN, tool empty)"],
           [<C key="6">observe(cid, &quot;content&quot;)</C>, "", "anyone", "DRIFT only: validators classify the live manifest"],
           [<C key="7">judge(cid)</C>, "", "anyone", "CONTENT: the pinned tool; DRIFT with DIFFERS: the changed tools"],
@@ -60,11 +61,17 @@ export default function ContractApi() {
       <H2>Views</H2>
       <p>All views return JSON strings.</p>
       <H3>get_pins(url)</H3>
-      <p>What the guard reads.</p>
+      <p>
+        What the guard reads. <C>tier</C> is how the server was registered; <C>assurance</C> is what holds now: BONDED only while the bond
+        meets the minimum, UNDERCOLLATERALIZED below it, REVIEWED for sponsored reviews. <C>owner_verified</C> is true when the pinned
+        instructions contain <C>toolbond-owner:&lt;publisher&gt;</C>.
+      </p>
       <Code lang="json" title="get_pins">{`
 {"known": true, "sid": "a1b2c3d4e5f60718", "url": "https://…/mcp", "status": "ACTIVE", "tier": "BONDED",
- "root": "<64 hex>", "tools": {"get_forecast": "<64 hex>"}, "verdicts": {"get_forecast": "SAFE"},
- "open_challenges": 0, "drift_root": "", "updated_at": "2026-10-14T16:05:00Z"}
+ "assurance": "BONDED", "bond": "10000000000000000000", "min_bond": "10000000000000000000",
+ "owner_verified": true, "root": "<64 hex>", "tools": {"get_forecast": "<64 hex>"},
+ "verdicts": {"get_forecast": "SAFE"}, "open_challenges": 0, "drift_root": "",
+ "updated_at": "2026-10-15T11:26:36Z", "contract_version": "3"}
 `}</Code>
       <H3>Everything else</H3>
       <Table
@@ -76,7 +83,8 @@ export default function ContractApi() {
           [<C key="4">list_challenges(sid)</C>, "Newest first; empty sid lists all (capped at 50)"],
           [<C key="5">get_stats()</C>, "Servers, active, slashed, bonded, pool, challenges, pins, checks, slashes"],
           [<C key="6">get_claimable(address)</C>, "Wei owed to an address"],
-          [<C key="7">get_constants()</C>, "The constants below, and the treasury"],
+          [<C key="7">get_constants()</C>, "The constants below, the owner tag, the version and the treasury"],
+          [<C key="8">get_accounting()</C>, "balance, bonded, pool, claimable_total, staked and conserved: whether balance equals the sum"],
         ]}
       />
 
@@ -112,9 +120,10 @@ const hash = await client.writeContract({
   fees: { distribution: fees.distribution, feeValue: fees.feeValue },
 });
 `}</Code>
-      <Callout kind="note" title="Reading results while views are down">
-        Studio Next&apos;s contract reads have been failing network-wide. Each transaction&apos;s agreed output is still in its consensus data:
-        decode <C>leader_receipt.eq_outputs</C> from <C>eth_getTransactionByHash</C>, as this site&apos;s <C>/api/tx</C> does.
+      <Callout kind="note" title="Reading views">
+        Views are read with <C>gen_call</C> (genlayer-js <C>readContract</C>, or <C>lib/genlayer_read.py</C> with the standard library). Each
+        transaction&apos;s agreed output is also in its consensus data: decode <C>leader_receipt</C> from <C>eth_getTransactionByHash</C>, as{" "}
+        <C>scripts/tx_index.py</C> does.
       </Callout>
 
       <DocFooter slug="contract" />

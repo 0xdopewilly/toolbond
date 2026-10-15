@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DocFooter } from "@/components/docs/doc-footer";
 import { C, Callout, Code, DocTitle, H2, H3, Step, Steps } from "@/components/docs/prose";
-import { REPO, SITE } from "@/lib/deployments";
+import { REPO } from "@/lib/deployments";
 
 export const metadata: Metadata = { title: "Quickstart · Docs" };
 
@@ -18,8 +18,8 @@ export default function Quickstart() {
       <H2>Before you start</H2>
       <p>
         You need <a href="https://docs.astral.sh/uv/">uv</a> (it runs the guard with Python 3.10 or newer) and an MCP client such as Claude Code
-        or Cursor. The guard has no other dependencies. It reads pins from this site&apos;s relay, which serves the contract&apos;s{" "}
-        <C>get_pins</C> view.
+        or Cursor. The guard has no other dependencies. It reads the ToolBond contract&apos;s <C>get_pins</C> view straight from the chain, so you
+        do not have to trust this site.
       </p>
 
       <H2>Install the guard</H2>
@@ -32,7 +32,7 @@ export default function Quickstart() {
           <H3>Claude Code</H3>
           <Code lang="bash" title="terminal">{`
 claude mcp add weather -- uvx --from git+${REPO} \\
-    toolbond-guard https://mcp.deepwiki.com/mcp --pins-url ${SITE}/api/pins
+    toolbond-guard https://mcp.deepwiki.com/mcp
 `}</Code>
           <H3>Cursor</H3>
           <Code lang="json" title="~/.cursor/mcp.json">{`
@@ -41,15 +41,16 @@ claude mcp add weather -- uvx --from git+${REPO} \\
     "deepwiki": {
       "command": "uvx",
       "args": ["--from", "git+${REPO}", "toolbond-guard",
-               "https://mcp.deepwiki.com/mcp", "--pins-url", "${SITE}/api/pins"]
+               "https://mcp.deepwiki.com/mcp"]
     }
   }
 }
 `}</Code>
         </Step>
         <Step title="Ask your agent what is allowed">
-          The guard adds one tool of its own, <C>toolbond_status</C>. Ask your agent to call it: you get every upstream tool with its pinned and
-          live hash, and the reason it is allowed or blocked.
+          The guard adds one tool of its own, <C>toolbond_status</C>. Ask your agent to call it: you get where the approval came from (a
+          contract read, by default), the server&apos;s assurance, and every upstream tool with its pinned and live hash and the reason it is
+          allowed or blocked.
         </Step>
       </Steps>
 

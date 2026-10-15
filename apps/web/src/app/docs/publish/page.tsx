@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DocFooter } from "@/components/docs/doc-footer";
-import { C, Callout, DocTitle, H2, Step, Steps, Table } from "@/components/docs/prose";
+import { C, Code, Callout, DocTitle, H2, Step, Steps, Table } from "@/components/docs/prose";
 
 export const metadata: Metadata = { title: "Publish a server · Docs" };
 
@@ -23,8 +23,21 @@ export default function Publish() {
         ]}
       />
       <p>
-        Guards allow both tiers by default; <C>--bonded-only</C> allows only bonded servers. A bonded registration replaces a sponsored review of the
+        Guards allow both tiers by default; <C>--bonded-only</C> allows only servers whose bond meets the 10 GEN minimum right now. A drift
+        settlement can take a bond below it: the server then reads <strong>under-collateralized</strong>, and you restore it with{" "}
+        <C>top_up</C> (the server page offers the exact amount) before you can re-pin. A bonded registration replaces a sponsored review of the
         same URL, as long as no challenge is open on it.
+      </p>
+
+      <H2>Prove you operate the server</H2>
+      <p>
+        Registering a URL does not make you its owner in anyone&apos;s eyes. To show that you run it, add this line to your server&apos;s MCP{" "}
+        <C>instructions</C> (the text returned by <C>initialize</C>) before you pin:
+      </p>
+      <Code lang="text" title="server instructions">{`toolbond-owner:0x<the address you register with>`}</Code>
+      <p>
+        Validators fetch the instructions when they pin, so the proof is part of the hashed manifest. The registry then shows{" "}
+        <strong>owner verified</strong>, and guards running <C>--owner-verified-only</C> accept the server.
       </p>
 
       <H2>Publish with the wizard</H2>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { DocFooter } from "@/components/docs/doc-footer";
 import { C, DocTitle, H2, Table } from "@/components/docs/prose";
 import { EXPLORER } from "@/lib/chain";
-import { PINNEDFETCH_ADDRESS, PINNEDFETCH_V1_ADDRESS, TOOLBOND_ADDRESS, TOOLBOND_V1_ADDRESS } from "@/lib/deployments";
+import { PINNEDFETCH_ADDRESS, PINNEDFETCH_V1_ADDRESS, TOOLBOND_ADDRESS, TOOLBOND_V1_ADDRESS, TOOLBOND_V2_ADDRESS } from "@/lib/deployments";
 
 export const metadata: Metadata = { title: "FAQ · Docs" };
 
@@ -24,10 +24,10 @@ export default function Faq() {
         testnets (Asimov, Bradbury); a port to Bradbury is planned. Studio Next can be reset, so every deployment is recorded with its transactions.
       </p>
       <Table
-        head={["Contract", "Live (v2)", "First version (v1)"]}
+        head={["Contract", "Live", "Earlier versions"]}
         rows={[
-          ["ToolBond", addr(TOOLBOND_ADDRESS), addr(TOOLBOND_V1_ADDRESS)],
-          ["PinnedFetch", addr(PINNEDFETCH_ADDRESS), addr(PINNEDFETCH_V1_ADDRESS)],
+          ["ToolBond", <span key="t">{addr(TOOLBOND_ADDRESS)} (v3)</span>, <span key="o">{addr(TOOLBOND_V2_ADDRESS)} (v2) · {addr(TOOLBOND_V1_ADDRESS)} (v1)</span>],
+          ["PinnedFetch", <span key="p">{addr(PINNEDFETCH_ADDRESS)} (v2)</span>, <span key="q">{addr(PINNEDFETCH_V1_ADDRESS)} (v1)</span>],
         ]}
       />
 
@@ -49,10 +49,18 @@ export default function Faq() {
         ]}
       />
 
-      <H2>Why are pages showing a snapshot?</H2>
+      <H2>Is what I see live contract state?</H2>
       <p>
-        Studio Next&apos;s contract reads (<C>gen_call</C>) have been failing for every contract on the network. Writes and consensus work, so the
-        site reads results from transaction data and a published snapshot, and labels it clearly.
+        Yes: pages read the contract (<C>gen_call</C>) for each request. If a read fails, a page may show a stored copy of the contract&apos;s view
+        outputs instead, with a banner saying it is not authoritative. The guard never treats such a copy as an approval unless you run it with{" "}
+        <C>--accept-snapshot-hours</C>. Transaction lists come from the chain too: <C>scripts/tx_index.py</C> rebuilds them from{" "}
+        <C>eth_getTransactionByHash</C>.
+      </p>
+
+      <H2>Does registering a server make me its owner?</H2>
+      <p>
+        No. Anyone can register any URL, so a registrant is only a registrant. A server shows <strong>owner verified</strong> when its own MCP
+        instructions contain <C>toolbond-owner:&lt;registrant address&gt;</C>, which validators read when they pin it.
       </p>
 
       <H2>Does the guard slow my agent down?</H2>

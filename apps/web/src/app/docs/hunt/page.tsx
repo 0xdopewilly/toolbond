@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DocFooter } from "@/components/docs/doc-footer";
 import { C, Callout, Code, DocTitle, H2, Step, Steps, Table } from "@/components/docs/prose";
-import { REPO, SITE, TOOLBOND_ADDRESS } from "@/lib/deployments";
+import { REPO, TOOLBOND_ADDRESS } from "@/lib/deployments";
 
 export const metadata: Metadata = { title: "Hunt for poisoned tools · Docs" };
 
@@ -45,14 +45,14 @@ export default function Hunt() {
       <Code lang="bash" title="run the patrol bot">{`
 git clone ${REPO} && cd toolbond && ./scripts/setup.sh
 echo "DEV_PRIVATE_KEY=0x<testnet key>" > .env.local
-.venv/bin/python bot/patrol.py --contract ${TOOLBOND_ADDRESS} \\
-    --pins-url ${SITE}/api/pins --servers servers.txt
+.venv/bin/python bot/patrol.py --contract ${TOOLBOND_ADDRESS} --servers servers.txt
 `}</Code>
       <Table
         head={["Option", "Default", "Meaning"]}
         rows={[
           [<C key="1">--contract</C>, "required", "ToolBond contract address"],
-          [<C key="2">--pins-url / --pins-file</C>, "", "Where to read pins (the get_pins JSON shape)"],
+          [<C key="2">--rpc</C>, "Studio Next", "Where pins are read from: the contract, through this RPC"],
+          [<C key="9">--pins-url / --pins-file</C>, "", "Opt-in alternatives to contract reads (the get_pins JSON shape)"],
           [<C key="3">--servers</C>, "keys of the pins file", "One MCP URL per line"],
           [<C key="4">--interval</C>, "600", "Seconds between rounds"],
           [<C key="5">--once</C>, "off", "Run one round and exit"],

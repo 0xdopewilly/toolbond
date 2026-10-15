@@ -5368,3 +5368,13 @@ select.input {
     animation: none;
   }
 }
+
+/* version 3: assurance and ownership labels */
+.warn-text {
+  color: var(--warn, #c98a2b);
+}
+.owner-tick {
+  color: var(--good, #3f9d6a);
+  font-size: 12px;
+  white-space: nowrap;
+}

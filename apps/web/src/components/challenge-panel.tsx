@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MIN_BOND_WEI, topUpNeeded, weiToGen } from "@/lib/assurance";
 import type { Challenge, Server } from "@/lib/types";
 import { useTxs, useWallet } from "./providers";
 
@@ -77,11 +78,14 @@ export function ChallengePanel({ server, challenges }: { server: Server; challen
         : "";
 
   // maintenance actions, each shown only when the contract would accept it from this wallet
+  const shortfall = topUpNeeded(server); // version 3: re-pinning a BONDED server needs the full minimum
   const repin =
     noOpen &&
+    shortfall === 0n &&
     (server.status === "PENDING_SNAPSHOT" ||
       (server.status === "STALE" && (server.tier === "REVIEWED" || isPublisher)) ||
       (server.status === "ACTIVE" && isPublisher));
+  const canTopUp = isPublisher && server.tier === "BONDED" && ["PENDING_SNAPSHOT", "PENDING_REVIEW", "ACTIVE", "STALE"].includes(server.status);
   const canExit =
     isPublisher && ["PENDING_SNAPSHOT", "PENDING_REVIEW", "ACTIVE", "STALE"].includes(server.status) && (server.tier === "BONDED" || noOpen);
 
@@ -206,6 +210,16 @@ export function ChallengePanel({ server, challenges }: { server: Server; challen
                 Ask validators to re-check
               </button>
             )}
+            {canTopUp && shortfall > 0n && (
+              <button
+                type="button"
+                className="button small primary"
+                disabled={busy}
+                onClick={() => act(`Restore the bond (+${weiToGen(shortfall)} GEN)`, "top_up", [server.sid], weiToGen(shortfall))}
+              >
+                Restore the bond (+{weiToGen(shortfall)} GEN)
+              </button>
+            )}
             {repin && (
               <button type="button" className="button small" disabled={busy} onClick={() => act("Pin the manifest", "snapshot", [server.sid])}>
                 {server.status === "ACTIVE" ? "Announce an update (re-pin)" : "Pin the manifest"}
@@ -227,6 +241,13 @@ export function ChallengePanel({ server, challenges }: { server: Server; challen
               </button>
             )}
           </div>
+          {shortfall > 0n && server.status !== "SLASHED" && (
+            <p className="muted small" style={{ margin: 0 }}>
+              The bond is {weiToGen(BigInt(server.bond))} GEN, below the {weiToGen(MIN_BOND_WEI)} GEN minimum, so this server no longer counts as
+              bonded. {isPublisher ? "Restore it to re-pin; " : "Only the publisher can restore it; "}until then guards running --bonded-only block
+              it.
+            </p>
+          )}
           {server.status === "ACTIVE" && isPublisher && (
             <p className="muted small" style={{ margin: 0 }}>
               Changing your tools? Re-pin right after you deploy: the server stays out of reach of challenges until validators review the new version.
