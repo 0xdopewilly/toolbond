@@ -22,3 +22,4 @@ dist/
 build/
 *.egg-info/
 .patrol-state.json
+build-patrol.err

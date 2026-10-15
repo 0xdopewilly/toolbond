@@ -40,7 +40,7 @@ VERSION = "0.3.0"
 ALLOWED_STATUSES = ("ACTIVE", "STALE")
 STATUS_TOOL = "toolbond_status"
 DEFAULT_RPC = "https://studio-dev.genlayer.com/api"
-DEFAULT_CONTRACT = os.environ.get("TOOLBOND_CONTRACT", "") or "0x0000000000000000000000000000000000000000"
+DEFAULT_CONTRACT = os.environ.get("TOOLBOND_CONTRACT", "") or "0x7c0be3E1a8249DBF52aA4c4C34BC2044D18f2A5b"  # ToolBond v3
 CACHE_PATH = pathlib.Path(os.environ.get("TOOLBOND_CACHE", str(pathlib.Path.home() / ".toolbond" / "pins-cache.json")))
 
 
