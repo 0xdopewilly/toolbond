@@ -1,0 +1,25 @@
+# Runs the Telegram alert job every 10 minutes (Vercel's free plan allows only daily cron jobs).
+# It does nothing until the repository secret TOOLBOND_CRON_SECRET is set (docs/TELEGRAM.md).
+name: Telegram alerts
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run the alert job
+        env:
+          CRON_SECRET: ${{ secrets.TOOLBOND_CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "TOOLBOND_CRON_SECRET is not set: Telegram alerts are off."
+            exit 0
+          fi
+          curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://toolbond.vercel.app/api/telegram/cron

@@ -35,6 +35,7 @@ is not judged), and registering a URL does not make anyone its owner. See
 | Accounting readback | `get_accounting` after the v3 run: balance 22.7 GEN = bonded 10 + pool 5 + claimable 7.7 + staked 0, `conserved: true` |
 | Reviews | An independent review of v1 found 16 issues, fixed in v2; a steward review of v2 led to v3 (collateral, guard trust, ownership, evidence). Both are summarised in [the security model](https://toolbond.vercel.app/docs/security) |
 | Web app | https://toolbond.vercel.app: registry, publish wizard, challenges, hunters, in-browser guard check, [docs](https://toolbond.vercel.app/docs) |
+| Telegram | `@ToolBondBot`-style bot: `/check` any server, `/watch` for drift, challenge and slash alerts, `/hunt` for bounties, and the site as a Mini App. It ships switched off; [docs/TELEGRAM.md](docs/TELEGRAM.md) turns it on |
 | Demo MCP server | https://toolbond-demo-mcp.vercel.app (`/mcp/honest`, `/mcp/poisoned`, `/mcp/rugpull`, `/mcp/update` with an owner proof) |
 
 Every transaction, vote count and lesson from the live runs is in
