@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { after, before, test } from "node:test";
-import handler, { resolveMode, tools } from "../api/mcp.js";
+import handler, { handleRpc, resolveMode, tools } from "../api/mcp.js";
 
 let base;
 let server;
@@ -80,4 +80,22 @@ test("initialize, notifications, tools/call and errors", async () => {
 
 test("honest and poisoned tools differ", () => {
   assert.notDeepEqual(tools("honest"), tools("poisoned"));
+});
+
+test("update mode revises the tool harmlessly at the configured instant and proves its owner", async () => {
+  const before = "2026-10-15T11:59:59Z";
+  const params = new URLSearchParams("at=2026-10-15T12:00:00Z");
+  assert.equal(resolveMode("/mcp/update", params, {}, Date.parse(before)), "update-original");
+  assert.equal(resolveMode("/mcp/update", params, {}, Date.parse("2026-10-15T12:00:00Z")), "update-revised");
+  const original = tools("update-original")[0].description;
+  const revised = tools("update-revised")[0].description;
+  assert.notEqual(original, revised);
+  assert.ok(revised.includes("humidity") && !revised.includes("IMPORTANT"));
+  const init = handleRpc({ jsonrpc: "2.0", id: 1, method: "initialize" }, "update-revised", {});
+  assert.equal(init.result.instructions, "Demo weather tools for the ToolBond walkthrough. toolbond-owner:0xe258d2604aec1321ddd58f179001cc6a8c442930");
+  // the owner comes from server config, never from the request
+  const spoofed = handleRpc({ jsonrpc: "2.0", id: 1, method: "initialize" }, "update-original", { DEMO_OWNER: "0xABC" });
+  assert.match(spoofed.result.instructions, /toolbond-owner:0xabc$/);
+  // the other modes keep their earlier manifests (no instructions), so older pins still match
+  assert.equal(handleRpc({ jsonrpc: "2.0", id: 1, method: "initialize" }, "honest", {}).result.instructions, undefined);
 });
