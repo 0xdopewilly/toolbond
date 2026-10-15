@@ -127,7 +127,8 @@ def test_pinned_tool_is_listed_and_callable(demo, tmp_path):
 
 def test_poisoned_tool_is_hidden_and_refused(demo, tmp_path):
     pins = tmp_path / "pins.json"
-    pins.write_text(json.dumps(pins_for(demo + "/mcp/honest")))  # pinned honest bytes, server now poisoned
+    # honest bytes pinned for this URL, but the server now serves the poisoned tool
+    pins.write_text(json.dumps(dict(pins_for(demo + "/mcp/honest"), url=demo + "/mcp/poisoned")))
     session = Session(demo + "/mcp/poisoned", str(pins), tmp=tmp_path)
     try:
         assert names(session.request("tools/list")) == ["toolbond_status"]
@@ -135,7 +136,8 @@ def test_poisoned_tool_is_hidden_and_refused(demo, tmp_path):
         assert reply["result"]["isError"] is True
         assert "changed since it was pinned" in reply["result"]["content"][0]["text"]
         status = json.loads(session.request("tools/call", {"name": "toolbond_status"})["result"]["content"][0]["text"])
-        assert status["tools"][0]["allowed"] is False and status["pins_from"] == "file"
+        assert status["tools"][0]["allowed"] is False and status["pins_from"] == "operator-file"
+        assert status["approval"]["verified"] is False
     finally:
         session.close()
 
@@ -183,15 +185,15 @@ def test_guard_forwards_the_hashed_object_and_reserves_its_status_tool():
     assert not decision["allowed"] and "reserved" in decision["why"]
 
 
-def test_old_snapshots_and_cache_entries_are_not_trusted(tmp_path, monkeypatch):
+def test_old_cache_entries_are_not_trusted(tmp_path, monkeypatch):
     monkeypatch.setattr(toolbond_guard, "CACHE_PATH", tmp_path / "cache.json")
-    source = toolbond_guard.PinSource("https://example.com/mcp", cache_ttl=60)
+    source = toolbond_guard.PinSource("https://example.com/mcp", contract="0x" + "ab" * 20, cache_minutes=1)
     source._save_cache({"known": True, "status": "ACTIVE"})
-    assert source._load_cache() == {"known": True, "status": "ACTIVE"}
+    assert source._load_cache()[0] == {"known": True, "status": "ACTIVE"}
     data = json.loads((tmp_path / "cache.json").read_text())
     data["https://example.com/mcp"]["saved_at"] -= 3600
     (tmp_path / "cache.json").write_text(json.dumps(data))
     assert source._load_cache() is None
     (tmp_path / "cache.json").write_text(json.dumps({"https://example.com/mcp": {"known": True}}))  # pre-0.2 format
     assert source._load_cache() is None
-    assert toolbond_guard._iso_seconds("2026-10-14T08:00:00Z") > 1.7e9
+    assert toolbond_guard._iso_seconds("2026-10-14T08:00:00Z") == 1791964800.0

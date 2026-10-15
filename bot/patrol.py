@@ -25,8 +25,9 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "lib"))
 
+import genlayer_read  # noqa: E402
 import gl_mcp  # noqa: E402
-from toolbond_guard import http_post  # noqa: E402
+from toolbond_guard import DEFAULT_RPC, http_post  # noqa: E402
 
 DRIFT_STAKE_GEN = "0.5"
 WATCHED_STATUSES = ("ACTIVE", "STALE")
@@ -221,8 +222,19 @@ class Patrol:
             self._save_state()
 
 
-def pins_loader(pins_url: str, pins_file: str):
+def pins_loader(pins_url: str, pins_file: str, contract: str = "", rpc: str = DEFAULT_RPC):
+    """Pins from the contract itself (default), a relay, or a file. The bot only ever spends its
+    own stake on what it reads, and validators re-check every claim, but it still prefers the
+    contract so it never chases a relay's stale view."""
+
     def load(url: str):
+        if contract and not pins_url and not pins_file:
+            try:
+                raw = genlayer_read.read_view(rpc, contract, "get_pins", [url])
+                return json.loads(raw) if isinstance(raw, str) else raw
+            except Exception as error:
+                emit("pins_unavailable", url=url, error=str(error)[:160])
+                return None
         if pins_url:
             try:
                 query = urllib.parse.urlencode({"url": url})
@@ -241,7 +253,8 @@ def pins_loader(pins_url: str, pins_file: str):
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="toolbond-patrol")
     parser.add_argument("--contract", required=True, help="ToolBond contract address")
-    parser.add_argument("--pins-url", default="", help="endpoint returning get_pins JSON for ?url=")
+    parser.add_argument("--rpc", default=DEFAULT_RPC, help="GenLayer JSON-RPC for contract reads (the default source)")
+    parser.add_argument("--pins-url", default="", help="opt-in relay returning get_pins JSON for ?url=")
     parser.add_argument("--pins-file", default="", help="{server_url: get_pins} JSON")
     parser.add_argument("--servers", default="", help="file with one server URL per line (default: keys of --pins-file)")
     parser.add_argument("--interval", type=float, default=600, help="seconds between rounds")
@@ -257,7 +270,7 @@ def main(argv=None) -> int:
         urls = list(json.loads(pathlib.Path(args.pins_file).read_text(encoding="utf-8")).keys())
     else:
         parser.error("give --servers or --pins-file")
-    patrol = Patrol(TxRunner(args.contract, args.dry_run), pins_loader(args.pins_url, args.pins_file), pathlib.Path(args.state),
+    patrol = Patrol(TxRunner(args.contract, args.dry_run), pins_loader(args.pins_url, args.pins_file, args.contract, args.rpc), pathlib.Path(args.state),
                     attest_hours=args.attest_hours)
     while True:
         for url in urls:

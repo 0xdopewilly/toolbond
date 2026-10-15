@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toolbond-guard"
-version = "0.1.0"
+version = "0.3.0"
 description = "MCP stdio proxy that only exposes tools whose exact bytes are pinned on ToolBond (GenLayer)."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,4 +15,4 @@ toolbond-guard = "toolbond_guard:main"
 
 [tool.setuptools]
 package-dir = { "" = "lib" }
-py-modules = ["gl_mcp", "toolbond_guard"]
+py-modules = ["genlayer_read", "gl_mcp", "toolbond_guard"]
