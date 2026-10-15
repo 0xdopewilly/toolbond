@@ -1,6 +1,16 @@
 {
   "rewrites": [
-    { "source": "/mcp", "destination": "/api/mcp" },
-    { "source": "/mcp/:mode", "destination": "/api/mcp?mode=:mode" }
+    {
+      "source": "/skills/:name/SKILL.md",
+      "destination": "/api/skill?name=:name"
+    },
+    {
+      "source": "/mcp",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/mcp/:mode",
+      "destination": "/api/mcp?mode=:mode"
+    }
   ]
 }
