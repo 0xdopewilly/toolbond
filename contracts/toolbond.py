@@ -17,6 +17,14 @@ Consensus design, in one line per decision:
   sees them itself; UNREACHABLE is a safe harbour;
 - judge: agree on the verdict word only; UNCLEAR is a safe harbour; POISONED must quote
   text that code finds in the tool; hard red flags make SAFE impossible.
+
+Version 3 invariants:
+- collateral: a BONDED server advertises BONDED assurance only while its bond is at least
+  MIN_BOND; below it the assurance reads UNDERCOLLATERALIZED, and the publisher must top_up
+  before re-pinning or returning to ACTIVE;
+- conservation: balance == bonded + pool + claimable_total + staked, readable in get_accounting;
+- ownership: a registrant is only a registrant; owner_verified is true when the pinned server
+  instructions carry "toolbond-owner:<publisher address>", which validators fetched themselves.
 The interface is documented in docs/CONTRACT_API.md.
 """
 
@@ -717,6 +725,7 @@ def dumps(value) -> str:
 
 ERR_EXPECTED = "[EXPECTED]"
 
+CONTRACT_VERSION = "3"
 GEN = 10**18
 MIN_BOND = 10 * GEN
 REVIEW_FEE = GEN // 5
@@ -739,6 +748,8 @@ INSTRUCTIONS_KEY = "__instructions__"
 
 TIER_BONDED = "BONDED"
 TIER_REVIEWED = "REVIEWED"
+ASSURANCE_UNDERCOLLATERALIZED = "UNDERCOLLATERALIZED"
+OWNER_TAG = "toolbond-owner:"
 
 ST_PENDING_SNAPSHOT = "PENDING_SNAPSHOT"
 ST_PENDING_REVIEW = "PENDING_REVIEW"
@@ -875,6 +886,17 @@ def _is_address(text: str) -> bool:
     if len(text) != 42 or not text.startswith("0x"):
         return False
     return all(ch in "0123456789abcdef" for ch in text[2:])
+
+
+def _owner_claim(instructions: str) -> str:
+    """The address a server names as its ToolBond owner in its own instructions ("" when none).
+    The instructions are part of the pinned root, so this is text every validator fetched."""
+    text = str(instructions).lower()
+    index = text.find(OWNER_TAG)
+    if index < 0:
+        return ""
+    candidate = text[index + len(OWNER_TAG):].strip()[:42]
+    return candidate if _is_address(candidate) else ""
 
 
 def _dumps(value) -> str:
@@ -1121,6 +1143,7 @@ class Server:
     last_verified_at: str
     exit_at: gl.u64
     drift_root: str  # live root of the last drift a settled challenge penalised ("" when none)
+    owner_verified: bool  # the pinned instructions name the publisher as owner (OWNER_TAG)
 
 
 @allow_storage
@@ -1159,6 +1182,8 @@ class ToolBond(gl.contract.Contract):
     claimable: gl.storage.TreeMap[str, gl.u256]
     pool: gl.u256
     bonded: gl.u256
+    claimable_total: gl.u256  # sum of every claimable balance
+    staked: gl.u256  # stakes held by open challenges
     next_challenge: gl.u64
     pins_total: gl.u64
     checks_total: gl.u64
@@ -1169,6 +1194,8 @@ class ToolBond(gl.contract.Contract):
         self.treasury = candidate if _is_address(candidate) else _sender()
         self.pool = 0
         self.bonded = 0
+        self.claimable_total = 0
+        self.staked = 0
         self.next_challenge = 1
         self.pins_total = 0
         self.checks_total = 0
@@ -1225,8 +1252,31 @@ class ToolBond(gl.contract.Contract):
         )
         self.challenge_ids.append(cid)
         self.open_by_target[target] = cid
+        self.staked = int(self.staked) + required
         server.open_challenges = int(server.open_challenges) + 1
         return {"ok": True, "cid": cid}
+
+    @gl.public.write.payable
+    def top_up(self, sid: str) -> typing.Any:
+        """The publisher adds GEN to a BONDED server's bond, for example to restore the minimum
+        after a drift settlement. Never raises: bad requests are refunded."""
+        sender, value = _sender(), int(gl.message.value)
+        sid = str(sid).strip()
+        if sid not in self.servers:
+            return self._refuse(sender, value, "unknown server")
+        server = self.servers[sid]
+        if server.tier != TIER_BONDED:
+            return self._refuse(sender, value, "only BONDED servers hold a bond")
+        if sender != server.publisher:
+            return self._refuse(sender, value, "only the publisher can top up the bond")
+        if server.status not in (ST_PENDING_SNAPSHOT, ST_PENDING_REVIEW, ST_ACTIVE, ST_STALE):
+            return self._refuse(sender, value, "cannot top up while " + server.status)
+        if value <= 0:
+            return self._refuse(sender, value, "send the amount to add")
+        server.bond = int(server.bond) + value
+        self.bonded = int(self.bonded) + value
+        server.updated_at = _now()
+        return {"ok": True, "bond": str(int(server.bond)), "assurance": self._assurance(server)}
 
     # ------------------------------------------------------------------- pin and review
 
@@ -1242,6 +1292,9 @@ class ToolBond(gl.contract.Contract):
                 _fail("a challenge is open")
         elif server.status not in (ST_PENDING_SNAPSHOT, ST_PENDING_REVIEW):
             _fail("cannot snapshot a server while " + server.status)
+        if server.tier == TIER_BONDED and int(server.bond) < MIN_BOND:
+            # a drained bond cannot be re-pinned back into BONDED assurance
+            _fail("bond is below the minimum of " + str(MIN_BOND) + " wei: top_up first")
         url, host = str(server.url), _host(str(server.url))
 
         def leader_fn() -> dict:
@@ -1270,6 +1323,7 @@ class ToolBond(gl.contract.Contract):
         server.reviewed_upto = 0
         server.contested = False
         server.drift_root = ""
+        server.owner_verified = _owner_claim(server.instructions) == server.publisher
         server.status = ST_PENDING_REVIEW
         server.updated_at = _now()
         self.pins_total = int(self.pins_total) + 1
@@ -1280,6 +1334,8 @@ class ToolBond(gl.contract.Contract):
         server = self._server(sid)
         if server.status != ST_PENDING_REVIEW:
             _fail("review needs a fresh snapshot (status is " + server.status + ")")
+        if server.tier == TIER_BONDED and int(server.bond) < MIN_BOND:
+            _fail("bond is below the minimum of " + str(MIN_BOND) + " wei: top_up first")
         tools = json.loads(server.tools_json)
         flags = json.loads(server.flags_json)
         start = int(server.reviewed_upto)
@@ -1540,6 +1596,7 @@ class ToolBond(gl.contract.Contract):
         if amount > int(self.balance):
             _fail("contract balance too low")
         self.claimable[who] = 0
+        self.claimable_total = int(self.claimable_total) - amount
         _Wallet(gl.message.sender_address).emit_transfer(value=amount)
 
     @gl.public.write
@@ -1570,12 +1627,17 @@ class ToolBond(gl.contract.Contract):
                 "url": server.url,
                 "status": server.status,
                 "tier": server.tier,
+                "assurance": self._assurance(server),
+                "bond": str(int(server.bond)),
+                "min_bond": str(MIN_BOND),
+                "owner_verified": bool(server.owner_verified),
                 "root": server.root,
                 "tools": {item["name"]: item["hash"] for item in tools},
                 "verdicts": {item["name"]: verdicts.get(item["name"], {}).get("verdict", "UNREVIEWED") for item in tools},
                 "open_challenges": int(server.open_challenges),
                 "drift_root": server.drift_root,
                 "updated_at": server.updated_at,
+                "contract_version": CONTRACT_VERSION,
             }
         )
 
@@ -1599,6 +1661,7 @@ class ToolBond(gl.contract.Contract):
             items.append(
                 {
                     "sid": sid, "url": server.url, "status": server.status, "tier": server.tier,
+                    "assurance": self._assurance(server), "owner_verified": bool(server.owner_verified),
                     "bond": str(int(server.bond)), "tools": len(tools), "root": server.root,
                     "updated_at": server.updated_at, "last_verified_at": server.last_verified_at,
                 }
@@ -1644,6 +1707,24 @@ class ToolBond(gl.contract.Contract):
         )
 
     @gl.public.view
+    def get_accounting(self) -> str:
+        """Every wei the contract holds, by purpose. conserved is the invariant
+        balance == bonded + pool + claimable_total + staked."""
+        bonded, pool = int(self.bonded), int(self.pool)
+        owed, staked = int(self.claimable_total), int(self.staked)
+        bond_sum = 0
+        for index in range(len(self.server_ids)):
+            bond_sum += int(self.servers[self.server_ids[index]].bond)
+        balance = int(self.balance)
+        return _dumps(
+            {
+                "balance": str(balance), "bonded": str(bonded), "bond_sum": str(bond_sum), "pool": str(pool),
+                "claimable_total": str(owed), "staked": str(staked), "held": str(bonded + pool + owed + staked),
+                "conserved": balance == bonded + pool + owed + staked and bonded == bond_sum,
+            }
+        )
+
+    @gl.public.view
     def get_claimable(self, address: str) -> str:
         who = str(address).strip().lower()
         return str(int(self.claimable[who])) if who in self.claimable else "0"
@@ -1657,7 +1738,7 @@ class ToolBond(gl.contract.Contract):
                 "CHALLENGE_TTL": CHALLENGE_TTL, "MAX_ATTEMPTS": MAX_ATTEMPTS, "EXIT_DELAY": EXIT_DELAY,
                 "REVIEW_BATCH": REVIEW_BATCH, "MAX_CHANGED_TOOLS": MAX_CHANGED_TOOLS,
                 "DRIFT_SAFE_REWARD_PCT": DRIFT_SAFE_REWARD_PCT, "DRIFT_UNPINNED_SLASH_PCT": DRIFT_UNPINNED_SLASH_PCT,
-                "treasury": self.treasury,
+                "OWNER_TAG": OWNER_TAG, "VERSION": CONTRACT_VERSION, "treasury": self.treasury,
             }
         )
 
@@ -1700,7 +1781,7 @@ class ToolBond(gl.contract.Contract):
             bond=bond, root="", protocol="", instructions="", instructions_hash="", tools_json="[]",
             flags_json="{}", verdicts_json="{}", reviewed_upto=0, open_challenges=0, slashes=0, unreachable=0,
             contested=False, last_attest="", created_at=now, updated_at=now, last_verified_at="", exit_at=0,
-            drift_root="",
+            drift_root="", owner_verified=False,
         )
         self.bonded = int(self.bonded) + bond
         return {"ok": True, "sid": sid}
@@ -1783,13 +1864,21 @@ class ToolBond(gl.contract.Contract):
         target = challenge.sid + ":" + challenge.tool
         if target in self.open_by_target:
             self.open_by_target[target] = ""
+        self.staked = int(self.staked) - int(challenge.stake)
         server.open_challenges = max(0, int(server.open_challenges) - 1)
         server.updated_at = now
+
+    def _assurance(self, server: Server) -> str:
+        """BONDED only while the bond meets the minimum; REVIEWED servers never held one."""
+        if server.tier != TIER_BONDED:
+            return str(server.tier)
+        return TIER_BONDED if int(server.bond) >= MIN_BOND else ASSURANCE_UNDERCOLLATERALIZED
 
     def _credit(self, who: str, amount: int) -> None:
         if amount > 0:
             current = int(self.claimable[who]) if who in self.claimable else 0
             self.claimable[who] = current + amount
+            self.claimable_total = int(self.claimable_total) + amount
 
     def _refuse(self, sender: str, value: int, problem: str) -> dict:
         self._credit(sender, value)
@@ -1822,6 +1911,7 @@ class ToolBond(gl.contract.Contract):
             )
         return {
             "found": True, "sid": sid, "url": server.url, "publisher": server.publisher, "tier": server.tier,
+            "assurance": self._assurance(server), "min_bond": str(MIN_BOND), "owner_verified": bool(server.owner_verified),
             "status": server.status, "purpose": server.purpose, "caps": server.caps, "bond": str(int(server.bond)),
             "root": server.root, "protocol": server.protocol, "instructions": server.instructions,
             "instructions_hash": server.instructions_hash, "instructions_verdict": verdicts.get(INSTRUCTIONS_KEY, {}),
