@@ -64,12 +64,15 @@ export function CommandPalette() {
     setQuery("");
     setActive(0);
     window.setTimeout(() => input.current?.focus(), 10);
-    if (!servers.length) {
-      fetch("/api/servers")
-        .then((r) => r.json())
-        .then((body: { servers?: { sid: string; url: string; status: string }[] }) => setServers(body.servers ?? []))
-        .catch(() => undefined);
-    }
+  }, [open]);
+
+  // Separate from the reset above: when the servers arrive mid-typing, the query must survive.
+  useEffect(() => {
+    if (!open || servers.length) return;
+    fetch("/api/servers")
+      .then((r) => r.json())
+      .then((body: { servers?: { sid: string; url: string; status: string }[] }) => setServers(body.servers ?? []))
+      .catch(() => undefined);
   }, [open, servers.length]);
 
   const close = useCallback(() => setOpen(false), []);
