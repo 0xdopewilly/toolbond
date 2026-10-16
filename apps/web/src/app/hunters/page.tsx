@@ -4,6 +4,7 @@ import { CopyButton } from "@/components/copy-button";
 import { CountUp, Reveal } from "@/components/motion";
 import { DataNotice } from "@/components/ui";
 import { loadRegistry } from "@/lib/data";
+import { TOOLBOND_ADDRESS } from "@/lib/deployments";
 import { EXPLORER, gen, shortAddress } from "@/lib/format";
 import { displayName } from "@/lib/names";
 
@@ -41,8 +42,7 @@ function Identicon({ address }: { address: string }) {
 
 const PATROL =
   "git clone https://github.com/0xdopewilly/toolbond && cd toolbond && ./scripts/setup.sh\n" +
-  ".venv/bin/python bot/patrol.py --contract 0x299Cf258f16ACd91A80ACa23fA39695b7eF88F8A \\\n" +
-  "  --pins-url https://toolbond.vercel.app/api/pins --servers servers.txt";
+  `.venv/bin/python bot/patrol.py --contract ${TOOLBOND_ADDRESS} --servers servers.txt`;
 
 export default async function HuntersPage() {
   const registry = await loadRegistry();
