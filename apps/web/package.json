@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/telegram.test.mjs"
+    "test": "node --test test/telegram.test.mjs test/install.test.mjs"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "2.2.11",

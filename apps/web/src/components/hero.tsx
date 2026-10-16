@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallChip } from "./install-app";
 
 /** The protocol in one loop: a manifest is hashed, five validators fetch it and vote, a verdict lands. */
 export function Hero({ servers, tools }: { servers: number; tools: number }) {
@@ -30,6 +31,7 @@ export function Hero({ servers, tools }: { servers: number; tools: number }) {
           <p className="hero-meta mono">
             {servers} servers · {tools} tools pinned by validator consensus
           </p>
+          <InstallChip />
         </div>
 
         <div className="pipeline" aria-hidden="true">

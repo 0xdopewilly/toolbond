@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DOC_LIST, docHref } from "@/app/docs/nav";
 import { REPO, SITE } from "@/lib/deployments";
+import { startInstall } from "./install-app";
 import { useTheme, useWallet } from "./providers";
 
 interface Item {
@@ -101,6 +102,7 @@ export function CommandPalette() {
         run: () => (navigator.clipboard?.writeText(`${SITE}/api/pins`), close()),
       },
       { id: "a-gh", group: "Actions", title: "Open the source on GitHub", run: () => (window.open(REPO, "_blank", "noreferrer"), close()) },
+      { id: "a-install", group: "Actions", title: "Install the app", hint: "Home screen, dock or start menu", run: () => (close(), void startInstall()) },
     ],
     [go, servers, wallet, theme, close],
   );

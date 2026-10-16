@@ -5552,3 +5552,249 @@ select.input {
     padding: 8px 0;
   }
 }
+
+/* install the app: hero chip, steps sheet, /install page */
+.install-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 8px 14px;
+  border: 1px solid rgba(244, 244, 241, 0.22);
+  border-radius: 999px;
+  background: rgba(244, 244, 241, 0.06);
+  color: var(--night-ink);
+  font: 500 13px/1.2 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.install-chip:hover,
+.install-chip:active {
+  background: rgba(244, 244, 241, 0.12);
+  border-color: rgba(244, 244, 241, 0.36);
+}
+
+button.sheet-item {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.install-item strong {
+  color: var(--accent);
+}
+
+.install-sheet {
+  padding-top: 8px;
+}
+
+.install-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0 14px;
+}
+
+.install-sheet-head img {
+  flex: none;
+  border-radius: 11px;
+}
+
+.install-sheet-head h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.install-sheet-head p {
+  margin: 3px 0 0;
+  color: var(--ink-2);
+  font-size: 13.5px;
+}
+
+.install-sheet-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (min-width: 761px) {
+  .install-backdrop {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .install-sheet {
+    max-width: 480px;
+    padding: 20px 24px 22px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+  }
+
+  .install-sheet .sheet-grip {
+    display: none;
+  }
+}
+
+.install-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.install-step-n {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.install-step-n.dot {
+  width: 8px;
+  height: 8px;
+  margin: 9px 9px 0;
+  background: var(--accent);
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: -3px;
+  color: var(--accent);
+}
+
+.install-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--info);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.install-note p {
+  flex: 1 1 240px;
+  margin: 0;
+}
+
+.install-note.warn {
+  border-left-color: var(--amber);
+}
+
+.install-note.good {
+  border-left-color: var(--good);
+}
+
+.install-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.install-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 22px;
+}
+
+.install-h {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.install-panel .tab-panel {
+  padding-top: 16px;
+}
+
+.install-qr .panel-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.install-qr p {
+  margin: 0;
+}
+
+.install-qr img {
+  display: block;
+  margin: 12px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.install-perks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.install-perks > div {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.install-perks p {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  .install-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* the code is for opening the page on a phone; on a phone it is already open */
+  .install-qr {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .install-chip {
+    min-height: 44px;
+  }
+}

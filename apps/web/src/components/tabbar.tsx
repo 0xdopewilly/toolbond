@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { InstallSheetItem } from "./install-app";
 
 // Bottom tab bar for phones (CSS shows it under 760px, where the top nav hides).
 // Four destinations plus a "More" sheet, the way native apps keep a thumb's reach.
@@ -55,6 +56,7 @@ export function TabBar() {
         <div className="sheet-backdrop" onClick={() => setOpen(false)}>
           <div className="sheet" role="dialog" aria-label="More" onClick={(event) => event.stopPropagation()}>
             <span className="sheet-grip" aria-hidden="true" />
+            <InstallSheetItem onBeforeOpen={() => setOpen(false)} />
             {MORE.map((item) =>
               item.external ? (
                 <a key={item.href} href={item.href} target="_blank" rel="noreferrer" className="sheet-item">
